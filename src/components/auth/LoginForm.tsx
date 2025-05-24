@@ -54,7 +54,7 @@ export const LoginForm = ({
               Access the Procurement & Inventory Management System
             </CardDescription>
           </CardHeader>
-          <CardContent className="bg-red-50">
+          <CardContent className="bg-slate-50">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="email" className="text-slate-700 font-medium">Official Email</Label>

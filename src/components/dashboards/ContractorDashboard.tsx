@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Layout } from '@/components/common/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,34 +11,31 @@ import { InvoiceManagement } from '@/components/contractor/InvoiceManagement';
 import { ContractorNotifications } from '@/components/contractor/ContractorNotifications';
 import { ProfileManagement } from '@/components/common/ProfileManagement';
 import { User, mockRFQs, mockBids, mockContracts, mockInvoices } from '@/data/mockData';
-
 interface ContractorDashboardProps {
   user: User;
   onLogout: () => void;
 }
-
-export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps) => {
+export const ContractorDashboard = ({
+  user,
+  onLogout
+}: ContractorDashboardProps) => {
   const [activeTab, setActiveTab] = useState('dashboard');
-
   const userBids = mockBids.filter(b => b.contractorId === user.id);
   const userContracts = mockContracts.filter(c => c.contractorId === user.id);
   const userInvoices = mockInvoices.filter(i => i.contractorId === user.id);
-
   const stats = {
     openRFQs: mockRFQs.filter(r => r.status === 'published').length,
     myBids: userBids.length,
     activeContracts: userContracts.filter(c => c.status === 'active').length,
     pendingInvoices: userInvoices.filter(i => i.status === 'pending').length
   };
-
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-6 bg-slate-300">
                   <div className="flex items-center">
                     <FileText className="h-8 w-8 text-blue-800" />
                     <div className="ml-4">
@@ -50,7 +46,7 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-6 bg-slate-300">
                   <div className="flex items-center">
                     <Upload className="h-8 w-8 text-green-600" />
                     <div className="ml-4">
@@ -61,7 +57,7 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-6 bg-slate-300">
                   <div className="flex items-center">
                     <Award className="h-8 w-8 text-slate-600" />
                     <div className="ml-4">
@@ -72,7 +68,7 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-6 bg-slate-300">
                   <div className="flex items-center">
                     <DollarSign className="h-8 w-8 text-slate-700" />
                     <div className="ml-4">
@@ -85,12 +81,12 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
+              <Card className="bg-slate-300">
+                <CardHeader className="bg-slate-300">
                   <CardTitle>Recent Activities</CardTitle>
-                  <CardDescription>Your recent bidding and contract activities</CardDescription>
+                  <CardDescription className="text-slate-950">Your recent bidding and contract activities</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="bg-slate-300">
                   <div className="space-y-4">
                     <div className="flex items-center space-x-3">
                       <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -112,12 +108,12 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
+              <Card className="bg-slate-300">
+                <CardHeader className="bg-slate-300">
                   <CardTitle>Quick Actions</CardTitle>
                   <CardDescription>Common contractor tasks</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-3 bg-slate-300">
                   <Button className="w-full justify-start" variant="outline">
                     <FileText className="h-4 w-4 mr-2" />
                     View Open RFQs
@@ -137,8 +133,7 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
                 </CardContent>
               </Card>
             </div>
-          </div>
-        );
+          </div>;
       case 'rfqs':
         return <AvailableRFQs contractorId={user.id} />;
       case 'bids':
@@ -155,23 +150,20 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
         return null;
     }
   };
-
-  return (
-    <Layout user={user} onLogout={onLogout} title="Contractor Dashboard">
+  return <Layout user={user} onLogout={onLogout} title="Contractor Dashboard">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="rfqs">RFQs</TabsTrigger>
-          <TabsTrigger value="bids">My Bids</TabsTrigger>
-          <TabsTrigger value="contracts">Contracts</TabsTrigger>
-          <TabsTrigger value="invoices">Invoices</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-6 bg-slate-300">
+          <TabsTrigger value="dashboard" className="text-slate-950 bg-slate-400 hover:bg-slate-300">Dashboard</TabsTrigger>
+          <TabsTrigger value="rfqs" className="text-slate-950 bg-slate-300 hover:bg-slate-200">RFQs</TabsTrigger>
+          <TabsTrigger value="bids" className="text-slate-950 bg-slate-300 hover:bg-slate-200">My Bids</TabsTrigger>
+          <TabsTrigger value="contracts" className="bg-slate-300 hover:bg-slate-200 text-slate-950">Contracts</TabsTrigger>
+          <TabsTrigger value="invoices" className="bg-slate-300 hover:bg-slate-200 text-slate-950">Invoices</TabsTrigger>
+          <TabsTrigger value="notifications" className="text-slate-950 bg-slate-300 hover:bg-slate-200">Notifications</TabsTrigger>
           <TabsTrigger value="profile">Profile</TabsTrigger>
         </TabsList>
         <TabsContent value={activeTab} className="mt-6">
           {renderContent()}
         </TabsContent>
       </Tabs>
-    </Layout>
-  );
+    </Layout>;
 };

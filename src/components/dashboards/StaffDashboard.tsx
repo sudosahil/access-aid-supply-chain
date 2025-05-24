@@ -35,7 +35,7 @@ export const StaffDashboard = ({
         return <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-6 bg-slate-300">
                   <div className="flex items-center">
                     <FileText className="h-8 w-8 text-blue-600" />
                     <div className="ml-4">
@@ -46,7 +46,7 @@ export const StaffDashboard = ({
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-6 bg-slate-300">
                   <div className="flex items-center">
                     <FileCheck className="h-8 w-8 text-green-600" />
                     <div className="ml-4">
@@ -57,7 +57,7 @@ export const StaffDashboard = ({
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-6 bg-slate-300">
                   <div className="flex items-center">
                     <ShoppingCart className="h-8 w-8 text-purple-600" />
                     <div className="ml-4">
@@ -68,7 +68,7 @@ export const StaffDashboard = ({
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-6 bg-slate-300">
                   <div className="flex items-center">
                     <Package className="h-8 w-8 text-red-600" />
                     <div className="ml-4">
@@ -81,12 +81,12 @@ export const StaffDashboard = ({
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
+              <Card className="bg-slate-300">
                 <CardHeader>
                   <CardTitle>Recent Activities</CardTitle>
-                  <CardDescription>Your recent procurement activities</CardDescription>
+                  <CardDescription className="text-slate-950">Your recent procurement activities</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="bg-slate-300">
                   <div className="space-y-4">
                     <div className="flex items-center space-x-3">
                       <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -108,12 +108,12 @@ export const StaffDashboard = ({
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
+              <Card className="bg-slate-300">
+                <CardHeader className="bg-slate-300">
                   <CardTitle>Quick Actions</CardTitle>
                   <CardDescription>Common procurement tasks</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-3 bg-slate-300">
                   <Button className="w-full justify-start" variant="outline">
                     <FileText className="h-4 w-4 mr-2" />
                     Create New RFQ

@@ -87,7 +87,7 @@ export const AdminReports = () => {
             </div>
           </div>
           <div className="flex space-x-2">
-            <Button onClick={() => handleExportReport('Procurement')}>
+            <Button onClick={() => handleExportReport('Procurement')} className="text-gray-950">
               <Download className="h-4 w-4 mr-2" />
               Generate Report
             </Button>

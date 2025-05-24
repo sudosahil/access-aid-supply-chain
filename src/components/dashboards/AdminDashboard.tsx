@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Layout } from '@/components/common/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,27 +10,25 @@ import { SystemConfig } from '@/components/admin/SystemConfig';
 import { AdminReports } from '@/components/admin/AdminReports';
 import { ProfileManagement } from '@/components/common/ProfileManagement';
 import { User, mockUsers, mockSuppliers, mockInventoryItems, mockRFQs } from '@/data/mockData';
-
 interface AdminDashboardProps {
   user: User;
   onLogout: () => void;
 }
-
-export const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
+export const AdminDashboard = ({
+  user,
+  onLogout
+}: AdminDashboardProps) => {
   const [activeTab, setActiveTab] = useState('dashboard');
-
   const stats = {
     totalUsers: mockUsers.length,
     activeSuppliers: mockSuppliers.filter(s => s.status === 'approved').length,
     lowStockItems: mockInventoryItems.filter(i => i.currentStock <= i.reorderLevel).length,
     openRFQs: mockRFQs.filter(r => r.status === 'published').length
   };
-
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
                 <CardContent className="p-6">
@@ -132,8 +129,7 @@ export const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
                 </CardContent>
               </Card>
             </div>
-          </div>
-        );
+          </div>;
       case 'users':
         return <UserManagement />;
       case 'suppliers':
@@ -148,22 +144,19 @@ export const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
         return null;
     }
   };
-
-  return (
-    <Layout user={user} onLogout={onLogout} title="Administrator Dashboard">
+  return <Layout user={user} onLogout={onLogout} title="Administrator Dashboard">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="suppliers">Suppliers</TabsTrigger>
-          <TabsTrigger value="config">Config</TabsTrigger>
-          <TabsTrigger value="reports">Reports</TabsTrigger>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="dashboard" className="text-slate-950">Dashboard</TabsTrigger>
+          <TabsTrigger value="users" className="text-slate-950">Users</TabsTrigger>
+          <TabsTrigger value="suppliers" className="text-slate-950">Suppliers</TabsTrigger>
+          <TabsTrigger value="config" className="text-slate-950">Config</TabsTrigger>
+          <TabsTrigger value="reports" className="text-slate-950">Reports</TabsTrigger>
+          <TabsTrigger value="profile" className="text-gray-950">Profile</TabsTrigger>
         </TabsList>
         <TabsContent value={activeTab} className="mt-6">
           {renderContent()}
         </TabsContent>
       </Tabs>
-    </Layout>
-  );
+    </Layout>;
 };

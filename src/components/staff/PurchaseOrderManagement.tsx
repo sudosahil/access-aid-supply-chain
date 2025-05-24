@@ -81,11 +81,11 @@ export const PurchaseOrderManagement = () => {
                     <div className="flex space-x-2">
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="bg-zinc-300 hover:bg-zinc-200 text-slate-950">
                             <Eye className="h-4 w-4" />
                           </Button>
                         </DialogTrigger>
-                        <DialogContent>
+                        <DialogContent className="bg-slate-300">
                           <DialogHeader>
                             <DialogTitle>Purchase Order Details</DialogTitle>
                             <DialogDescription>Review purchase order information</DialogDescription>

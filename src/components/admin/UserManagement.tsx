@@ -79,7 +79,7 @@ export const UserManagement = () => {
   };
   return <div className="space-y-6">
       <Card>
-        <CardHeader>
+        <CardHeader className="bg-slate-300">
           <div className="flex justify-between items-center">
             <div>
               <CardTitle>User Management</CardTitle>
@@ -162,7 +162,7 @@ export const UserManagement = () => {
             </Dialog>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="bg-slate-300">
           <div className="flex items-center space-x-2 mb-4">
             <Search className="h-4 w-4 text-gray-400" />
             <Input placeholder="Search users..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="max-w-sm" />

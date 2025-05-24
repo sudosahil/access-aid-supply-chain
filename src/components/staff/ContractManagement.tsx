@@ -76,7 +76,7 @@ export const ContractManagement = () => {
                   <TableCell>{new Date(contract.endDate).toLocaleDateString()}</TableCell>
                   <TableCell>
                     <Badge className={getStatusColor(contract.status)}>
-                      {contract.status.charAt(0).toUpper() + contract.status.slice(1)}
+                      {contract.status.charAt(0).toUpperCase() + contract.status.slice(1)}
                     </Badge>
                   </TableCell>
                   <TableCell>

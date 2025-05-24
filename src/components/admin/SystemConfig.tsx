@@ -64,7 +64,7 @@ export const SystemConfig = () => {
           <Card>
             <CardHeader className="bg-slate-300">
               <CardTitle>Inventory Categories</CardTitle>
-              <CardDescription>Manage inventory categories and their descriptions</CardDescription>
+              <CardDescription className="text-base text-slate-950">Manage inventory categories and their descriptions</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 bg-slate-300">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg">
@@ -73,17 +73,17 @@ export const SystemConfig = () => {
                   <Input id="categoryName" value={newCategory.name} onChange={e => setNewCategory({
                   ...newCategory,
                   name: e.target.value
-                })} placeholder="e.g., Mobility Equipment" />
+                })} placeholder="e.g., Mobility Equipment" className="bg-slate-400" />
                 </div>
                 <div>
                   <Label htmlFor="categoryDescription">Description</Label>
                   <Textarea id="categoryDescription" value={newCategory.description} onChange={e => setNewCategory({
                   ...newCategory,
                   description: e.target.value
-                })} placeholder="Category description..." rows={3} />
+                })} placeholder="Category description..." rows={3} className="bg-slate-400" />
                 </div>
                 <div className="md:col-span-2">
-                  <Button onClick={handleAddCategory}>Add Category</Button>
+                  <Button onClick={handleAddCategory} className="text-zinc-950">Add Category</Button>
                 </div>
               </div>
 

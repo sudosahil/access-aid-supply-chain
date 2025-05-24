@@ -31,7 +31,7 @@ export const AdminDashboard = ({
         return <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-6 bg-slate-300">
                   <div className="flex items-center">
                     <Users className="h-8 w-8 text-blue-800" />
                     <div className="ml-4">
@@ -42,7 +42,7 @@ export const AdminDashboard = ({
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-6 bg-slate-300">
                   <div className="flex items-center">
                     <Package className="h-8 w-8 text-green-600" />
                     <div className="ml-4">
@@ -53,7 +53,7 @@ export const AdminDashboard = ({
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-6 bg-slate-300">
                   <div className="flex items-center">
                     <AlertTriangle className="h-8 w-8 text-slate-600" />
                     <div className="ml-4">
@@ -64,7 +64,7 @@ export const AdminDashboard = ({
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-6 bg-slate-300">
                   <div className="flex items-center">
                     <FileText className="h-8 w-8 text-slate-700" />
                     <div className="ml-4">
@@ -77,12 +77,12 @@ export const AdminDashboard = ({
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
+              <Card className="bg-slate-300">
+                <CardHeader className="bg-slate-300">
                   <CardTitle>Recent Activities</CardTitle>
                   <CardDescription className="text-slate-950">Latest system activities and updates</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="bg-slate-300">
                   <div className="space-y-4">
                     <div className="flex items-center space-x-3">
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -105,11 +105,11 @@ export const AdminDashboard = ({
               </Card>
 
               <Card>
-                <CardHeader>
+                <CardHeader className="bg-slate-300">
                   <CardTitle>Quick Actions</CardTitle>
                   <CardDescription className="text-slate-950">Common administrative tasks</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-3 bg-slate-300">
                   <Button className="w-full justify-start" variant="outline">
                     <Users className="h-4 w-4 mr-2" />
                     Add New User

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus, AlertTriangle, Package } from 'lucide-react';
 import { mockInventoryItems, mockInventoryCategories, mockWarehouses, InventoryItem } from '@/data/mockData';
 import { useToast } from '@/hooks/use-toast';
-
 export const InventoryManagement = () => {
   const [inventory, setInventory] = useState(mockInventoryItems);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -25,8 +23,9 @@ export const InventoryManagement = () => {
     unitPrice: '',
     warehouseId: ''
   });
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const handleAddItem = () => {
     const newItem: InventoryItem = {
       id: `i${inventory.length + 1}`,
@@ -40,33 +39,36 @@ export const InventoryManagement = () => {
       warehouseId: formData.warehouseId,
       createdAt: new Date().toISOString().split('T')[0]
     };
-
     setInventory([...inventory, newItem]);
     setIsAddDialogOpen(false);
-    setFormData({ name: '', categoryId: '', description: '', currentStock: '', reorderLevel: '', unit: '', unitPrice: '', warehouseId: '' });
+    setFormData({
+      name: '',
+      categoryId: '',
+      description: '',
+      currentStock: '',
+      reorderLevel: '',
+      unit: '',
+      unitPrice: '',
+      warehouseId: ''
+    });
     toast({
       title: "Item Added",
-      description: "New inventory item has been added successfully.",
+      description: "New inventory item has been added successfully."
     });
   };
-
   const getCategoryName = (categoryId: string) => {
     const category = mockInventoryCategories.find(c => c.id === categoryId);
     return category ? category.name : 'Unknown Category';
   };
-
   const getWarehouseName = (warehouseId: string) => {
     const warehouse = mockWarehouses.find(w => w.id === warehouseId);
     return warehouse ? warehouse.name : 'Unknown Warehouse';
   };
-
   const isLowStock = (item: InventoryItem) => item.currentStock <= item.reorderLevel;
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-6 bg-slate-300">
             <div className="flex items-center">
               <Package className="h-8 w-8 text-blue-600" />
               <div className="ml-4">
@@ -77,7 +79,7 @@ export const InventoryManagement = () => {
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-6 bg-slate-300">
             <div className="flex items-center">
               <AlertTriangle className="h-8 w-8 text-red-600" />
               <div className="ml-4">
@@ -88,13 +90,13 @@ export const InventoryManagement = () => {
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-6 bg-slate-300">
             <div className="flex items-center">
               <Package className="h-8 w-8 text-green-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Stock Value</p>
                 <p className="text-2xl font-bold">
-                  ${inventory.reduce((sum, item) => sum + (item.currentStock * item.unitPrice), 0).toLocaleString()}
+                  ${inventory.reduce((sum, item) => sum + item.currentStock * item.unitPrice, 0).toLocaleString()}
                 </p>
               </div>
             </div>
@@ -103,15 +105,15 @@ export const InventoryManagement = () => {
       </div>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="bg-slate-400">
           <div className="flex justify-between items-center">
             <div>
               <CardTitle>Inventory Management</CardTitle>
-              <CardDescription>Manage inventory items and stock levels</CardDescription>
+              <CardDescription className="text-slate-950">Manage inventory items and stock levels</CardDescription>
             </div>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button className="text-slate-950">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Item
                 </Button>
@@ -125,89 +127,79 @@ export const InventoryManagement = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="name">Item Name</Label>
-                      <Input
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        required
-                      />
+                      <Input id="name" value={formData.name} onChange={e => setFormData({
+                      ...formData,
+                      name: e.target.value
+                    })} required />
                     </div>
                     <div>
                       <Label htmlFor="category">Category</Label>
-                      <Select value={formData.categoryId} onValueChange={(value) => setFormData({ ...formData, categoryId: value })}>
+                      <Select value={formData.categoryId} onValueChange={value => setFormData({
+                      ...formData,
+                      categoryId: value
+                    })}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
-                          {mockInventoryCategories.map((category) => (
-                            <SelectItem key={category.id} value={category.id}>
+                          {mockInventoryCategories.map(category => <SelectItem key={category.id} value={category.id}>
                               {category.name}
-                            </SelectItem>
-                          ))}
+                            </SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
                   </div>
                   <div>
                     <Label htmlFor="description">Description</Label>
-                    <Input
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    />
+                    <Input id="description" value={formData.description} onChange={e => setFormData({
+                    ...formData,
+                    description: e.target.value
+                  })} />
                   </div>
                   <div className="grid grid-cols-3 gap-4">
                     <div>
                       <Label htmlFor="currentStock">Current Stock</Label>
-                      <Input
-                        id="currentStock"
-                        type="number"
-                        value={formData.currentStock}
-                        onChange={(e) => setFormData({ ...formData, currentStock: e.target.value })}
-                      />
+                      <Input id="currentStock" type="number" value={formData.currentStock} onChange={e => setFormData({
+                      ...formData,
+                      currentStock: e.target.value
+                    })} />
                     </div>
                     <div>
                       <Label htmlFor="reorderLevel">Reorder Level</Label>
-                      <Input
-                        id="reorderLevel"
-                        type="number"
-                        value={formData.reorderLevel}
-                        onChange={(e) => setFormData({ ...formData, reorderLevel: e.target.value })}
-                      />
+                      <Input id="reorderLevel" type="number" value={formData.reorderLevel} onChange={e => setFormData({
+                      ...formData,
+                      reorderLevel: e.target.value
+                    })} />
                     </div>
                     <div>
                       <Label htmlFor="unit">Unit</Label>
-                      <Input
-                        id="unit"
-                        value={formData.unit}
-                        onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                        placeholder="e.g., units, pairs"
-                      />
+                      <Input id="unit" value={formData.unit} onChange={e => setFormData({
+                      ...formData,
+                      unit: e.target.value
+                    })} placeholder="e.g., units, pairs" />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="unitPrice">Unit Price ($)</Label>
-                      <Input
-                        id="unitPrice"
-                        type="number"
-                        step="0.01"
-                        value={formData.unitPrice}
-                        onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value })}
-                      />
+                      <Input id="unitPrice" type="number" step="0.01" value={formData.unitPrice} onChange={e => setFormData({
+                      ...formData,
+                      unitPrice: e.target.value
+                    })} />
                     </div>
                     <div>
                       <Label htmlFor="warehouse">Warehouse</Label>
-                      <Select value={formData.warehouseId} onValueChange={(value) => setFormData({ ...formData, warehouseId: value })}>
+                      <Select value={formData.warehouseId} onValueChange={value => setFormData({
+                      ...formData,
+                      warehouseId: value
+                    })}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select warehouse" />
                         </SelectTrigger>
                         <SelectContent>
-                          {mockWarehouses.map((warehouse) => (
-                            <SelectItem key={warehouse.id} value={warehouse.id}>
+                          {mockWarehouses.map(warehouse => <SelectItem key={warehouse.id} value={warehouse.id}>
                               {warehouse.name}
-                            </SelectItem>
-                          ))}
+                            </SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
@@ -221,31 +213,28 @@ export const InventoryManagement = () => {
             </Dialog>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="bg-slate-300">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Current Stock</TableHead>
-                <TableHead>Reorder Level</TableHead>
-                <TableHead>Unit Price</TableHead>
-                <TableHead>Warehouse</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead className="bg-slate-950">Name</TableHead>
+                <TableHead className="bg-slate-950">Category</TableHead>
+                <TableHead className="bg-slate-950">Current Stock</TableHead>
+                <TableHead className="bg-slate-950">Reorder Level</TableHead>
+                <TableHead className="bg-slate-950">Unit Price</TableHead>
+                <TableHead className="bg-slate-950">Warehouse</TableHead>
+                <TableHead className="bg-slate-950">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {inventory.map((item) => (
-                <TableRow key={item.id}>
+              {inventory.map(item => <TableRow key={item.id}>
                   <TableCell className="font-medium">{item.name}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{getCategoryName(item.categoryId)}</Badge>
                   </TableCell>
                   <TableCell>
                     {item.currentStock} {item.unit}
-                    {isLowStock(item) && (
-                      <AlertTriangle className="h-4 w-4 text-red-500 inline ml-2" />
-                    )}
+                    {isLowStock(item) && <AlertTriangle className="h-4 w-4 text-red-500 inline ml-2" />}
                   </TableCell>
                   <TableCell>{item.reorderLevel} {item.unit}</TableCell>
                   <TableCell>${item.unitPrice.toFixed(2)}</TableCell>
@@ -255,12 +244,10 @@ export const InventoryManagement = () => {
                       {isLowStock(item) ? 'Low Stock' : 'In Stock'}
                     </Badge>
                   </TableCell>
-                </TableRow>
-              ))}
+                </TableRow>)}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 };

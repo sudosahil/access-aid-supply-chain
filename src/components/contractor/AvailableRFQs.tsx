@@ -112,7 +112,7 @@ export const AvailableRFQs = ({
                             <Eye className="h-4 w-4" />
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-2xl">
+                        <DialogContent className="max-w-2xl bg-slate-400">
                           <DialogHeader>
                             <DialogTitle>RFQ Details</DialogTitle>
                             <DialogDescription>Review RFQ requirements and details</DialogDescription>

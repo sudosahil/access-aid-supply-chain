@@ -82,7 +82,7 @@ export const SupplierManagement = () => {
               <DialogContent className="bg-slate-300">
                 <DialogHeader>
                   <DialogTitle>Add New Supplier</DialogTitle>
-                  <DialogDescription>Register a new supplier in the system</DialogDescription>
+                  <DialogDescription className="text-gray-950">Register a new supplier in the system</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -91,14 +91,14 @@ export const SupplierManagement = () => {
                       <Input id="name" value={formData.name} onChange={e => setFormData({
                       ...formData,
                       name: e.target.value
-                    })} required />
+                    })} required className="bg-slate-50" />
                     </div>
                     <div>
                       <Label htmlFor="contactPerson">Contact Person</Label>
                       <Input id="contactPerson" value={formData.contactPerson} onChange={e => setFormData({
                       ...formData,
                       contactPerson: e.target.value
-                    })} required />
+                    })} required className="bg-slate-50" />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -107,14 +107,14 @@ export const SupplierManagement = () => {
                       <Input id="email" type="email" value={formData.email} onChange={e => setFormData({
                       ...formData,
                       email: e.target.value
-                    })} required />
+                    })} required className="bg-slate-50" />
                     </div>
                     <div>
                       <Label htmlFor="phone">Phone</Label>
                       <Input id="phone" value={formData.phone} onChange={e => setFormData({
                       ...formData,
                       phone: e.target.value
-                    })} required />
+                    })} required className="bg-slate-50" />
                     </div>
                   </div>
                   <div>
@@ -122,18 +122,18 @@ export const SupplierManagement = () => {
                     <Textarea id="address" value={formData.address} onChange={e => setFormData({
                     ...formData,
                     address: e.target.value
-                  })} required />
+                  })} required className="bg-slate-50" />
                   </div>
                   <div>
                     <Label htmlFor="specializations">Specializations (comma-separated)</Label>
                     <Input id="specializations" value={formData.specializations} onChange={e => setFormData({
                     ...formData,
                     specializations: e.target.value
-                  })} placeholder="e.g., Wheelchairs, Hearing Aids, Prosthetics" />
+                  })} placeholder="e.g., Wheelchairs, Hearing Aids, Prosthetics" className="bg-slate-50" />
                   </div>
                   <div className="flex justify-end space-x-2">
                     <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
-                    <Button onClick={handleAddSupplier}>Add Supplier</Button>
+                    <Button onClick={handleAddSupplier} className="bg-slate-950 hover:bg-slate-800">Add Supplier</Button>
                   </div>
                 </div>
               </DialogContent>

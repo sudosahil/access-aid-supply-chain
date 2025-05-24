@@ -85,7 +85,7 @@ export const ProfileManagement = ({
             </div>
             <div className="flex justify-end space-x-2">
               <Button type="button" variant="outline">Cancel</Button>
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit" className="text-zinc-950">Save Changes</Button>
             </div>
           </form>
         </CardContent>

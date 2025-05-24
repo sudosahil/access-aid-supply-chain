@@ -39,11 +39,11 @@ export const ProfileManagement = ({
   };
   return <div className="max-w-2xl mx-auto space-y-6">
       <Card>
-        <CardHeader className="bg-slate-500">
+        <CardHeader className="bg-slate-300">
           <CardTitle>Profile Information</CardTitle>
-          <CardDescription>Manage your personal and contact information</CardDescription>
+          <CardDescription className="text-slate-950">Manage your personal and contact information</CardDescription>
         </CardHeader>
-        <CardContent className="bg-slate-500">
+        <CardContent className="bg-slate-300">
           <div className="flex items-center space-x-4 mb-6">
             <Avatar className="h-20 w-20">
               <AvatarImage src={user.profilePhoto} />
@@ -63,7 +63,7 @@ export const ProfileManagement = ({
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="name" className="bg-slate-400">Full Name</Label>
+                <Label htmlFor="name" className="bg-slate-300">Full Name</Label>
                 <Input id="name" value={formData.name} onChange={e => handleChange('name', e.target.value)} required className="bg-slate-300" />
               </div>
               <div>

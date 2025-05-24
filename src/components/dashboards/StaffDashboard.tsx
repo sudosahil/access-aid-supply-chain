@@ -111,7 +111,7 @@ export const StaffDashboard = ({
               <Card className="bg-slate-300">
                 <CardHeader className="bg-slate-300">
                   <CardTitle>Quick Actions</CardTitle>
-                  <CardDescription>Common procurement tasks</CardDescription>
+                  <CardDescription className="text-slate-950">Common procurement tasks</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3 bg-slate-300">
                   <Button className="w-full justify-start" variant="outline">

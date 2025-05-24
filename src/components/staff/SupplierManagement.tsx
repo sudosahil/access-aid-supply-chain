@@ -79,7 +79,7 @@ export const SupplierManagement = () => {
                   Add Supplier
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="bg-slate-300">
                 <DialogHeader>
                   <DialogTitle>Add New Supplier</DialogTitle>
                   <DialogDescription>Register a new supplier in the system</DialogDescription>

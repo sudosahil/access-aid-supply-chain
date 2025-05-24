@@ -54,7 +54,7 @@ export const ProfileManagement = ({
             <div>
               <h3 className="text-lg font-medium">{user.name}</h3>
               <p className="text-sm text-gray-600 capitalize">{user.role}</p>
-              <Button variant="outline" size="sm" className="mt-2 font-normal text-slate-500">
+              <Button variant="outline" size="sm" className="mt-2 font-normal text-slate-500 bg-slate-300 hover:bg-slate-200">
                 Change Photo
               </Button>
             </div>
@@ -64,15 +64,15 @@ export const ProfileManagement = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="name" className="bg-slate-400">Full Name</Label>
-                <Input id="name" value={formData.name} onChange={e => handleChange('name', e.target.value)} required />
+                <Input id="name" value={formData.name} onChange={e => handleChange('name', e.target.value)} required className="bg-slate-300" />
               </div>
               <div>
                 <Label htmlFor="email" className="bg-slate-300">Email Address</Label>
-                <Input id="email" type="email" value={formData.email} onChange={e => handleChange('email', e.target.value)} required />
+                <Input id="email" type="email" value={formData.email} onChange={e => handleChange('email', e.target.value)} required className="bg-slate-300" />
               </div>
               <div>
                 <Label htmlFor="phone" className="bg-slate-400">Phone Number</Label>
-                <Input id="phone" value={formData.phone} onChange={e => handleChange('phone', e.target.value)} required />
+                <Input id="phone" value={formData.phone} onChange={e => handleChange('phone', e.target.value)} required className="bg-slate-300" />
               </div>
               {user.role === 'contractor' && <div>
                   <Label htmlFor="organization">Organization</Label>
@@ -81,7 +81,7 @@ export const ProfileManagement = ({
             </div>
             <div>
               <Label htmlFor="address">Address</Label>
-              <Textarea id="address" value={formData.address} onChange={e => handleChange('address', e.target.value)} rows={3} />
+              <Textarea id="address" value={formData.address} onChange={e => handleChange('address', e.target.value)} rows={3} className="bg-slate-300" />
             </div>
             <div className="flex justify-end space-x-2">
               <Button type="button" variant="outline">Cancel</Button>

@@ -58,16 +58,16 @@ export const LoginForm = ({
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="email" className="text-slate-700 font-medium">Official Email</Label>
-                <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} className="mt-1 border-slate-300 focus:border-blue-800 focus:ring-blue-800" placeholder="your.email@odisha.gov.in" required />
+                <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your.email@odisha.gov.in" required className="mt-1 border-slate-300 focus:border-blue-800 focus:ring-blue-800 bg-slate-300" />
               </div>
-              <div>
+              <div className="bg-slate-100">
                 <Label htmlFor="password" className="text-slate-700 font-medium">Password</Label>
-                <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="mt-1 border-slate-300 focus:border-blue-800 focus:ring-blue-800" placeholder="Enter your password" required />
+                <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter your password" required className="mt-1 border-slate-300 focus:border-blue-800 focus:ring-blue-800 bg-slate-300" />
               </div>
               {error && <Alert variant="destructive" className="border-red-200 bg-red-50">
                   <AlertDescription className="text-red-700">{error}</AlertDescription>
                 </Alert>}
-              <Button type="submit" className="w-full gov-button-primary h-11 text-base font-medium">
+              <Button type="submit" className="w-full gov-button-primary h-11 text-base font-medium text-gray-950">
                 Sign In to System
               </Button>
             </form>
@@ -75,13 +75,13 @@ export const LoginForm = ({
         </Card>
 
         <Card className="gov-card">
-          <CardHeader>
+          <CardHeader className="bg-slate-50">
             <CardTitle className="text-lg text-slate-800">Demo Credentials</CardTitle>
             <CardDescription className="text-slate-600">
               Use these credentials for testing different user roles
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="bg-slate-50">
             <div className="space-y-3">
               {sampleCredentials.map((cred, index) => <div key={index} className="p-3 bg-slate-50 rounded-lg border border-slate-200">
                   <div className="flex items-center justify-between mb-1">

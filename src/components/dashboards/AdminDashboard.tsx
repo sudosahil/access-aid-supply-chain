@@ -149,7 +149,7 @@ export const AdminDashboard = ({
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="dashboard" className="text-slate-950">Dashboard</TabsTrigger>
           <TabsTrigger value="users" className="text-slate-950">Users</TabsTrigger>
-          <TabsTrigger value="suppliers" className="text-slate-950">Suppliers</TabsTrigger>
+          <TabsTrigger value="suppliers" className="text-base text-slate-950">Suppliers</TabsTrigger>
           <TabsTrigger value="config" className="text-slate-950">Config</TabsTrigger>
           <TabsTrigger value="reports" className="text-slate-950">Reports</TabsTrigger>
           <TabsTrigger value="profile" className="text-gray-950">Profile</TabsTrigger>

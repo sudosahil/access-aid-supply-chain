@@ -130,7 +130,7 @@
   }
 
   .gov-status-pending {
-    @apply bg-yellow-100 text-yellow-800 border border-yellow-200;
+    @apply bg-amber-100 text-amber-800 border border-amber-200;
   }
 
   .gov-status-inactive {

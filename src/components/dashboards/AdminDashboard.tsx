@@ -80,7 +80,7 @@ export const AdminDashboard = ({
               <Card>
                 <CardHeader>
                   <CardTitle>Recent Activities</CardTitle>
-                  <CardDescription>Latest system activities and updates</CardDescription>
+                  <CardDescription className="text-slate-950">Latest system activities and updates</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -107,7 +107,7 @@ export const AdminDashboard = ({
               <Card>
                 <CardHeader>
                   <CardTitle>Quick Actions</CardTitle>
-                  <CardDescription>Common administrative tasks</CardDescription>
+                  <CardDescription className="text-slate-950">Common administrative tasks</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <Button className="w-full justify-start" variant="outline">

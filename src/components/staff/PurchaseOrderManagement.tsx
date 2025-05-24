@@ -88,7 +88,7 @@ export const PurchaseOrderManagement = () => {
                         <DialogContent className="bg-slate-300">
                           <DialogHeader>
                             <DialogTitle>Purchase Order Details</DialogTitle>
-                            <DialogDescription>Review purchase order information</DialogDescription>
+                            <DialogDescription className="text-slate-950">Review purchase order information</DialogDescription>
                           </DialogHeader>
                           <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">

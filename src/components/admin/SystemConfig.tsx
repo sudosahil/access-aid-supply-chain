@@ -55,9 +55,9 @@ export const SystemConfig = () => {
   return <div className="space-y-6">
       <Tabs defaultValue="categories" className="w-full">
         <TabsList className="grid w-full grid-cols-3 bg-slate-300">
-          <TabsTrigger value="categories">Inventory Categories</TabsTrigger>
-          <TabsTrigger value="approval">Approval Workflows</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          <TabsTrigger value="categories" className="text-gray-950">Inventory Categories</TabsTrigger>
+          <TabsTrigger value="approval" className="text-zinc-950">Approval Workflows</TabsTrigger>
+          <TabsTrigger value="notifications" className="text-gray-950">Notifications</TabsTrigger>
         </TabsList>
 
         <TabsContent value="categories">
@@ -148,11 +148,11 @@ export const SystemConfig = () => {
 
         <TabsContent value="notifications">
           <Card>
-            <CardHeader>
+            <CardHeader className="bg-slate-300">
               <CardTitle>Notification Settings</CardTitle>
-              <CardDescription>Configure system notifications and alerts</CardDescription>
+              <CardDescription className="text-base text-gray-950">Configure system notifications and alerts</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 bg-slate-300">
               <div className="space-y-3">
                 <div className="flex items-center space-x-2">
                   <Switch checked={approvalSettings.notificationSettings.emailNotifications} onCheckedChange={checked => setApprovalSettings({
@@ -199,7 +199,7 @@ export const SystemConfig = () => {
                 </div>
               </div>
 
-              <Button onClick={handleSaveSettings}>Save Notification Settings</Button>
+              <Button onClick={handleSaveSettings} className="text-zinc-950">Save Notification Settings</Button>
             </CardContent>
           </Card>
         </TabsContent>

@@ -102,18 +102,18 @@ export const SystemConfig = () => {
         </TabsContent>
 
         <TabsContent value="approval">
-          <Card>
-            <CardHeader>
+          <Card className="bg-slate-300">
+            <CardHeader className="bg-slate-300">
               <CardTitle>Approval Workflows</CardTitle>
-              <CardDescription>Configure approval thresholds and workflows</CardDescription>
+              <CardDescription className="text-slate-950">Configure approval thresholds and workflows</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 bg-slate-300">
               <div>
-                <Label htmlFor="autoApprove">Auto-approval Amount Threshold</Label>
+                <Label htmlFor="autoApprove" className="bg-slate-300">Auto-approval Amount Threshold</Label>
                 <Input id="autoApprove" type="number" value={approvalSettings.autoApproveAmount} onChange={e => setApprovalSettings({
                 ...approvalSettings,
                 autoApproveAmount: parseInt(e.target.value)
-              })} />
+              })} className="bg-slate-400" />
                 <p className="text-sm text-gray-600 mt-1">
                   Purchase orders below this amount will be auto-approved
                 </p>
@@ -127,7 +127,7 @@ export const SystemConfig = () => {
                 <Label>Require dual approval for high-value purchases</Label>
               </div>
 
-              <div>
+              <div className="bg-slate-300">
                 <Label>RFQ Approval Workflow</Label>
                 <Select defaultValue="standard">
                   <SelectTrigger>
@@ -141,7 +141,7 @@ export const SystemConfig = () => {
                 </Select>
               </div>
 
-              <Button onClick={handleSaveSettings}>Save Approval Settings</Button>
+              <Button onClick={handleSaveSettings} className="bg-gray-950 hover:bg-gray-800">Save Approval Settings</Button>
             </CardContent>
           </Card>
         </TabsContent>

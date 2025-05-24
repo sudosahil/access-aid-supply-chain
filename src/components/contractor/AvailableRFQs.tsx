@@ -115,7 +115,7 @@ export const AvailableRFQs = ({
                         <DialogContent className="max-w-2xl bg-slate-400">
                           <DialogHeader>
                             <DialogTitle>RFQ Details</DialogTitle>
-                            <DialogDescription>Review RFQ requirements and details</DialogDescription>
+                            <DialogDescription className="text-slate-950">Review RFQ requirements and details</DialogDescription>
                           </DialogHeader>
                           <div className="space-y-4">
                             <div>

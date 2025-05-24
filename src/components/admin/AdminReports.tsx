@@ -59,7 +59,7 @@ export const AdminReports = () => {
       <Card>
         <CardHeader className="bg-slate-300">
           <CardTitle>Report Generation</CardTitle>
-          <CardDescription>Generate and export various system reports</CardDescription>
+          <CardDescription className="text-slate-950">Generate and export various system reports</CardDescription>
         </CardHeader>
         <CardContent className="bg-slate-300">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">

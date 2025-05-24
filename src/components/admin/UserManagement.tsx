@@ -190,7 +190,7 @@ export const UserManagement = () => {
                   </TableCell>
                   <TableCell>{user.phone}</TableCell>
                   <TableCell>
-                    <Badge variant={user.isActive ? "default" : "secondary"}>
+                    <Badge variant={user.isActive ? "default" : "secondary"} className="bg-slate-950">
                       {user.isActive ? 'Active' : 'Inactive'}
                     </Badge>
                   </TableCell>

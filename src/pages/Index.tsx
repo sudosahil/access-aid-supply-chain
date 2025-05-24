@@ -1,12 +1,47 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useState } from 'react';
+import { LoginForm } from '@/components/auth/LoginForm';
+import { AdminDashboard } from '@/components/dashboards/AdminDashboard';
+import { StaffDashboard } from '@/components/dashboards/StaffDashboard';
+import { ContractorDashboard } from '@/components/dashboards/ContractorDashboard';
+import { mockUsers } from '@/data/mockData';
 
 const Index = () => {
+  const [currentUser, setCurrentUser] = useState(null);
+
+  const handleLogin = (email: string, password: string) => {
+    const user = mockUsers.find(u => u.email === email && u.password === password);
+    if (user) {
+      setCurrentUser(user);
+      return true;
+    }
+    return false;
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+  };
+
+  if (!currentUser) {
+    return <LoginForm onLogin={handleLogin} />;
+  }
+
+  const renderDashboard = () => {
+    switch (currentUser.role) {
+      case 'admin':
+        return <AdminDashboard user={currentUser} onLogout={handleLogout} />;
+      case 'staff':
+        return <StaffDashboard user={currentUser} onLogout={handleLogout} />;
+      case 'contractor':
+        return <ContractorDashboard user={currentUser} onLogout={handleLogout} />;
+      default:
+        return <div>Invalid role</div>;
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      {renderDashboard()}
     </div>
   );
 };

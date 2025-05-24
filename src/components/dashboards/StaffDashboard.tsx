@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Layout } from '@/components/common/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,27 +14,25 @@ import { AssetDistribution } from '@/components/staff/AssetDistribution';
 import { StaffReports } from '@/components/staff/StaffReports';
 import { ProfileManagement } from '@/components/common/ProfileManagement';
 import { User, mockRFQs, mockBids, mockPurchaseOrders, mockInventoryItems } from '@/data/mockData';
-
 interface StaffDashboardProps {
   user: User;
   onLogout: () => void;
 }
-
-export const StaffDashboard = ({ user, onLogout }: StaffDashboardProps) => {
+export const StaffDashboard = ({
+  user,
+  onLogout
+}: StaffDashboardProps) => {
   const [activeTab, setActiveTab] = useState('dashboard');
-
   const stats = {
     activeRFQs: mockRFQs.filter(r => r.status === 'published').length,
     pendingBids: mockBids.filter(b => b.status === 'submitted').length,
     activePOs: mockPurchaseOrders.filter(p => p.status === 'approved').length,
     lowStockItems: mockInventoryItems.filter(i => i.currentStock <= i.reorderLevel).length
   };
-
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
                 <CardContent className="p-6">
@@ -136,8 +133,7 @@ export const StaffDashboard = ({ user, onLogout }: StaffDashboardProps) => {
                 </CardContent>
               </Card>
             </div>
-          </div>
-        );
+          </div>;
       case 'suppliers':
         return <SupplierManagement />;
       case 'rfqs':
@@ -160,26 +156,23 @@ export const StaffDashboard = ({ user, onLogout }: StaffDashboardProps) => {
         return null;
     }
   };
-
-  return (
-    <Layout user={user} onLogout={onLogout} title="Staff Dashboard">
+  return <Layout user={user} onLogout={onLogout} title="Staff Dashboard">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-5 lg:grid-cols-10">
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="suppliers">Suppliers</TabsTrigger>
-          <TabsTrigger value="rfqs">RFQs</TabsTrigger>
-          <TabsTrigger value="bids">Bids</TabsTrigger>
-          <TabsTrigger value="pos">POs</TabsTrigger>
-          <TabsTrigger value="contracts">Contracts</TabsTrigger>
-          <TabsTrigger value="inventory">Inventory</TabsTrigger>
-          <TabsTrigger value="distribution">Distribution</TabsTrigger>
-          <TabsTrigger value="reports">Reports</TabsTrigger>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="dashboard" className="text-slate-950 bg-slate-400 hover:bg-slate-300">Dashboard</TabsTrigger>
+          <TabsTrigger value="suppliers" className="text-slate-950 bg-slate-400 hover:bg-slate-300">Suppliers</TabsTrigger>
+          <TabsTrigger value="rfqs" className="bg-slate-400 hover:bg-slate-300 text-slate-950">RFQs</TabsTrigger>
+          <TabsTrigger value="bids" className="bg-slate-400 hover:bg-slate-300 text-slate-950">Bids</TabsTrigger>
+          <TabsTrigger value="pos" className="bg-slate-400 hover:bg-slate-300 text-slate-950">POs</TabsTrigger>
+          <TabsTrigger value="contracts" className="bg-slate-400 hover:bg-slate-300 text-gray-950">Contracts</TabsTrigger>
+          <TabsTrigger value="inventory" className="bg-slate-400 hover:bg-slate-300 text-gray-950">Inventory</TabsTrigger>
+          <TabsTrigger value="distribution" className="bg-slate-400 hover:bg-slate-300 text-slate-950">Distribution</TabsTrigger>
+          <TabsTrigger value="reports" className="bg-slate-400 hover:bg-slate-300 text-slate-950">Reports</TabsTrigger>
+          <TabsTrigger value="profile" className="bg-slate-400 hover:bg-slate-300 text-slate-950">Profile</TabsTrigger>
         </TabsList>
         <TabsContent value={activeTab} className="mt-6">
           {renderContent()}
         </TabsContent>
       </Tabs>
-    </Layout>
-  );
+    </Layout>;
 };

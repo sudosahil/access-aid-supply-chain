@@ -66,7 +66,7 @@ export const SupplierManagement = () => {
   };
   return <div className="space-y-6">
       <Card>
-        <CardHeader>
+        <CardHeader className="bg-slate-300">
           <div className="flex justify-between items-center">
             <div>
               <CardTitle>Supplier Management</CardTitle>
@@ -140,7 +140,7 @@ export const SupplierManagement = () => {
             </Dialog>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="bg-slate-200">
           <Table>
             <TableHeader>
               <TableRow>

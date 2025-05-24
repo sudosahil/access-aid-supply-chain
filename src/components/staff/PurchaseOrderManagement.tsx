@@ -122,7 +122,7 @@ export const PurchaseOrderManagement = () => {
                           </div>
                         </DialogContent>
                       </Dialog>
-                      {po.status === 'draft' && <Button size="sm" onClick={() => handleApprovePO(po.id)}>
+                      {po.status === 'draft' && <Button size="sm" onClick={() => handleApprovePO(po.id)} className="text-slate-950">
                           <Check className="h-4 w-4 mr-2" />
                           Approve
                         </Button>}

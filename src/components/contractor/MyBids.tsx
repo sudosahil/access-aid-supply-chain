@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -6,50 +7,50 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
 import { mockBids, mockRFQs } from '@/data/mockData';
+
 interface MyBidsProps {
   contractorId: string;
 }
-export const MyBids = ({
-  contractorId
-}: MyBidsProps) => {
+
+export const MyBids = ({ contractorId }: MyBidsProps) => {
   const myBids = mockBids.filter(bid => bid.contractorId === contractorId);
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'accepted':
-        return 'bg-green-100 text-green-800';
-      case 'submitted':
-        return 'bg-blue-100 text-blue-800';
-      case 'under_review':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'rejected':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+      case 'accepted': return 'bg-green-100 text-green-800';
+      case 'submitted': return 'bg-blue-100 text-blue-800';
+      case 'under_review': return 'bg-yellow-100 text-yellow-800';
+      case 'rejected': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
+
   const getRFQTitle = (rfqId: string) => {
     const rfq = mockRFQs.find(r => r.id === rfqId);
     return rfq ? rfq.title : 'Unknown RFQ';
   };
-  return <div className="space-y-6">
+
+  return (
+    <div className="space-y-6">
       <Card>
-        <CardHeader className="bg-slate-300">
+        <CardHeader>
           <CardTitle>My Bids</CardTitle>
-          <CardDescription className="text-slate-950">Track your submitted bids and their status</CardDescription>
+          <CardDescription>Track your submitted bids and their status</CardDescription>
         </CardHeader>
-        <CardContent className="bg-slate-300">
+        <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="bg-slate-950">RFQ</TableHead>
-                <TableHead className="bg-slate-950">Amount</TableHead>
-                <TableHead className="bg-slate-950">Submitted</TableHead>
-                <TableHead className="bg-slate-950">Status</TableHead>
-                <TableHead className="bg-slate-950">Actions</TableHead>
+                <TableHead>RFQ</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Submitted</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {myBids.map(bid => <TableRow key={bid.id}>
+              {myBids.map((bid) => (
+                <TableRow key={bid.id}>
                   <TableCell className="font-medium">{getRFQTitle(bid.rfqId)}</TableCell>
                   <TableCell>${bid.amount.toLocaleString()}</TableCell>
                   <TableCell>{new Date(bid.submittedAt).toLocaleDateString()}</TableCell>
@@ -98,19 +99,23 @@ export const MyBids = ({
                           <div>
                             <h4 className="font-medium">Documents</h4>
                             <div className="flex flex-wrap gap-2 mt-1">
-                              {bid.documents.map((doc, index) => <Badge key={index} variant="outline" className="text-xs">
+                              {bid.documents.map((doc, index) => (
+                                <Badge key={index} variant="outline" className="text-xs">
                                   {doc}
-                                </Badge>)}
+                                </Badge>
+                              ))}
                             </div>
                           </div>
                         </div>
                       </DialogContent>
                     </Dialog>
                   </TableCell>
-                </TableRow>)}
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
-    </div>;
+    </div>
+  );
 };

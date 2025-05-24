@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,68 +8,67 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Plus, Eye, FileText } from 'lucide-react';
 import { mockContracts, mockUsers, Contract } from '@/data/mockData';
 import { useToast } from '@/hooks/use-toast';
+
 export const ContractManagement = () => {
   const [contracts, setContracts] = useState(mockContracts);
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+
   const handleActivateContract = (contractId: string) => {
-    setContracts(contracts.map(contract => contract.id === contractId ? {
-      ...contract,
-      status: 'active'
-    } : contract));
+    setContracts(contracts.map(contract =>
+      contract.id === contractId ? { ...contract, status: 'active' } : contract
+    ));
     toast({
       title: "Contract Activated",
-      description: "Contract has been activated and is now in effect."
+      description: "Contract has been activated and is now in effect.",
     });
   };
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800';
-      case 'draft':
-        return 'bg-gray-100 text-gray-800';
-      case 'completed':
-        return 'bg-blue-100 text-blue-800';
-      case 'terminated':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+      case 'active': return 'bg-green-100 text-green-800';
+      case 'draft': return 'bg-gray-100 text-gray-800';
+      case 'completed': return 'bg-blue-100 text-blue-800';
+      case 'terminated': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
+
   const getContractorName = (contractorId: string) => {
     const contractor = mockUsers.find(u => u.id === contractorId);
     return contractor ? contractor.name : 'Unknown Contractor';
   };
-  return <div className="space-y-6">
+
+  return (
+    <div className="space-y-6">
       <Card>
-        <CardHeader className="bg-slate-300">
+        <CardHeader>
           <div className="flex justify-between items-center">
             <div>
               <CardTitle>Contract Management</CardTitle>
-              <CardDescription className="text-slate-950">Manage contracts and agreements</CardDescription>
+              <CardDescription>Manage contracts and agreements</CardDescription>
             </div>
-            <Button className="text-slate-950">
+            <Button>
               <Plus className="h-4 w-4 mr-2" />
               Create Contract
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="bg-slate-300">
+        <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="bg-slate-950">Title</TableHead>
-                <TableHead className="bg-slate-950">Contractor</TableHead>
-                <TableHead className="bg-slate-950">Value</TableHead>
-                <TableHead className="bg-slate-950">Start Date</TableHead>
-                <TableHead className="bg-slate-950">End Date</TableHead>
-                <TableHead className="bg-slate-950">Status</TableHead>
-                <TableHead className="bg-slate-950">Actions</TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead>Contractor</TableHead>
+                <TableHead>Value</TableHead>
+                <TableHead>Start Date</TableHead>
+                <TableHead>End Date</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {contracts.map(contract => <TableRow key={contract.id}>
+              {contracts.map((contract) => (
+                <TableRow key={contract.id}>
                   <TableCell className="font-medium">{contract.title}</TableCell>
                   <TableCell>{getContractorName(contract.contractorId)}</TableCell>
                   <TableCell>${contract.value.toLocaleString()}</TableCell>
@@ -116,24 +116,30 @@ export const ContractManagement = () => {
                             <div>
                               <h4 className="font-medium">Documents</h4>
                               <div className="flex flex-wrap gap-2 mt-1">
-                                {contract.documents.map((doc, index) => <Badge key={index} variant="outline" className="text-xs">
+                                {contract.documents.map((doc, index) => (
+                                  <Badge key={index} variant="outline" className="text-xs">
                                     <FileText className="h-3 w-3 mr-1" />
                                     {doc}
-                                  </Badge>)}
+                                  </Badge>
+                                ))}
                               </div>
                             </div>
                           </div>
                         </DialogContent>
                       </Dialog>
-                      {contract.status === 'draft' && <Button size="sm" onClick={() => handleActivateContract(contract.id)} className="text-slate-950">
+                      {contract.status === 'draft' && (
+                        <Button size="sm" onClick={() => handleActivateContract(contract.id)}>
                           Activate
-                        </Button>}
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
-                </TableRow>)}
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
-    </div>;
+    </div>
+  );
 };

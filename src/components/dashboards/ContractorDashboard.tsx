@@ -41,7 +41,7 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center">
-                    <FileText className="h-8 w-8 text-blue-600" />
+                    <FileText className="h-8 w-8 text-blue-800" />
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Open RFQs</p>
                       <p className="text-2xl font-bold">{stats.openRFQs}</p>
@@ -63,7 +63,7 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center">
-                    <Award className="h-8 w-8 text-purple-600" />
+                    <Award className="h-8 w-8 text-slate-600" />
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Active Contracts</p>
                       <p className="text-2xl font-bold">{stats.activeContracts}</p>
@@ -74,7 +74,7 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center">
-                    <DollarSign className="h-8 w-8 text-yellow-600" />
+                    <DollarSign className="h-8 w-8 text-slate-700" />
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Pending Invoices</p>
                       <p className="text-2xl font-bold">{stats.pendingInvoices}</p>
@@ -101,11 +101,11 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
                       <p className="text-sm">Contract awarded for hearing aid services</p>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
                       <p className="text-sm">Invoice submitted for therapy equipment</p>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
                       <p className="text-sm">New RFQ notification received</p>
                     </div>
                   </div>

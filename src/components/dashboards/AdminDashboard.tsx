@@ -36,7 +36,7 @@ export const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center">
-                    <Users className="h-8 w-8 text-blue-600" />
+                    <Users className="h-8 w-8 text-blue-800" />
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Total Users</p>
                       <p className="text-2xl font-bold">{stats.totalUsers}</p>
@@ -58,7 +58,7 @@ export const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center">
-                    <AlertTriangle className="h-8 w-8 text-yellow-600" />
+                    <AlertTriangle className="h-8 w-8 text-slate-600" />
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Low Stock Items</p>
                       <p className="text-2xl font-bold">{stats.lowStockItems}</p>
@@ -69,7 +69,7 @@ export const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center">
-                    <FileText className="h-8 w-8 text-purple-600" />
+                    <FileText className="h-8 w-8 text-slate-700" />
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Open RFQs</p>
                       <p className="text-2xl font-bold">{stats.openRFQs}</p>
@@ -96,11 +96,11 @@ export const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
                       <p className="text-sm">RFQ published for electric wheelchairs</p>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
                       <p className="text-sm">Low stock alert for prosthetic limbs</p>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
                       <p className="text-sm">New user account created</p>
                     </div>
                   </div>

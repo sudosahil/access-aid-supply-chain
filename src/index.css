@@ -14,7 +14,7 @@
     --popover: 255 255 255;
     --popover-foreground: 15 23 42;
 
-    --primary: 2 132 199;
+    --primary: 30 58 138;
     --primary-foreground: 255 255 255;
 
     --secondary: 241 245 249;
@@ -23,7 +23,7 @@
     --muted: 248 250 252;
     --muted-foreground: 100 116 139;
 
-    --accent: 251 146 60;
+    --accent: 71 85 105;
     --accent-foreground: 255 255 255;
 
     --destructive: 239 68 68;
@@ -31,23 +31,24 @@
 
     --border: 226 232 240;
     --input: 226 232 240;
-    --ring: 2 132 199;
+    --ring: 30 58 138;
 
     --radius: 0.375rem;
 
     --sidebar-background: 30 41 59;
     --sidebar-foreground: 248 250 252;
-    --sidebar-primary: 2 132 199;
+    --sidebar-primary: 30 58 138;
     --sidebar-primary-foreground: 255 255 255;
     --sidebar-accent: 51 65 85;
     --sidebar-accent-foreground: 248 250 252;
     --sidebar-border: 51 65 85;
-    --sidebar-ring: 2 132 199;
+    --sidebar-ring: 30 58 138;
 
-    --gov-blue: 2 132 199;
-    --gov-orange: 251 146 60;
-    --gov-dark-blue: 30 41 59;
+    --gov-blue: 30 58 138;
+    --gov-dark-blue: 15 23 42;
     --gov-light-blue: 219 234 254;
+    --gov-gray: 71 85 105;
+    --gov-light-gray: 241 245 249;
   }
 
   .dark {
@@ -69,8 +70,8 @@
     --muted: 51 65 85;
     --muted-foreground: 148 163 184;
 
-    --accent: 251 146 60;
-    --accent-foreground: 15 23 42;
+    --accent: 71 85 105;
+    --accent-foreground: 248 250 252;
 
     --destructive: 220 38 38;
     --destructive-foreground: 248 250 252;
@@ -106,7 +107,7 @@
 
 @layer components {
   .gov-header {
-    @apply bg-gradient-to-r from-sky-600 via-blue-600 to-blue-700 text-white shadow-lg;
+    @apply bg-gradient-to-r from-blue-800 via-blue-900 to-slate-800 text-white shadow-lg;
   }
 
   .gov-card {
@@ -114,15 +115,15 @@
   }
 
   .gov-button-primary {
-    @apply bg-sky-600 hover:bg-sky-700 text-white font-medium px-4 py-2 rounded-md transition-colors duration-200;
+    @apply bg-blue-800 hover:bg-blue-900 text-white font-medium px-4 py-2 rounded-md transition-colors duration-200;
   }
 
   .gov-button-secondary {
-    @apply bg-orange-500 hover:bg-orange-600 text-white font-medium px-4 py-2 rounded-md transition-colors duration-200;
+    @apply bg-slate-600 hover:bg-slate-700 text-white font-medium px-4 py-2 rounded-md transition-colors duration-200;
   }
 
   .gov-nav-item {
-    @apply text-slate-700 hover:text-sky-600 hover:bg-sky-50 px-3 py-2 rounded-md font-medium transition-colors duration-200;
+    @apply text-slate-700 hover:text-blue-800 hover:bg-slate-50 px-3 py-2 rounded-md font-medium transition-colors duration-200;
   }
 
   .gov-status-active {
@@ -130,11 +131,11 @@
   }
 
   .gov-status-pending {
-    @apply bg-amber-100 text-amber-800 border border-amber-200;
+    @apply bg-slate-100 text-slate-700 border border-slate-300;
   }
 
   .gov-status-inactive {
-    @apply bg-gray-100 text-gray-800 border border-gray-200;
+    @apply bg-gray-100 text-gray-700 border border-gray-300;
   }
 
   .gov-table-header {

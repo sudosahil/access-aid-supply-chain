@@ -31,17 +31,17 @@ export const LoginForm = ({ onLogin }: LoginFormProps) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-slate-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
         {/* Government Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-3 mb-4">
-            <Building2 className="h-12 w-12 text-sky-600" />
-            <Shield className="h-10 w-10 text-orange-500" />
+            <Building2 className="h-12 w-12 text-blue-800" />
+            <Shield className="h-10 w-10 text-slate-600" />
           </div>
           <h1 className="text-2xl font-bold text-slate-800">Government of Odisha</h1>
           <p className="text-sm text-slate-600 mt-1">Social Security & Empowerment of Persons with Disabilities</p>
-          <div className="w-24 h-1 bg-gradient-to-r from-sky-600 to-orange-500 mx-auto mt-3 rounded-full"></div>
+          <div className="w-24 h-1 bg-gradient-to-r from-blue-800 to-slate-600 mx-auto mt-3 rounded-full"></div>
         </div>
 
         <Card className="gov-card shadow-lg">
@@ -60,7 +60,7 @@ export const LoginForm = ({ onLogin }: LoginFormProps) => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 border-slate-300 focus:border-sky-500 focus:ring-sky-500"
+                  className="mt-1 border-slate-300 focus:border-blue-800 focus:ring-blue-800"
                   placeholder="your.email@odisha.gov.in"
                   required
                 />
@@ -72,7 +72,7 @@ export const LoginForm = ({ onLogin }: LoginFormProps) => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 border-slate-300 focus:border-sky-500 focus:ring-sky-500"
+                  className="mt-1 border-slate-300 focus:border-blue-800 focus:ring-blue-800"
                   placeholder="Enter your password"
                   required
                 />
@@ -106,9 +106,9 @@ export const LoginForm = ({ onLogin }: LoginFormProps) => {
                   <div className="flex items-center justify-between mb-1">
                     <p className="font-semibold text-sm text-slate-800">{cred.role}</p>
                     <span className={`px-2 py-1 text-xs rounded-full font-medium ${
-                      cred.role === 'Admin' ? 'bg-red-100 text-red-700' :
-                      cred.role === 'Staff' ? 'bg-blue-100 text-blue-700' :
-                      'bg-green-100 text-green-700'
+                      cred.role === 'Admin' ? 'bg-slate-200 text-slate-800' :
+                      cred.role === 'Staff' ? 'bg-blue-100 text-blue-800' :
+                      'bg-gray-200 text-gray-800'
                     }`}>
                       {cred.role}
                     </span>

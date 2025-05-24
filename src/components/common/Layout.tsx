@@ -1,20 +1,21 @@
-
 import { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Bell, Settings, LogOut, Menu, Building2 } from 'lucide-react';
 import { User } from '@/data/mockData';
-
 interface LayoutProps {
   children: ReactNode;
   user: User;
   onLogout: () => void;
   title: string;
 }
-
-export const Layout = ({ children, user, onLogout, title }: LayoutProps) => {
-  return (
-    <div className="min-h-screen bg-slate-50">
+export const Layout = ({
+  children,
+  user,
+  onLogout,
+  title
+}: LayoutProps) => {
+  return <div className="min-h-screen bg-slate-50">
       {/* Government Header Bar */}
       <div className="gov-header">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -48,12 +49,7 @@ export const Layout = ({ children, user, onLogout, title }: LayoutProps) => {
                 </div>
               </div>
               
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={onLogout}
-                className="text-white hover:bg-slate-700"
-              >
+              <Button variant="ghost" size="sm" onClick={onLogout} className="text-white hover:bg-slate-700">
                 <LogOut className="h-4 w-4" />
               </Button>
             </div>
@@ -77,7 +73,7 @@ export const Layout = ({ children, user, onLogout, title }: LayoutProps) => {
       </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 bg-slate-700">
         {children}
       </main>
 
@@ -95,6 +91,5 @@ export const Layout = ({ children, user, onLogout, title }: LayoutProps) => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };

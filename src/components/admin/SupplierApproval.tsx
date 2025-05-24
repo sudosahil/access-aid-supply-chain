@@ -48,11 +48,11 @@ export const SupplierApproval = () => {
   };
   return <div className="space-y-6">
       <Card>
-        <CardHeader className="bg-slate-400">
+        <CardHeader className="bg-slate-300">
           <CardTitle>Supplier Management</CardTitle>
           <CardDescription className="text-slate-950">Review and approve supplier registrations</CardDescription>
         </CardHeader>
-        <CardContent className="bg-slate-400">
+        <CardContent className="bg-slate-300">
           <Table>
             <TableHeader>
               <TableRow>

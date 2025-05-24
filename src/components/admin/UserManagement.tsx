@@ -165,7 +165,7 @@ export const UserManagement = () => {
         <CardContent className="bg-slate-300">
           <div className="flex items-center space-x-2 mb-4">
             <Search className="h-4 w-4 text-gray-400" />
-            <Input placeholder="Search users..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="max-w-sm" />
+            <Input placeholder="Search users..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="max-w-sm bg-slate-500" />
           </div>
 
           <Table>

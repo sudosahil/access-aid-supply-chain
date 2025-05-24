@@ -87,7 +87,7 @@ export const UserManagement = () => {
             </div>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button className="text-slate-950">
                   <Plus className="h-4 w-4 mr-2" />
                   Add User
                 </Button>

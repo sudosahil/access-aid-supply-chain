@@ -146,7 +146,7 @@ export const AdminDashboard = ({
   };
   return <Layout user={user} onLogout={onLogout} title="Administrator Dashboard">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-6 bg-slate-400">
           <TabsTrigger value="dashboard" className="text-slate-950">Dashboard</TabsTrigger>
           <TabsTrigger value="users" className="text-slate-950">Users</TabsTrigger>
           <TabsTrigger value="suppliers" className="text-base text-slate-950">Suppliers</TabsTrigger>

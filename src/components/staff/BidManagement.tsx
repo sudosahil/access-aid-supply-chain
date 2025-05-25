@@ -5,57 +5,51 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Plus, Eye, CheckCircle, XCircle, Building } from 'lucide-react';
+import { Search, FileText, Eye, CheckCircle, XCircle, Download } from 'lucide-react';
 
-export const SupplierManagement = () => {
+export const BidManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  const mockSuppliers = [
+  const mockBids = [
     {
-      id: 'SUP-001',
-      name: 'MedTech Solutions Ltd',
-      email: 'contact@medtech.com',
-      phone: '+91 98765 43210',
-      category: 'Medical Equipment',
-      registrationDate: '2024-01-10',
+      id: 'BID-001',
+      rfqId: 'RFQ-001',
+      rfqTitle: 'Electric Wheelchairs Procurement',
+      supplierName: 'MedTech Solutions Ltd',
+      submittedDate: '2024-01-15',
+      amount: '₹4,50,000',
+      status: 'under_review',
+      documents: 3
+    },
+    {
+      id: 'BID-002',
+      rfqId: 'RFQ-002',
+      rfqTitle: 'Prosthetic Limbs Supply',
+      supplierName: 'Healthcare Innovations',
+      submittedDate: '2024-01-14',
+      amount: '₹7,25,000',
       status: 'approved',
-      documentsCount: 8,
-      lastUpdate: '2024-01-15',
-      updatedBy: 'John Doe'
+      documents: 5
     },
     {
-      id: 'SUP-002',
-      name: 'Healthcare Innovations',
-      email: 'info@healthcareinno.com',
-      phone: '+91 87654 32109',
-      category: 'Prosthetics',
-      registrationDate: '2024-01-08',
-      status: 'pending',
-      documentsCount: 6,
-      lastUpdate: '2024-01-12',
-      updatedBy: 'Jane Smith'
-    },
-    {
-      id: 'SUP-003',
-      name: 'TechCare Services',
-      email: 'support@techcare.com',
-      phone: '+91 76543 21098',
-      category: 'Maintenance',
-      registrationDate: '2024-01-05',
+      id: 'BID-003',
+      rfqId: 'RFQ-003',
+      rfqTitle: 'Medical Equipment Maintenance',
+      supplierName: 'TechCare Services',
+      submittedDate: '2024-01-13',
+      amount: '₹2,80,000',
       status: 'rejected',
-      documentsCount: 4,
-      lastUpdate: '2024-01-10',
-      updatedBy: 'Mike Johnson'
+      documents: 2
     }
   ];
 
   const getStatusBadge = (status: string) => {
     switch (status) {
+      case 'under_review':
+        return <Badge variant="secondary">Under Review</Badge>;
       case 'approved':
         return <Badge variant="default" className="bg-green-600">Approved</Badge>;
-      case 'pending':
-        return <Badge variant="secondary">Pending Review</Badge>;
       case 'rejected':
         return <Badge variant="destructive">Rejected</Badge>;
       default:
@@ -63,26 +57,26 @@ export const SupplierManagement = () => {
     }
   };
 
-  const filteredSuppliers = mockSuppliers.filter(supplier => {
-    const matchesSearch = supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         supplier.category.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || supplier.status === statusFilter;
+  const filteredBids = mockBids.filter(bid => {
+    const matchesSearch = bid.rfqTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         bid.supplierName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || bid.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Supplier Management</h2>
+        <h2 className="text-2xl font-bold">Bid Management</h2>
         <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Add New Supplier
+          <FileText className="h-4 w-4 mr-2" />
+          Export Report
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Filter Suppliers</CardTitle>
+          <CardTitle>Filter Bids</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-4">
@@ -90,7 +84,7 @@ export const SupplierManagement = () => {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
-                  placeholder="Search by name or category..."
+                  placeholder="Search by RFQ title or supplier..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -103,8 +97,8 @@ export const SupplierManagement = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="under_review">Under Review</SelectItem>
                 <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="rejected">Rejected</SelectItem>
               </SelectContent>
             </Select>
@@ -113,32 +107,31 @@ export const SupplierManagement = () => {
       </Card>
 
       <div className="grid gap-4">
-        {filteredSuppliers.map((supplier) => (
-          <Card key={supplier.id}>
+        {filteredBids.map((bid) => (
+          <Card key={bid.id}>
             <CardContent className="p-6">
               <div className="flex justify-between items-start">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Building className="h-4 w-4" />
-                    <h3 className="font-semibold">{supplier.name}</h3>
-                    {getStatusBadge(supplier.status)}
+                    <h3 className="font-semibold">{bid.rfqTitle}</h3>
+                    {getStatusBadge(bid.status)}
                   </div>
-                  <p className="text-sm text-gray-600">ID: {supplier.id}</p>
-                  <p className="text-sm">Category: {supplier.category}</p>
-                  <p className="text-sm">Email: {supplier.email}</p>
-                  <p className="text-sm">Phone: {supplier.phone}</p>
-                  <p className="text-sm">Registered: {supplier.registrationDate}</p>
-                  <p className="text-sm text-gray-600">{supplier.documentsCount} compliance documents</p>
-                  <p className="text-xs text-gray-500">
-                    Last updated: {supplier.lastUpdate} by {supplier.updatedBy}
-                  </p>
+                  <p className="text-sm text-gray-600">Bid ID: {bid.id} • RFQ ID: {bid.rfqId}</p>
+                  <p className="text-sm">Supplier: {bid.supplierName}</p>
+                  <p className="text-sm">Submitted: {bid.submittedDate}</p>
+                  <p className="text-lg font-semibold text-green-600">{bid.amount}</p>
+                  <p className="text-sm text-gray-600">{bid.documents} documents attached</p>
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm">
                     <Eye className="h-4 w-4 mr-2" />
                     View Details
                   </Button>
-                  {supplier.status === 'pending' && (
+                  <Button variant="outline" size="sm">
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </Button>
+                  {bid.status === 'under_review' && (
                     <>
                       <Button variant="default" size="sm" className="bg-green-600">
                         <CheckCircle className="h-4 w-4 mr-2" />

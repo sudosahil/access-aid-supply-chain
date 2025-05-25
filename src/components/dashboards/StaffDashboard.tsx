@@ -8,9 +8,10 @@ import { ProfileManagement } from '@/components/common/ProfileManagement';
 import { RFQManagement } from '@/components/rfq/RFQManagement';
 import { MessagingSystem } from '@/components/messaging/MessagingSystem';
 import { AuditLogs } from '@/components/audit/AuditLogs';
-import { PurchaseOrderManagement } from '@/components/staff/PurchaseOrderManagement';
-import { ContractManagement } from '@/components/staff/ContractManagement';
-import { StaffReports } from '@/components/staff/StaffReports';
+import { BidManagement } from '@/components/staff/BidManagement';
+import { SupplierManagement } from '@/components/staff/SupplierManagement';
+import { InventoryManagement } from '@/components/staff/InventoryManagement';
+import { WarehouseManagement } from '@/components/staff/WarehouseManagement';
 import { User, mockInventoryItems, mockRFQs, mockPurchaseOrders } from '@/data/mockData';
 
 interface StaffDashboardProps {
@@ -153,13 +154,13 @@ export const StaffDashboard = ({ user, onLogout }: StaffDashboardProps) => {
       case 'rfqs':
         return <RFQManagement />;
       case 'bids':
-        return <div className="text-center py-8">Bid Evaluation component coming soon...</div>;
+        return <BidManagement />;
       case 'suppliers':
-        return <div className="text-center py-8">Supplier Management component coming soon...</div>;
+        return <SupplierManagement />;
       case 'inventory':
-        return <div className="text-center py-8">Inventory Management component coming soon...</div>;
+        return <InventoryManagement />;
       case 'warehouses':
-        return <div className="text-center py-8">Warehouse Coordination component coming soon...</div>;
+        return <WarehouseManagement />;
       case 'messaging':
         return <MessagingSystem />;
       case 'audit':

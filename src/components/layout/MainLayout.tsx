@@ -1,4 +1,3 @@
-
 import { ReactNode } from 'react';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
@@ -6,7 +5,6 @@ import { User } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Bell, LogOut } from 'lucide-react';
-
 interface MainLayoutProps {
   children: ReactNode;
   user: User;
@@ -15,10 +13,15 @@ interface MainLayoutProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
 }
-
-export const MainLayout = ({ children, user, onLogout, title, activeTab, onTabChange }: MainLayoutProps) => {
-  return (
-    <div className="min-h-screen flex w-full">
+export const MainLayout = ({
+  children,
+  user,
+  onLogout,
+  title,
+  activeTab,
+  onTabChange
+}: MainLayoutProps) => {
+  return <div className="min-h-screen flex w-full">
       <SidebarProvider>
         <AppSidebar user={user} activeTab={activeTab} onTabChange={onTabChange} />
         <SidebarInset>
@@ -46,11 +49,10 @@ export const MainLayout = ({ children, user, onLogout, title, activeTab, onTabCh
               </Button>
             </div>
           </header>
-          <main className="flex-1 overflow-auto p-6">
+          <main className="flex-1 overflow-auto p-6 bg-slate-900">
             {children}
           </main>
         </SidebarInset>
       </SidebarProvider>
-    </div>
-  );
+    </div>;
 };

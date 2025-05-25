@@ -44,7 +44,7 @@ export const LoginForm = ({
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+                <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required className="bg-slate-400" />
               </div>
               <div>
                 <Label htmlFor="password">Password</Label>

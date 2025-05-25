@@ -6,12 +6,17 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Plus, Eye, CheckCircle, XCircle, Building } from 'lucide-react';
+import { SupplierDetailModal } from './SupplierDetailModal';
+import { useToast } from '@/hooks/use-toast';
 
 export const SupplierManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { toast } = useToast();
 
-  const mockSuppliers = [
+  const [mockSuppliers, setMockSuppliers] = useState([
     {
       id: 'SUP-001',
       name: 'MedTech Solutions Ltd',
@@ -48,7 +53,7 @@ export const SupplierManagement = () => {
       lastUpdate: '2024-01-10',
       updatedBy: 'Mike Johnson'
     }
-  ];
+  ]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -63,6 +68,45 @@ export const SupplierManagement = () => {
     }
   };
 
+  const handleViewDetails = (supplier: any) => {
+    setSelectedSupplier(supplier);
+    setIsModalOpen(true);
+  };
+
+  const handleStatusUpdate = (supplierId: string, status: string, notes: string) => {
+    setMockSuppliers(prev => prev.map(supplier => 
+      supplier.id === supplierId ? { ...supplier, status } : supplier
+    ));
+    console.log('Status update:', { supplierId, status, notes });
+  };
+
+  const handleAddSupplier = () => {
+    toast({
+      title: "Add Supplier",
+      description: "Add supplier functionality will be implemented."
+    });
+  };
+
+  const handleQuickApprove = (supplierId: string) => {
+    setMockSuppliers(prev => prev.map(supplier => 
+      supplier.id === supplierId ? { ...supplier, status: 'approved' } : supplier
+    ));
+    toast({
+      title: "Supplier Approved",
+      description: "Supplier has been approved successfully."
+    });
+  };
+
+  const handleQuickReject = (supplierId: string) => {
+    setMockSuppliers(prev => prev.map(supplier => 
+      supplier.id === supplierId ? { ...supplier, status: 'rejected' } : supplier
+    ));
+    toast({
+      title: "Supplier Rejected",
+      description: "Supplier has been rejected."
+    });
+  };
+
   const filteredSuppliers = mockSuppliers.filter(supplier => {
     const matchesSearch = supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          supplier.category.toLowerCase().includes(searchTerm.toLowerCase());
@@ -74,7 +118,7 @@ export const SupplierManagement = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Supplier Management</h2>
-        <Button>
+        <Button onClick={handleAddSupplier}>
           <Plus className="h-4 w-4 mr-2" />
           Add New Supplier
         </Button>
@@ -134,17 +178,17 @@ export const SupplierManagement = () => {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => handleViewDetails(supplier)}>
                     <Eye className="h-4 w-4 mr-2" />
                     View Details
                   </Button>
                   {supplier.status === 'pending' && (
                     <>
-                      <Button variant="default" size="sm" className="bg-green-600">
+                      <Button variant="default" size="sm" className="bg-green-600" onClick={() => handleQuickApprove(supplier.id)}>
                         <CheckCircle className="h-4 w-4 mr-2" />
                         Approve
                       </Button>
-                      <Button variant="destructive" size="sm">
+                      <Button variant="destructive" size="sm" onClick={() => handleQuickReject(supplier.id)}>
                         <XCircle className="h-4 w-4 mr-2" />
                         Reject
                       </Button>
@@ -156,6 +200,13 @@ export const SupplierManagement = () => {
           </Card>
         ))}
       </div>
+
+      <SupplierDetailModal
+        supplier={selectedSupplier}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onStatusUpdate={handleStatusUpdate}
+      />
     </div>
   );
 };

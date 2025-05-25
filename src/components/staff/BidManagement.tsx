@@ -6,12 +6,17 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, FileText, Eye, CheckCircle, XCircle, Download } from 'lucide-react';
+import { BidDetailModal } from './BidDetailModal';
+import { useToast } from '@/hooks/use-toast';
 
 export const BidManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedBid, setSelectedBid] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { toast } = useToast();
 
-  const mockBids = [
+  const [mockBids, setMockBids] = useState([
     {
       id: 'BID-001',
       rfqId: 'RFQ-001',
@@ -42,7 +47,7 @@ export const BidManagement = () => {
       status: 'rejected',
       documents: 2
     }
-  ];
+  ]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -57,6 +62,45 @@ export const BidManagement = () => {
     }
   };
 
+  const handleViewDetails = (bid: any) => {
+    setSelectedBid(bid);
+    setIsModalOpen(true);
+  };
+
+  const handleStatusUpdate = (bidId: string, status: string, notes: string) => {
+    setMockBids(prev => prev.map(bid => 
+      bid.id === bidId ? { ...bid, status } : bid
+    ));
+    console.log('Status update:', { bidId, status, notes });
+  };
+
+  const handleDownload = () => {
+    toast({
+      title: "Export Started",
+      description: "Bid report is being generated..."
+    });
+  };
+
+  const handleQuickApprove = (bidId: string) => {
+    setMockBids(prev => prev.map(bid => 
+      bid.id === bidId ? { ...bid, status: 'approved' } : bid
+    ));
+    toast({
+      title: "Bid Approved",
+      description: "Bid has been approved successfully."
+    });
+  };
+
+  const handleQuickReject = (bidId: string) => {
+    setMockBids(prev => prev.map(bid => 
+      bid.id === bidId ? { ...bid, status: 'rejected' } : bid
+    ));
+    toast({
+      title: "Bid Rejected",
+      description: "Bid has been rejected."
+    });
+  };
+
   const filteredBids = mockBids.filter(bid => {
     const matchesSearch = bid.rfqTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          bid.supplierName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -68,7 +112,7 @@ export const BidManagement = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Bid Management</h2>
-        <Button>
+        <Button onClick={handleDownload}>
           <FileText className="h-4 w-4 mr-2" />
           Export Report
         </Button>
@@ -123,21 +167,21 @@ export const BidManagement = () => {
                   <p className="text-sm text-gray-600">{bid.documents} documents attached</p>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => handleViewDetails(bid)}>
                     <Eye className="h-4 w-4 mr-2" />
                     View Details
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={handleDownload}>
                     <Download className="h-4 w-4 mr-2" />
                     Download
                   </Button>
                   {bid.status === 'under_review' && (
                     <>
-                      <Button variant="default" size="sm" className="bg-green-600">
+                      <Button variant="default" size="sm" className="bg-green-600" onClick={() => handleQuickApprove(bid.id)}>
                         <CheckCircle className="h-4 w-4 mr-2" />
                         Approve
                       </Button>
-                      <Button variant="destructive" size="sm">
+                      <Button variant="destructive" size="sm" onClick={() => handleQuickReject(bid.id)}>
                         <XCircle className="h-4 w-4 mr-2" />
                         Reject
                       </Button>
@@ -149,6 +193,13 @@ export const BidManagement = () => {
           </Card>
         ))}
       </div>
+
+      <BidDetailModal
+        bid={selectedBid}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onStatusUpdate={handleStatusUpdate}
+      />
     </div>
   );
 };

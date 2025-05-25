@@ -5,13 +5,23 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import { Search, Plus, Package, AlertTriangle, Edit, Truck } from 'lucide-react';
+import { InventoryItemModal } from './InventoryItemModal';
+import { useToast } from '@/hooks/use-toast';
 
 export const InventoryManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [warehouseFilter, setWarehouseFilter] = useState('all');
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'view' | 'edit' | 'add'>('view');
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [transferData, setTransferData] = useState({ fromWarehouse: '', toWarehouse: '', quantity: 0 });
+  const { toast } = useToast();
 
-  const mockInventory = [
+  const [mockInventory, setMockInventory] = useState([
     {
       id: 'INV-001',
       name: 'Electric Wheelchair Model A',
@@ -23,7 +33,13 @@ export const InventoryManagement = () => {
       warehouse: 'Warehouse-A',
       reorderLevel: 5,
       lastUpdate: '2024-01-15',
-      updatedBy: 'John Doe'
+      updatedBy: 'John Doe',
+      dimensions: '120×80×95 cm',
+      weight: '45 kg',
+      manufacturer: 'MedEquip Corp',
+      model: 'EC-2024-A',
+      purchaseDate: '2024-01-01',
+      warrantyExpiry: '2026-01-01'
     },
     {
       id: 'INV-002',
@@ -36,7 +52,13 @@ export const InventoryManagement = () => {
       warehouse: 'Warehouse-B',
       reorderLevel: 5,
       lastUpdate: '2024-01-14',
-      updatedBy: 'Jane Smith'
+      updatedBy: 'Jane Smith',
+      dimensions: '80×20×15 cm',
+      weight: '2.5 kg',
+      manufacturer: 'ProstheTech',
+      model: 'PT-AL-2024',
+      purchaseDate: '2024-01-05',
+      warrantyExpiry: '2027-01-05'
     },
     {
       id: 'INV-003',
@@ -49,11 +71,91 @@ export const InventoryManagement = () => {
       warehouse: 'Warehouse-A',
       reorderLevel: 10,
       lastUpdate: '2024-01-13',
-      updatedBy: 'Mike Johnson'
+      updatedBy: 'Mike Johnson',
+      dimensions: '3×2×1 cm',
+      weight: '0.02 kg',
+      manufacturer: 'AudioTech',
+      model: 'AT-DH-2024',
+      purchaseDate: '2024-01-08',
+      warrantyExpiry: '2026-01-08'
     }
-  ];
+  ]);
 
   const isLowStock = (quantity: number, reorderLevel: number) => quantity <= reorderLevel;
+
+  const handleViewItem = (item: any) => {
+    setSelectedItem(item);
+    setModalMode('view');
+    setIsModalOpen(true);
+  };
+
+  const handleEditItem = (item: any) => {
+    setSelectedItem(item);
+    setModalMode('edit');
+    setIsModalOpen(true);
+  };
+
+  const handleAddItem = () => {
+    setSelectedItem(null);
+    setModalMode('add');
+    setIsModalOpen(true);
+  };
+
+  const handleTransferItem = (item: any) => {
+    setSelectedItem(item);
+    setTransferData({ fromWarehouse: item.warehouse, toWarehouse: '', quantity: 0 });
+    setIsTransferModalOpen(true);
+  };
+
+  const handleItemUpdate = (itemId: string, updates: any) => {
+    if (itemId === 'new') {
+      const newItem = {
+        ...updates,
+        id: `INV-${String(mockInventory.length + 1).padStart(3, '0')}`,
+        lastUpdate: new Date().toISOString().split('T')[0],
+        updatedBy: 'Current User'
+      };
+      setMockInventory(prev => [...prev, newItem]);
+    } else {
+      setMockInventory(prev => prev.map(item => 
+        item.id === itemId ? { ...item, ...updates, lastUpdate: new Date().toISOString().split('T')[0] } : item
+      ));
+    }
+  };
+
+  const handleTransfer = () => {
+    if (!transferData.toWarehouse || transferData.quantity <= 0) {
+      toast({
+        title: "Invalid Transfer",
+        description: "Please select destination warehouse and valid quantity.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (transferData.quantity > selectedItem.quantity) {
+      toast({
+        title: "Insufficient Stock",
+        description: "Transfer quantity cannot exceed available stock.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Update inventory
+    setMockInventory(prev => prev.map(item => 
+      item.id === selectedItem.id 
+        ? { ...item, quantity: item.quantity - transferData.quantity }
+        : item
+    ));
+
+    toast({
+      title: "Transfer Initiated",
+      description: `${transferData.quantity} units transferred from ${transferData.fromWarehouse} to ${transferData.toWarehouse}.`
+    });
+    
+    setIsTransferModalOpen(false);
+  };
 
   const filteredInventory = mockInventory.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -67,7 +169,7 @@ export const InventoryManagement = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Inventory Management</h2>
-        <Button>
+        <Button onClick={handleAddItem}>
           <Plus className="h-4 w-4 mr-2" />
           Add New Item
         </Button>
@@ -158,7 +260,7 @@ export const InventoryManagement = () => {
 
       <div className="grid gap-4">
         {filteredInventory.map((item) => (
-          <Card key={item.id}>
+          <Card key={item.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleViewItem(item)}>
             <CardContent className="p-6">
               <div className="flex justify-between items-start">
                 <div className="space-y-2">
@@ -172,9 +274,10 @@ export const InventoryManagement = () => {
                     )}
                   </div>
                   <p className="text-sm text-gray-600">ID: {item.id} • Serial: {item.serialNumber}</p>
-                  <p className="text-sm">Category: {item.category}</p>
-                  <p className="text-sm">Warehouse: {item.warehouse}</p>
+                  <p className="text-sm">Category: {item.category} • Manufacturer: {item.manufacturer}</p>
+                  <p className="text-sm">Warehouse: {item.warehouse} • Model: {item.model}</p>
                   <p className="text-sm text-gray-600">{item.description}</p>
+                  <p className="text-sm">Dimensions: {item.dimensions} • Weight: {item.weight}</p>
                   <div className="flex gap-4 text-sm">
                     <span>Unit Price: {item.unitPrice}</span>
                     <span>Quantity: <strong>{item.quantity}</strong></span>
@@ -184,12 +287,12 @@ export const InventoryManagement = () => {
                     Last updated: {item.lastUpdate} by {item.updatedBy}
                   </p>
                 </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
+                <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                  <Button variant="outline" size="sm" onClick={() => handleEditItem(item)}>
                     <Edit className="h-4 w-4 mr-2" />
                     Edit
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => handleTransferItem(item)}>
                     <Truck className="h-4 w-4 mr-2" />
                     Transfer
                   </Button>
@@ -199,6 +302,57 @@ export const InventoryManagement = () => {
           </Card>
         ))}
       </div>
+
+      <InventoryItemModal
+        item={selectedItem}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onUpdate={handleItemUpdate}
+        mode={modalMode}
+      />
+
+      {/* Transfer Modal */}
+      <Dialog open={isTransferModalOpen} onOpenChange={setIsTransferModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Transfer Inventory</DialogTitle>
+            <DialogDescription>Transfer {selectedItem?.name} to another warehouse</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>From Warehouse</Label>
+              <Input value={transferData.fromWarehouse} disabled />
+            </div>
+            <div>
+              <Label>To Warehouse</Label>
+              <Select value={transferData.toWarehouse} onValueChange={(value) => setTransferData(prev => ({ ...prev, toWarehouse: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select destination warehouse" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Warehouse-A">Warehouse A</SelectItem>
+                  <SelectItem value="Warehouse-B">Warehouse B</SelectItem>
+                  <SelectItem value="Warehouse-C">Warehouse C</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Quantity (Available: {selectedItem?.quantity})</Label>
+              <Input
+                type="number"
+                value={transferData.quantity}
+                onChange={(e) => setTransferData(prev => ({ ...prev, quantity: parseInt(e.target.value) || 0 }))}
+                max={selectedItem?.quantity}
+                min={1}
+              />
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setIsTransferModalOpen(false)}>Cancel</Button>
+              <Button onClick={handleTransfer}>Confirm Transfer</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

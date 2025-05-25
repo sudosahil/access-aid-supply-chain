@@ -9,7 +9,7 @@ import { mockUsers } from '@/data/mockData';
 import { warehouseUsers } from '@/data/warehouseData';
 
 const Index = () => {
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   const handleLogin = (email: string, password: string) => {
     // Check regular users first

@@ -17,12 +17,19 @@ interface SupplierDetailModalProps {
   onStatusUpdate: (supplierId: string, status: string, notes: string) => void;
 }
 
+// Enhanced compliance criteria with the new requirements
 const complianceCriteria = [
   { id: 'business_license', label: 'Valid Business License', required: true },
   { id: 'tax_compliance', label: 'Tax Compliance Certificate', required: true },
-  { id: 'quality_certifications', label: 'Quality Management Certifications', required: true },
-  { id: 'financial_stability', label: 'Financial Stability Documentation', required: true },
-  { id: 'experience_proof', label: 'Relevant Experience Documentation', required: true },
+  { id: 'quality_certifications', label: 'Quality Management Certifications (ISO 9001, ISO 20001, ISO 27001)', required: true },
+  { id: 'cmmi_certification', label: 'CMMI Level 3 or above certification', required: true },
+  { id: 'financial_stability', label: 'Positive net worth in the last 3 financial years', required: true },
+  { id: 'annual_turnover', label: 'Average annual financial turnover in IT/ICT/ITES ≥ ₹200 crore (last 3 years)', required: true },
+  { id: 'experience_proof', label: 'At least one turnkey project ≥ ₹8 crore for Central/State Govt. (last 7 years)', required: true },
+  { id: 'psu_status', label: 'PSU or Central/State Govt. organization/PSU notified for IT activities', required: true },
+  { id: 'not_blacklisted', label: 'Not blacklisted by any Government or PSU in India', required: true },
+  { id: 'manufacturer_auth', label: 'Manufacturer\'s Authorization Certificate/OEM support letters', required: true },
+  { id: 'odisha_presence', label: 'Registered office in Odisha or undertaking to establish within a month', required: true },
   { id: 'insurance_coverage', label: 'Insurance Coverage Verification', required: false },
   { id: 'reference_checks', label: 'Reference Checks Completed', required: false },
   { id: 'facility_inspection', label: 'Facility Inspection Report', required: false }
@@ -31,9 +38,19 @@ const complianceCriteria = [
 const supplierDocuments = [
   'Business Registration Certificate',
   'Tax Clearance Certificate',
-  'ISO Quality Certification',
+  'ISO 9001 Certification',
+  'ISO 20001 Certification', 
+  'ISO 27001 Certification',
+  'CMMI Level 3+ Certificate',
   'Financial Statements (Last 3 Years)',
-  'Experience Portfolio',
+  'Net Worth Certificates',
+  'Annual Turnover Proof (IT/ICT/ITES)',
+  'Turnkey Project Portfolio (₹8+ Crore)',
+  'PSU/Government Organization Certificate',
+  'Non-Blacklisting Declaration',
+  'Manufacturer Authorization Letters',
+  'OEM Support Documents',
+  'Odisha Office Registration/Undertaking',
   'Insurance Policy Documents',
   'Reference Letters',
   'Facility Photos and Certificates'
@@ -103,72 +120,75 @@ export const SupplierDetailModal = ({ supplier, isOpen, onClose, onStatusUpdate 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Supplier Review - {supplier.name}</DialogTitle>
-          <DialogDescription>Review supplier documents and complete approval checklist</DialogDescription>
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-50 to-teal-50">
+        <DialogHeader className="border-b border-teal-200 pb-4">
+          <DialogTitle className="text-2xl text-teal-900 flex items-center">
+            <Building className="h-6 w-6 mr-2" />
+            Supplier Review - {supplier.name}
+          </DialogTitle>
+          <DialogDescription className="text-teal-700">Complete supplier compliance verification and approval process</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Supplier Information */}
-          <Card>
-            <CardHeader>
+          <Card className="border-teal-200 shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white">
               <CardTitle className="flex items-center">
                 <Building className="h-5 w-5 mr-2" />
                 Supplier Information
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-3 bg-white">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="font-medium">Supplier ID:</Label>
-                  <p>{supplier.id}</p>
+                  <Label className="font-medium text-teal-900">Supplier ID:</Label>
+                  <p className="text-teal-700">{supplier.id}</p>
                 </div>
                 <div>
-                  <Label className="font-medium">Company Name:</Label>
-                  <p>{supplier.name}</p>
+                  <Label className="font-medium text-teal-900">Company Name:</Label>
+                  <p className="text-teal-700">{supplier.name}</p>
                 </div>
                 <div>
-                  <Label className="font-medium">Email:</Label>
-                  <p>{supplier.email}</p>
+                  <Label className="font-medium text-teal-900">Email:</Label>
+                  <p className="text-teal-700">{supplier.email}</p>
                 </div>
                 <div>
-                  <Label className="font-medium">Phone:</Label>
-                  <p>{supplier.phone}</p>
+                  <Label className="font-medium text-teal-900">Phone:</Label>
+                  <p className="text-teal-700">{supplier.phone}</p>
                 </div>
                 <div>
-                  <Label className="font-medium">Category:</Label>
-                  <p>{supplier.category}</p>
+                  <Label className="font-medium text-teal-900">Category:</Label>
+                  <p className="text-teal-700">{supplier.category}</p>
                 </div>
                 <div>
-                  <Label className="font-medium">Registration Date:</Label>
-                  <p>{supplier.registrationDate}</p>
+                  <Label className="font-medium text-teal-900">Registration Date:</Label>
+                  <p className="text-teal-700">{supplier.registrationDate}</p>
                 </div>
                 <div>
-                  <Label className="font-medium">Status:</Label>
+                  <Label className="font-medium text-teal-900">Status:</Label>
                   <Badge variant={supplier.status === 'approved' ? 'default' : supplier.status === 'rejected' ? 'destructive' : 'secondary'}>
                     {supplier.status.replace('_', ' ').toUpperCase()}
                   </Badge>
                 </div>
                 <div>
-                  <Label className="font-medium">Documents Count:</Label>
-                  <p>{supplier.documentsCount}</p>
+                  <Label className="font-medium text-teal-900">Documents Count:</Label>
+                  <p className="text-teal-700">{supplier.documentsCount}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Submitted Documents */}
-          <Card>
-            <CardHeader>
+          <Card className="border-teal-200 shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
               <CardTitle>Submitted Documents</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
+            <CardContent className="bg-blue-50">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {supplierDocuments.map((doc, index) => (
-                  <div key={index} className="flex justify-between items-center p-2 border rounded">
-                    <span className="text-sm">{doc}</span>
-                    <Button variant="outline" size="sm" onClick={() => handleDownload(doc)}>
+                  <div key={index} className="flex justify-between items-center p-3 border border-blue-200 rounded bg-white">
+                    <span className="text-sm text-blue-900">{doc}</span>
+                    <Button variant="outline" size="sm" onClick={() => handleDownload(doc)} className="border-blue-300 text-blue-700 hover:bg-blue-100">
                       <Download className="h-4 w-4 mr-2" />
                       Download
                     </Button>
@@ -178,22 +198,23 @@ export const SupplierDetailModal = ({ supplier, isOpen, onClose, onStatusUpdate 
             </CardContent>
           </Card>
 
-          {/* Compliance Checklist */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Compliance Checklist</CardTitle>
+          {/* Enhanced Compliance Checklist */}
+          <Card className="border-teal-200 shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-emerald-600 to-green-600 text-white">
+              <CardTitle>Enhanced Compliance Checklist</CardTitle>
+              <p className="text-emerald-100">All required criteria must be verified and approved</p>
             </CardHeader>
-            <CardContent>
+            <CardContent className="bg-emerald-50">
               <div className="space-y-4">
                 {complianceCriteria.map((criteria) => (
-                  <div key={criteria.id} className="border p-4 rounded">
-                    <div className="flex items-center space-x-2 mb-2">
+                  <div key={criteria.id} className="border border-emerald-200 p-4 rounded-lg bg-white">
+                    <div className="flex items-center space-x-3 mb-2">
                       <Checkbox
                         id={criteria.id}
                         checked={checklist[criteria.id] || false}
                         onCheckedChange={(checked) => handleCriteriaChange(criteria.id, checked as boolean)}
                       />
-                      <Label htmlFor={criteria.id} className="font-medium">
+                      <Label htmlFor={criteria.id} className="font-medium text-emerald-900">
                         {criteria.label}
                         {criteria.required && <span className="text-red-500 ml-1">*</span>}
                       </Label>
@@ -203,6 +224,7 @@ export const SupplierDetailModal = ({ supplier, isOpen, onClose, onStatusUpdate 
                       value={comments[criteria.id] || ''}
                       onChange={(e) => handleCommentChange(criteria.id, e.target.value)}
                       rows={2}
+                      className="border-emerald-200 focus:border-emerald-400"
                     />
                   </div>
                 ))}
@@ -211,28 +233,29 @@ export const SupplierDetailModal = ({ supplier, isOpen, onClose, onStatusUpdate 
           </Card>
 
           {/* Overall Assessment */}
-          <Card>
-            <CardHeader>
+          <Card className="border-teal-200 shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-slate-600 to-gray-600 text-white">
               <CardTitle>Overall Assessment</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="bg-slate-50">
               <Textarea
                 placeholder="Provide overall assessment and decision rationale..."
                 value={overallNotes}
                 onChange={(e) => setOverallNotes(e.target.value)}
                 rows={4}
+                className="border-slate-300 focus:border-slate-500"
               />
             </CardContent>
           </Card>
 
           {/* Action Buttons */}
           {supplier.status === 'pending' && (
-            <div className="flex justify-end space-x-4">
-              <Button variant="destructive" onClick={handleReject}>
+            <div className="flex justify-end space-x-4 pt-4">
+              <Button variant="destructive" onClick={handleReject} className="bg-red-600 hover:bg-red-700">
                 <X className="h-4 w-4 mr-2" />
                 Reject Supplier
               </Button>
-              <Button onClick={handleApprove} className="bg-green-600">
+              <Button onClick={handleApprove} className="bg-green-600 hover:bg-green-700">
                 <Check className="h-4 w-4 mr-2" />
                 Approve Supplier
               </Button>

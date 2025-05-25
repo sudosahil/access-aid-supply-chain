@@ -1,11 +1,10 @@
-
 // Mock data for SSEPD Procurement & Inventory Management System
 export interface User {
   id: string;
   name: string;
   email: string;
   password: string;
-  role: 'admin' | 'staff' | 'contractor';
+  role: 'admin' | 'staff' | 'contractor' | 'warehouse';
   phone: string;
   address: string;
   organization?: string;

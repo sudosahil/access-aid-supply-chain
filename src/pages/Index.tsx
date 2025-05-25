@@ -5,11 +5,11 @@ import { AdminDashboard } from '@/components/dashboards/AdminDashboard';
 import { StaffDashboard } from '@/components/dashboards/StaffDashboard';
 import { ContractorDashboard } from '@/components/dashboards/ContractorDashboard';
 import { WarehouseDashboard } from '@/components/dashboards/WarehouseDashboard';
-import { mockUsers } from '@/data/mockData';
+import { mockUsers, User } from '@/data/mockData';
 import { warehouseUsers } from '@/data/warehouseData';
 
 const Index = () => {
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const handleLogin = (email: string, password: string) => {
     // Check regular users first

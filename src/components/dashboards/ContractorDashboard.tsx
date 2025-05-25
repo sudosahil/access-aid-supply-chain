@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -152,9 +151,9 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
           </div>
         );
       case 'rfqs':
-        return <AvailableRFQs />;
+        return <AvailableRFQs contractorId={user.id} />;
       case 'bids':
-        return <MyBids />;
+        return <MyBids contractorId={user.id} />;
       case 'messaging':
         return <MessagingSystem />;
       case 'profile':

@@ -1,15 +1,17 @@
 
 import { useState } from 'react';
-import { Layout } from '@/components/common/Layout';
+import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, Package, FileText, Settings, TrendingUp, AlertTriangle } from 'lucide-react';
 import { UserManagement } from '@/components/admin/UserManagement';
 import { SupplierApproval } from '@/components/admin/SupplierApproval';
 import { SystemConfig } from '@/components/admin/SystemConfig';
 import { AdminReports } from '@/components/admin/AdminReports';
 import { ProfileManagement } from '@/components/common/ProfileManagement';
+import { RFQManagement } from '@/components/rfq/RFQManagement';
+import { MessagingSystem } from '@/components/messaging/MessagingSystem';
+import { AuditLogs } from '@/components/audit/AuditLogs';
 import { User, mockUsers, mockSuppliers, mockInventoryItems, mockRFQs } from '@/data/mockData';
 
 interface AdminDashboardProps {
@@ -25,6 +27,23 @@ export const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
     activeSuppliers: mockSuppliers.filter(s => s.status === 'approved').length,
     lowStockItems: mockInventoryItems.filter(i => i.currentStock <= i.reorderLevel).length,
     openRFQs: mockRFQs.filter(r => r.status === 'published').length
+  };
+
+  const getPageTitle = () => {
+    switch (activeTab) {
+      case 'dashboard': return 'Administrator Dashboard';
+      case 'rfqs': return 'RFQ Management';
+      case 'bids': return 'Bid Management';
+      case 'suppliers': return 'Supplier Management';
+      case 'inventory': return 'Inventory Management';
+      case 'warehouses': return 'Warehouse Management';
+      case 'messaging': return 'Messaging System';
+      case 'audit': return 'Audit Logs';
+      case 'users': return 'User Management';
+      case 'settings': return 'System Settings';
+      case 'profile': return 'Profile Management';
+      default: return 'Administrator Dashboard';
+    }
   };
 
   const renderContent = () => {
@@ -113,19 +132,19 @@ export const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
                   <CardDescription>Common administrative tasks</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button className="w-full justify-start" variant="outline">
+                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('users')}>
                     <Users className="h-4 w-4 mr-2" />
                     Add New User
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
+                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('suppliers')}>
                     <Package className="h-4 w-4 mr-2" />
                     Review Supplier Applications
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
+                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('audit')}>
                     <TrendingUp className="h-4 w-4 mr-2" />
-                    Generate System Report
+                    View Audit Logs
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
+                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('settings')}>
                     <Settings className="h-4 w-4 mr-2" />
                     Configure System Settings
                   </Button>
@@ -134,14 +153,24 @@ export const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
             </div>
           </div>
         );
-      case 'users':
-        return <UserManagement />;
+      case 'rfqs':
+        return <RFQManagement />;
+      case 'bids':
+        return <div className="text-center py-8">Bid Management component coming soon...</div>;
       case 'suppliers':
         return <SupplierApproval />;
-      case 'config':
+      case 'inventory':
+        return <div className="text-center py-8">Inventory Management component coming soon...</div>;
+      case 'warehouses':
+        return <div className="text-center py-8">Warehouse Management component coming soon...</div>;
+      case 'messaging':
+        return <MessagingSystem />;
+      case 'audit':
+        return <AuditLogs />;
+      case 'users':
+        return <UserManagement />;
+      case 'settings':
         return <SystemConfig />;
-      case 'reports':
-        return <AdminReports />;
       case 'profile':
         return <ProfileManagement user={user} />;
       default:
@@ -150,20 +179,14 @@ export const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
   };
 
   return (
-    <Layout user={user} onLogout={onLogout} title="Administrator Dashboard">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="suppliers">Suppliers</TabsTrigger>
-          <TabsTrigger value="config">Config</TabsTrigger>
-          <TabsTrigger value="reports">Reports</TabsTrigger>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-        </TabsList>
-        <TabsContent value={activeTab} className="mt-6">
-          {renderContent()}
-        </TabsContent>
-      </Tabs>
-    </Layout>
+    <MainLayout 
+      user={user} 
+      onLogout={onLogout} 
+      title={getPageTitle()}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+    >
+      {renderContent()}
+    </MainLayout>
   );
 };

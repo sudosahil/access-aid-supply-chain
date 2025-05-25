@@ -1,17 +1,17 @@
 
 import { useState } from 'react';
-import { Layout } from '@/components/common/Layout';
+import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Award, DollarSign, Bell, Upload } from 'lucide-react';
+import { FileText, ClipboardList, MessageSquare, TrendingUp, DollarSign, Clock } from 'lucide-react';
 import { AvailableRFQs } from '@/components/contractor/AvailableRFQs';
 import { MyBids } from '@/components/contractor/MyBids';
 import { MyContracts } from '@/components/contractor/MyContracts';
 import { InvoiceManagement } from '@/components/contractor/InvoiceManagement';
 import { ContractorNotifications } from '@/components/contractor/ContractorNotifications';
 import { ProfileManagement } from '@/components/common/ProfileManagement';
-import { User, mockRFQs, mockBids, mockContracts, mockInvoices } from '@/data/mockData';
+import { MessagingSystem } from '@/components/messaging/MessagingSystem';
+import { User } from '@/data/mockData';
 
 interface ContractorDashboardProps {
   user: User;
@@ -21,15 +21,22 @@ interface ContractorDashboardProps {
 export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps) => {
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  const userBids = mockBids.filter(b => b.contractorId === user.id);
-  const userContracts = mockContracts.filter(c => c.contractorId === user.id);
-  const userInvoices = mockInvoices.filter(i => i.contractorId === user.id);
-
   const stats = {
-    openRFQs: mockRFQs.filter(r => r.status === 'published').length,
-    myBids: userBids.length,
-    activeContracts: userContracts.filter(c => c.status === 'active').length,
-    pendingInvoices: userInvoices.filter(i => i.status === 'pending').length
+    availableRFQs: 12,
+    activeBids: 8,
+    wonContracts: 15,
+    totalEarnings: 2500000
+  };
+
+  const getPageTitle = () => {
+    switch (activeTab) {
+      case 'dashboard': return 'Contractor Dashboard';
+      case 'rfqs': return 'Available RFQs';
+      case 'bids': return 'My Bids';
+      case 'messaging': return 'Messaging System';
+      case 'profile': return 'Profile Management';
+      default: return 'Contractor Dashboard';
+    }
   };
 
   const renderContent = () => {
@@ -43,8 +50,8 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
                   <div className="flex items-center">
                     <FileText className="h-8 w-8 text-blue-600" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Open RFQs</p>
-                      <p className="text-2xl font-bold">{stats.openRFQs}</p>
+                      <p className="text-sm font-medium text-gray-600">Available RFQs</p>
+                      <p className="text-2xl font-bold">{stats.availableRFQs}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -52,10 +59,10 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center">
-                    <Upload className="h-8 w-8 text-green-600" />
+                    <ClipboardList className="h-8 w-8 text-orange-600" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">My Bids</p>
-                      <p className="text-2xl font-bold">{stats.myBids}</p>
+                      <p className="text-sm font-medium text-gray-600">Active Bids</p>
+                      <p className="text-2xl font-bold">{stats.activeBids}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -63,10 +70,10 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center">
-                    <Award className="h-8 w-8 text-purple-600" />
+                    <TrendingUp className="h-8 w-8 text-green-600" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Active Contracts</p>
-                      <p className="text-2xl font-bold">{stats.activeContracts}</p>
+                      <p className="text-sm font-medium text-gray-600">Won Contracts</p>
+                      <p className="text-2xl font-bold">{stats.wonContracts}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -74,10 +81,10 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center">
-                    <DollarSign className="h-8 w-8 text-yellow-600" />
+                    <DollarSign className="h-8 w-8 text-purple-600" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Pending Invoices</p>
-                      <p className="text-2xl font-bold">{stats.pendingInvoices}</p>
+                      <p className="text-sm font-medium text-gray-600">Total Earnings</p>
+                      <p className="text-2xl font-bold">₹{(stats.totalEarnings / 100000).toFixed(1)}L</p>
                     </div>
                   </div>
                 </CardContent>
@@ -87,26 +94,31 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Recent Activities</CardTitle>
-                  <CardDescription>Your recent bidding and contract activities</CardDescription>
+                  <CardTitle>Recent Opportunities</CardTitle>
+                  <CardDescription>Latest RFQs matching your profile</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <p className="text-sm">Submitted bid for electric wheelchairs</p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium">Electric Wheelchairs Procurement</p>
+                        <p className="text-xs text-gray-500">Budget: ₹5,00,000 • Deadline: 2 days</p>
+                      </div>
+                      <Clock className="h-4 w-4 text-orange-500" />
                     </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <p className="text-sm">Contract awarded for hearing aid services</p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium">Prosthetic Limbs Supply</p>
+                        <p className="text-xs text-gray-500">Budget: ₹7,50,000 • Deadline: 5 days</p>
+                      </div>
+                      <Clock className="h-4 w-4 text-green-500" />
                     </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                      <p className="text-sm">Invoice submitted for therapy equipment</p>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                      <p className="text-sm">New RFQ notification received</p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium">Medical Equipment Maintenance</p>
+                        <p className="text-xs text-gray-500">Budget: ₹3,00,000 • Deadline: 1 week</p>
+                      </div>
+                      <Clock className="h-4 w-4 text-green-500" />
                     </div>
                   </div>
                 </CardContent>
@@ -118,21 +130,21 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
                   <CardDescription>Common contractor tasks</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button className="w-full justify-start" variant="outline">
+                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('rfqs')}>
                     <FileText className="h-4 w-4 mr-2" />
-                    View Open RFQs
+                    Browse Available RFQs
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Submit New Bid
+                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('bids')}>
+                    <ClipboardList className="h-4 w-4 mr-2" />
+                    Manage My Bids
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <DollarSign className="h-4 w-4 mr-2" />
-                    Upload Invoice
+                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('messaging')}>
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Check Messages
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <Bell className="h-4 w-4 mr-2" />
-                    Check Notifications
+                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('profile')}>
+                    <TrendingUp className="h-4 w-4 mr-2" />
+                    Update Profile
                   </Button>
                 </CardContent>
               </Card>
@@ -140,15 +152,11 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
           </div>
         );
       case 'rfqs':
-        return <AvailableRFQs contractorId={user.id} />;
+        return <AvailableRFQs />;
       case 'bids':
-        return <MyBids contractorId={user.id} />;
-      case 'contracts':
-        return <MyContracts contractorId={user.id} />;
-      case 'invoices':
-        return <InvoiceManagement contractorId={user.id} />;
-      case 'notifications':
-        return <ContractorNotifications contractorId={user.id} />;
+        return <MyBids />;
+      case 'messaging':
+        return <MessagingSystem />;
       case 'profile':
         return <ProfileManagement user={user} />;
       default:
@@ -157,21 +165,14 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
   };
 
   return (
-    <Layout user={user} onLogout={onLogout} title="Contractor Dashboard">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="rfqs">RFQs</TabsTrigger>
-          <TabsTrigger value="bids">My Bids</TabsTrigger>
-          <TabsTrigger value="contracts">Contracts</TabsTrigger>
-          <TabsTrigger value="invoices">Invoices</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-        </TabsList>
-        <TabsContent value={activeTab} className="mt-6">
-          {renderContent()}
-        </TabsContent>
-      </Tabs>
-    </Layout>
+    <MainLayout 
+      user={user} 
+      onLogout={onLogout} 
+      title={getPageTitle()}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+    >
+      {renderContent()}
+    </MainLayout>
   );
 };

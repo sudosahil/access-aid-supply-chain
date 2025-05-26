@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Package, TrendingUp, AlertTriangle, Truck, FileText, MessageSquare } from 'lucide-react';
+import { Package, TrendingUp, AlertTriangle, Truck, FileText, MessageSquare, Plus } from 'lucide-react';
 import { WarehouseInventory } from '@/components/warehouse/WarehouseInventory';
 import { TransferRequests } from '@/components/warehouse/TransferRequests';
 import { ProfileManagement } from '@/components/common/ProfileManagement';
 import { MessagingSystem } from '@/components/messaging/MessagingSystem';
+import { InventoryRequestModal } from '@/components/warehouse/InventoryRequestModal';
 
 interface WarehouseDashboardProps {
   user: any;
@@ -15,6 +16,7 @@ interface WarehouseDashboardProps {
 
 export const WarehouseDashboard = ({ user, onLogout }: WarehouseDashboardProps) => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
 
   const stats = {
     totalItems: 156,
@@ -132,6 +134,10 @@ export const WarehouseDashboard = ({ user, onLogout }: WarehouseDashboardProps) 
                     <Truck className="h-4 w-4 mr-2" />
                     Process Transfers
                   </Button>
+                  <Button className="w-full justify-start" variant="outline" onClick={() => setIsRequestModalOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Request Inventory
+                  </Button>
                   <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('messaging')}>
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Check Messages
@@ -171,6 +177,13 @@ export const WarehouseDashboard = ({ user, onLogout }: WarehouseDashboardProps) 
       onTabChange={setActiveTab}
     >
       {renderContent()}
+      
+      <InventoryRequestModal
+        isOpen={isRequestModalOpen}
+        onClose={() => setIsRequestModalOpen(false)}
+        warehouseId={warehouseId}
+        warehouseName={warehouseName}
+      />
     </MainLayout>
   );
 };

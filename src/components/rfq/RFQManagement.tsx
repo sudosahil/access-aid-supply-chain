@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,7 +29,9 @@ interface RFQ {
 export const RFQManagement = () => {
   const [rfqs, setRfqs] = useState<RFQ[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedRFQId, setSelectedRFQId] = useState<string | null>(null);
+  const [editingRFQ, setEditingRFQ] = useState<RFQ | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
@@ -140,6 +141,54 @@ export const RFQManagement = () => {
       toast({
         title: "Error",
         description: "Failed to publish RFQ",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleEditRFQ = (rfq: RFQ) => {
+    setEditingRFQ(rfq);
+    setFormData({
+      title: rfq.title,
+      description: rfq.description,
+      requirements: rfq.requirements.join('\n'),
+      deadline: rfq.deadline,
+      budget: rfq.budget.toString(),
+      category: rfq.category
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateRFQ = async () => {
+    if (!editingRFQ) return;
+
+    try {
+      const { error } = await supabase
+        .from('rfqs')
+        .update({
+          title: formData.title,
+          description: formData.description,
+          requirements: formData.requirements.split('\n').filter(r => r.trim()),
+          deadline: formData.deadline,
+          budget: parseFloat(formData.budget),
+          category: formData.category,
+        })
+        .eq('id', editingRFQ.id);
+
+      if (error) throw error;
+
+      setIsEditDialogOpen(false);
+      setEditingRFQ(null);
+      setFormData({ title: '', description: '', requirements: '', deadline: '', budget: '', category: '' });
+      toast({
+        title: "RFQ Updated",
+        description: "RFQ has been updated successfully.",
+      });
+    } catch (error) {
+      console.error('Error updating RFQ:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update RFQ",
         variant: "destructive"
       });
     }
@@ -313,7 +362,12 @@ export const RFQManagement = () => {
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="sm" className="hover:bg-gray-100 active:bg-gray-200">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="hover:bg-gray-100 active:bg-gray-200"
+                        onClick={() => handleEditRFQ(rfq)}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button 
@@ -341,6 +395,91 @@ export const RFQManagement = () => {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Edit RFQ Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit RFQ</DialogTitle>
+            <DialogDescription>Update the RFQ details</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-title">Title</Label>
+              <Input 
+                id="edit-title"
+                placeholder="Enter RFQ title" 
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-description">Description</Label>
+              <Textarea 
+                id="edit-description"
+                placeholder="Enter detailed description" 
+                rows={4} 
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-requirements">Requirements (one per line)</Label>
+              <Textarea
+                id="edit-requirements"
+                placeholder="FDA approved&#10;Minimum 2-year warranty&#10;Training included"
+                rows={4}
+                value={formData.requirements}
+                onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-budget">Budget</Label>
+                <Input 
+                  id="edit-budget"
+                  type="number" 
+                  placeholder="Enter budget amount" 
+                  value={formData.budget}
+                  onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-deadline">Deadline</Label>
+                <Input 
+                  id="edit-deadline"
+                  type="date" 
+                  value={formData.deadline}
+                  onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="edit-category">Category</Label>
+              <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Mobility Aids">Mobility Aids</SelectItem>
+                  <SelectItem value="Prosthetics">Prosthetics</SelectItem>
+                  <SelectItem value="Hearing Aids">Hearing Aids</SelectItem>
+                  <SelectItem value="Vision Aids">Vision Aids</SelectItem>
+                  <SelectItem value="Medical Equipment">Medical Equipment</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleUpdateRFQ}>
+                Update RFQ
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <RFQDetailModal
         rfqId={selectedRFQId}

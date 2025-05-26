@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,12 +6,16 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Search, Plus, Building, Package, Users, MapPin, Phone, Mail, Eye, Settings, Truck } from 'lucide-react';
+import { WarehouseInventory } from '@/components/warehouse/WarehouseInventory';
+import { TransferRequests } from '@/components/warehouse/TransferRequests';
 import { useToast } from '@/hooks/use-toast';
 
 export const WarehouseManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedWarehouse, setSelectedWarehouse] = useState<any>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [activeView, setActiveView] = useState<'list' | 'inventory' | 'transfers'>('list');
+  const [currentWarehouseId, setCurrentWarehouseId] = useState<string>('');
   const { toast } = useToast();
 
   const mockWarehouses = [
@@ -69,21 +72,18 @@ export const WarehouseManagement = () => {
   };
 
   const handleManageInventory = (warehouseId: string) => {
-    toast({
-      title: "Opening Inventory Management",
-      description: `Redirecting to inventory management for ${warehouseId}`,
-    });
-    // In a real app, this would navigate to the inventory management page
-    console.log(`Navigate to inventory management for ${warehouseId}`);
+    setCurrentWarehouseId(warehouseId);
+    setActiveView('inventory');
   };
 
   const handleTransferRequests = (warehouseId: string) => {
-    toast({
-      title: "Opening Transfer Requests",
-      description: `Viewing transfer requests for ${warehouseId}`,
-    });
-    // In a real app, this would navigate to the transfer requests page
-    console.log(`Navigate to transfer requests for ${warehouseId}`);
+    setCurrentWarehouseId(warehouseId);
+    setActiveView('transfers');
+  };
+
+  const handleBackToList = () => {
+    setActiveView('list');
+    setCurrentWarehouseId('');
   };
 
   const getStatusBadge = (status: string) => {
@@ -104,6 +104,34 @@ export const WarehouseManagement = () => {
     warehouse.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
     warehouse.manager.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (activeView === 'inventory') {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" onClick={handleBackToList}>
+            ← Back to Warehouses
+          </Button>
+          <h2 className="text-2xl font-bold">Inventory Management - {currentWarehouseId}</h2>
+        </div>
+        <WarehouseInventory warehouseId={currentWarehouseId} />
+      </div>
+    );
+  }
+
+  if (activeView === 'transfers') {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" onClick={handleBackToList}>
+            ← Back to Warehouses
+          </Button>
+          <h2 className="text-2xl font-bold">Transfer Requests - {currentWarehouseId}</h2>
+        </div>
+        <TransferRequests warehouseId={currentWarehouseId} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

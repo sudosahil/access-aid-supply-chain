@@ -1,197 +1,176 @@
 
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Check, X, Eye } from 'lucide-react';
-import { mockBids, mockRFQs, mockUsers, Bid } from '@/data/mockData';
+import { FileText, Award, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export const BidEvaluation = () => {
-  const [bids, setBids] = useState(mockBids);
-  const [selectedBid, setSelectedBid] = useState<Bid | null>(null);
-  const [evaluationNotes, setEvaluationNotes] = useState('');
   const { toast } = useToast();
 
-  const handleAcceptBid = (bidId: string) => {
-    setBids(bids.map(bid =>
-      bid.id === bidId ? { ...bid, status: 'accepted' } : bid
-    ));
+  const [evaluations, setEvaluations] = useState<Record<string, Record<string, boolean>>>({});
+
+  const mockBids = [
+    {
+      id: 'bid1',
+      rfqId: 'rfq1',
+      rfqTitle: 'Electric Wheelchairs - Bulk Purchase',
+      supplierName: 'MedEquip Solutions',
+      amount: 225000,
+      submittedDate: '2024-01-20',
+      status: 'under_review'
+    },
+    {
+      id: 'bid2',
+      rfqId: 'rfq1',
+      rfqTitle: 'Electric Wheelchairs - Bulk Purchase',
+      supplierName: 'HealthTech Corp',
+      amount: 235000,
+      submittedDate: '2024-01-21',
+      status: 'under_review'
+    }
+  ];
+
+  const evaluationCriteria = [
+    'Safety Compliance',
+    'Quality Standards',
+    'Price Competitiveness',
+    'Delivery Timeline',
+    'Warranty Terms',
+    'Technical Specifications',
+    'Supplier Experience',
+    'Documentation Complete'
+  ];
+
+  const handleCriteriaChange = (bidId: string, criterion: string, checked: boolean) => {
+    setEvaluations(prev => ({
+      ...prev,
+      [bidId]: {
+        ...prev[bidId],
+        [criterion]: checked
+      }
+    }));
+  };
+
+  const handleAwardBid = (bidId: string) => {
+    const evaluation = evaluations[bidId] || {};
+    const checkedCriteria = Object.values(evaluation).filter(Boolean).length;
+    
+    if (checkedCriteria < evaluationCriteria.length * 0.7) {
+      toast({
+        title: "Evaluation Incomplete",
+        description: "Please complete at least 70% of evaluation criteria before awarding.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     toast({
-      title: "Bid Accepted",
-      description: "Bid has been accepted and contractor will be notified.",
+      title: "Bid Awarded",
+      description: `Bid ${bidId} has been awarded successfully.`
     });
   };
 
   const handleRejectBid = (bidId: string) => {
-    setBids(bids.map(bid =>
-      bid.id === bidId ? { ...bid, status: 'rejected' } : bid
-    ));
     toast({
       title: "Bid Rejected",
-      description: "Bid has been rejected and contractor will be notified.",
+      description: `Bid ${bidId} has been rejected.`,
       variant: "destructive"
     });
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'accepted': return 'bg-green-100 text-green-800';
-      case 'submitted': return 'bg-blue-100 text-blue-800';
-      case 'under_review': return 'bg-yellow-100 text-yellow-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getRFQTitle = (rfqId: string) => {
-    const rfq = mockRFQs.find(r => r.id === rfqId);
-    return rfq ? rfq.title : 'Unknown RFQ';
-  };
-
-  const getContractorName = (contractorId: string) => {
-    const contractor = mockUsers.find(u => u.id === contractorId);
-    return contractor ? contractor.name : 'Unknown Contractor';
+  const getCompletionPercentage = (bidId: string) => {
+    const evaluation = evaluations[bidId] || {};
+    const checkedCount = Object.values(evaluation).filter(Boolean).length;
+    return Math.round((checkedCount / evaluationCriteria.length) * 100);
   };
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Bid Evaluation</CardTitle>
-          <CardDescription>Review and evaluate submitted bids</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>RFQ</TableHead>
-                <TableHead>Contractor</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Submitted</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {bids.map((bid) => (
-                <TableRow key={bid.id}>
-                  <TableCell className="font-medium">{getRFQTitle(bid.rfqId)}</TableCell>
-                  <TableCell>{getContractorName(bid.contractorId)}</TableCell>
-                  <TableCell>${bid.amount.toLocaleString()}</TableCell>
-                  <TableCell>{new Date(bid.submittedAt).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <Badge className={getStatusColor(bid.status)}>
-                      {bid.status.replace('_', ' ').charAt(0).toUpperCase() + bid.status.replace('_', ' ').slice(1)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="sm" onClick={() => setSelectedBid(bid)}>
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl">
-                          <DialogHeader>
-                            <DialogTitle>Bid Details</DialogTitle>
-                            <DialogDescription>Review bid proposal and documents</DialogDescription>
-                          </DialogHeader>
-                          {selectedBid && (
-                            <div className="space-y-4">
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <h4 className="font-medium">RFQ</h4>
-                                  <p className="text-sm text-gray-600">{getRFQTitle(selectedBid.rfqId)}</p>
-                                </div>
-                                <div>
-                                  <h4 className="font-medium">Contractor</h4>
-                                  <p className="text-sm text-gray-600">{getContractorName(selectedBid.contractorId)}</p>
-                                </div>
-                                <div>
-                                  <h4 className="font-medium">Bid Amount</h4>
-                                  <p className="text-sm text-gray-600">${selectedBid.amount.toLocaleString()}</p>
-                                </div>
-                                <div>
-                                  <h4 className="font-medium">Status</h4>
-                                  <Badge className={getStatusColor(selectedBid.status)}>
-                                    {selectedBid.status.replace('_', ' ')}
-                                  </Badge>
-                                </div>
-                              </div>
-                              <div>
-                                <h4 className="font-medium">Proposal</h4>
-                                <p className="text-sm text-gray-600 mt-1">{selectedBid.proposal}</p>
-                              </div>
-                              <div>
-                                <h4 className="font-medium">Documents</h4>
-                                <div className="flex flex-wrap gap-2 mt-1">
-                                  {selectedBid.documents.map((doc, index) => (
-                                    <Badge key={index} variant="outline" className="text-xs">
-                                      {doc}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              </div>
-                              <div>
-                                <Label htmlFor="notes">Evaluation Notes</Label>
-                                <Textarea
-                                  id="notes"
-                                  value={evaluationNotes}
-                                  onChange={(e) => setEvaluationNotes(e.target.value)}
-                                  placeholder="Add evaluation notes..."
-                                  rows={3}
-                                />
-                              </div>
-                              {selectedBid.status === 'submitted' || selectedBid.status === 'under_review' ? (
-                                <div className="flex justify-end space-x-2 pt-4">
-                                  <Button variant="outline" onClick={() => handleRejectBid(selectedBid.id)}>
-                                    <X className="h-4 w-4 mr-2" />
-                                    Reject
-                                  </Button>
-                                  <Button onClick={() => handleAcceptBid(selectedBid.id)}>
-                                    <Check className="h-4 w-4 mr-2" />
-                                    Accept
-                                  </Button>
-                                </div>
-                              ) : null}
-                            </div>
-                          )}
-                        </DialogContent>
-                      </Dialog>
-                      {(bid.status === 'submitted' || bid.status === 'under_review') && (
-                        <>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleAcceptBid(bid.id)}
-                            className="text-green-600 hover:text-green-700"
-                          >
-                            <Check className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleRejectBid(bid.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Bid Evaluation</h2>
+        <Badge variant="outline">
+          {mockBids.length} Bids Under Review
+        </Badge>
+      </div>
+
+      <div className="grid gap-6">
+        {mockBids.map((bid) => (
+          <Card key={bid.id}>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="text-lg">{bid.rfqTitle}</CardTitle>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Supplier: <strong>{bid.supplierName}</strong> • 
+                    Amount: <strong>₹{bid.amount.toLocaleString()}</strong> • 
+                    Submitted: {bid.submittedDate}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <Badge variant="secondary">
+                    {getCompletionPercentage(bid.id)}% Complete
+                  </Badge>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <h4 className="font-semibold mb-4">Evaluation Criteria</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {evaluationCriteria.map((criterion) => (
+                      <div key={criterion} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`${bid.id}-${criterion}`}
+                          checked={evaluations[bid.id]?.[criterion] || false}
+                          onCheckedChange={(checked) => 
+                            handleCriteriaChange(bid.id, criterion, checked as boolean)
+                          }
+                        />
+                        <Label 
+                          htmlFor={`${bid.id}-${criterion}`}
+                          className="text-sm cursor-pointer"
+                        >
+                          {criterion}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center pt-4 border-t">
+                  <Button variant="outline" size="sm">
+                    <FileText className="h-4 w-4 mr-2" />
+                    View Documents
+                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleRejectBid(bid.id)}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Reject
+                    </Button>
+                    <Button 
+                      size="sm"
+                      onClick={() => handleAwardBid(bid.id)}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <Award className="h-4 w-4 mr-2" />
+                      Award Bid
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 };

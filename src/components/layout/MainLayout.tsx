@@ -4,7 +4,10 @@ import { AppSidebar } from './AppSidebar';
 import { User } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Bell, LogOut } from 'lucide-react';
+import { Bell, LogOut, Palette } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ThemeSelector } from '@/components/common/ThemeSelector';
+
 interface MainLayoutProps {
   children: ReactNode;
   user: User;
@@ -31,6 +34,19 @@ export const MainLayout = ({
               <h1 className="text-xl font-semibold">{title}</h1>
             </div>
             <div className="flex items-center space-x-4">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <Palette className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Customize Theme</DialogTitle>
+                  </DialogHeader>
+                  <ThemeSelector />
+                </DialogContent>
+              </Dialog>
               <Button variant="ghost" size="sm">
                 <Bell className="h-4 w-4" />
               </Button>
@@ -49,7 +65,7 @@ export const MainLayout = ({
               </Button>
             </div>
           </header>
-          <main className="flex-1 overflow-auto p-6 bg-slate-900">
+          <main className="flex-1 overflow-auto p-6">
             {children}
           </main>
         </SidebarInset>

@@ -155,7 +155,11 @@ export const ContractorDashboard = ({ user, onLogout }: ContractorDashboardProps
       case 'bids':
         return <MyBids contractorId={user.id} />;
       case 'messaging':
-        return <MessagingSystem />;
+        return <MessagingSystem 
+          currentUserId={user.id}
+          currentUserName={user.name}
+          currentUserRole={user.role}
+        />;
       case 'profile':
         return <ProfileManagement user={user} />;
       default:

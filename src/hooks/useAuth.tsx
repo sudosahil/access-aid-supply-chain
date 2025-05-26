@@ -42,9 +42,9 @@ export const useAuth = () => {
           password: user.password,
           role: user.role as 'admin' | 'staff' | 'contractor' | 'warehouse',
           profilePhoto: user.profile_photo,
-          phone: user.phone || '',
-          address: user.address || '',
-          organization: user.organization,
+          phone: '', // Default empty since not in database
+          address: '', // Default empty since not in database
+          organization: user.warehouse_name || '', // Use warehouse_name as organization fallback
           warehouseName: user.warehouse_name,
           warehouseId: user.warehouse_id,
           isActive: true,
@@ -78,9 +78,9 @@ export const useAuth = () => {
         password: user.password,
         role: user.role as 'admin' | 'staff' | 'contractor' | 'warehouse',
         profilePhoto: user.profile_photo,
-        phone: user.phone || '',
-        address: user.address || '',
-        organization: user.organization,
+        phone: '', // Default empty since not in database
+        address: '', // Default empty since not in database
+        organization: user.warehouse_name || '', // Use warehouse_name as organization fallback
         warehouseName: user.warehouse_name,
         warehouseId: user.warehouse_id,
         isActive: true,

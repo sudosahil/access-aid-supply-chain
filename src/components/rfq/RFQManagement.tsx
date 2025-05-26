@@ -88,9 +88,12 @@ export const RFQManagement = () => {
 
   const handleCreateRFQ = async () => {
     try {
+      const rfqId = `rfq-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
       const { error } = await supabase
         .from('rfqs')
         .insert({
+          id: rfqId,
           title: formData.title,
           description: formData.description,
           requirements: formData.requirements.split('\n').filter(r => r.trim()),

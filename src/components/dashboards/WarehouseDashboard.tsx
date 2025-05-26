@@ -147,7 +147,11 @@ export const WarehouseDashboard = ({ user, onLogout }: WarehouseDashboardProps) 
       case 'transfers':
         return <TransferRequests warehouseId={user.warehouseId} />;
       case 'messaging':
-        return <MessagingSystem />;
+        return <MessagingSystem 
+          currentUserId={user.id}
+          currentUserName={user.name}
+          currentUserRole={user.role}
+        />;
       case 'profile':
         return <ProfileManagement user={user} />;
       default:

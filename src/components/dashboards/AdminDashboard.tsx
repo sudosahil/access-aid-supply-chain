@@ -168,7 +168,11 @@ export const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
       case 'warehouses':
         return <WarehouseManagement />;
       case 'messaging':
-        return <MessagingSystem />;
+        return <MessagingSystem 
+          currentUserId={user.id}
+          currentUserName={user.name}
+          currentUserRole={user.role}
+        />;
       case 'audit':
         return <AuditLogs />;
       case 'users':

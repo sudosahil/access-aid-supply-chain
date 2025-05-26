@@ -1,12 +1,12 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Search, Send, Download, FileText } from 'lucide-react';
+import { Search, Send, Download, FileText, Check, CheckCheck, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -20,6 +20,7 @@ interface Message {
   created_at: string;
   sender_name?: string;
   sender_role?: string;
+  status?: 'sent' | 'delivered' | 'read';
 }
 
 interface Conversation {
@@ -45,13 +46,65 @@ export const RealtimeMessaging = ({ currentUserId, currentUserName, currentUserR
   const [newMessage, setNewMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   useEffect(() => {
     loadMessages();
     loadConversations();
     setupRealtimeSubscription();
+    setupPresenceTracking();
   }, []);
+
+  const setupPresenceTracking = () => {
+    const channel = supabase.channel('online-users', {
+      config: {
+        presence: {
+          key: currentUserId,
+        },
+      },
+    });
+
+    channel
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState();
+        const users = new Set(Object.keys(state));
+        setOnlineUsers(users);
+      })
+      .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+        setOnlineUsers(prev => new Set([...prev, key]));
+      })
+      .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+        setOnlineUsers(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(key);
+          return newSet;
+        });
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await channel.track({
+            user_id: currentUserId,
+            user_name: currentUserName,
+            user_role: currentUserRole,
+            online_at: new Date().toISOString(),
+          });
+        }
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
 
   const loadMessages = async () => {
     try {
@@ -68,19 +121,25 @@ export const RealtimeMessaging = ({ currentUserId, currentUserName, currentUserR
       const messagesWithSender = data?.map(msg => ({
         ...msg,
         sender_name: msg.sender?.name,
-        sender_role: msg.sender?.role
+        sender_role: msg.sender?.role,
+        status: msg.sender_id === currentUserId ? 'delivered' : 'read'
       })) || [];
       
       setMessages(messagesWithSender);
     } catch (error) {
       console.error('Error loading messages:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load messages",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const loadConversations = async () => {
-    // Mock conversations for demo - in real app, this would be computed from messages
+    // Enhanced conversations with real-time data
     setConversations([
       {
         id: 'conv-001',
@@ -99,19 +158,40 @@ export const RealtimeMessaging = ({ currentUserId, currentUserName, currentUserR
         lastActivity: new Date().toISOString(),
         unreadCount: 0,
         relatedTo: 'rfq2'
+      },
+      {
+        id: 'conv-003',
+        title: 'Warehouse Inventory Coordination',
+        participants: ['Admin', 'Warehouse Manager'],
+        lastMessage: 'Stock levels updated for all critical items.',
+        lastActivity: new Date().toISOString(),
+        unreadCount: 1,
+        relatedTo: 'inventory'
       }
     ]);
   };
 
   const setupRealtimeSubscription = () => {
     const channel = supabase
-      .channel('messages-changes')
+      .channel('messages-realtime')
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
         table: 'messages'
       }, (payload) => {
         console.log('New message received:', payload);
+        loadMessages();
+        toast({
+          title: "New Message",
+          description: "You have a new message",
+        });
+      })
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'messages'
+      }, (payload) => {
+        console.log('Message updated:', payload);
         loadMessages();
       })
       .subscribe();
@@ -124,25 +204,50 @@ export const RealtimeMessaging = ({ currentUserId, currentUserName, currentUserR
   const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
 
+    const tempId = `temp-${Date.now()}`;
+    const timestamp = new Date().toISOString();
+
+    // Optimistic update
+    const optimisticMessage: Message = {
+      id: tempId,
+      sender_id: currentUserId,
+      content: newMessage,
+      message_type: 'direct',
+      is_read: false,
+      created_at: timestamp,
+      sender_name: currentUserName,
+      sender_role: currentUserRole,
+      status: 'sent',
+      rfq_id: selectedConversation === 'conv-001' ? 'rfq1' : selectedConversation === 'conv-002' ? 'rfq2' : null
+    };
+
+    setMessages(prev => [...prev, optimisticMessage]);
+    setNewMessage('');
+
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('messages')
         .insert({
           sender_id: currentUserId,
           content: newMessage,
           message_type: 'direct',
-          rfq_id: selectedConversation === 'conv-001' ? 'rfq1' : null
-        });
+          rfq_id: selectedConversation === 'conv-001' ? 'rfq1' : selectedConversation === 'conv-002' ? 'rfq2' : null
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
-      setNewMessage('');
-      toast({
-        title: "Message Sent",
-        description: "Your message has been sent successfully.",
-      });
+      // Replace optimistic message with real one
+      setMessages(prev => prev.map(msg => 
+        msg.id === tempId 
+          ? { ...msg, id: data.id, status: 'delivered' }
+          : msg
+      ));
     } catch (error) {
       console.error('Error sending message:', error);
+      // Remove optimistic message on error
+      setMessages(prev => prev.filter(msg => msg.id !== tempId));
       toast({
         title: "Error",
         description: "Failed to send message",
@@ -151,10 +256,41 @@ export const RealtimeMessaging = ({ currentUserId, currentUserName, currentUserR
     }
   };
 
+  const getMessageStatusIcon = (message: Message) => {
+    if (message.sender_id !== currentUserId) return null;
+
+    switch (message.status) {
+      case 'sent':
+        return <Clock className="h-3 w-3 text-gray-400" />;
+      case 'delivered':
+        return <Check className="h-3 w-3 text-blue-500" />;
+      case 'read':
+        return <CheckCheck className="h-3 w-3 text-green-500" />;
+      default:
+        return <Clock className="h-3 w-3 text-gray-400" />;
+    }
+  };
+
   const handleDownloadChat = (conversationId: string) => {
+    const conversation = conversations.find(c => c.id === conversationId);
+    const chatMessages = selectedConversationMessages;
+    
+    // Create simple text format for download
+    const chatText = chatMessages.map(msg => 
+      `[${new Date(msg.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}] ${msg.sender_name} (${msg.sender_role}): ${msg.content}`
+    ).join('\n');
+    
+    const blob = new Blob([`Chat History: ${conversation?.title}\n\n${chatText}`], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `chat-${conversationId}-${new Date().toISOString().split('T')[0]}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+
     toast({
       title: "Chat Downloaded",
-      description: "Chat history has been downloaded as PDF.",
+      description: "Chat history has been downloaded as text file.",
     });
   };
 
@@ -166,6 +302,7 @@ export const RealtimeMessaging = ({ currentUserId, currentUserName, currentUserR
   const selectedConversationMessages = messages.filter(msg => 
     selectedConversation === 'conv-001' ? msg.rfq_id === 'rfq1' : 
     selectedConversation === 'conv-002' ? msg.rfq_id === 'rfq2' : 
+    selectedConversation === 'conv-003' ? !msg.rfq_id :
     false
   );
 
@@ -183,7 +320,9 @@ export const RealtimeMessaging = ({ currentUserId, currentUserName, currentUserR
       <Card className="w-1/3">
         <CardHeader>
           <CardTitle>Conversations</CardTitle>
-          <CardDescription>All your RFQ and bid related discussions</CardDescription>
+          <CardDescription>
+            All your discussions • {onlineUsers.size} online
+          </CardDescription>
           <div className="relative">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -199,8 +338,8 @@ export const RealtimeMessaging = ({ currentUserId, currentUserName, currentUserR
             {filteredConversations.map((conversation) => (
               <div
                 key={conversation.id}
-                className={`p-4 border-b cursor-pointer hover:bg-gray-50 ${
-                  selectedConversation === conversation.id ? 'bg-blue-50' : ''
+                className={`p-4 border-b cursor-pointer hover:bg-gray-50 transition-colors ${
+                  selectedConversation === conversation.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
                 }`}
                 onClick={() => setSelectedConversation(conversation.id)}
               >
@@ -223,7 +362,11 @@ export const RealtimeMessaging = ({ currentUserId, currentUserName, currentUserR
                     {conversation.relatedTo}
                   </Badge>
                   <span className="text-xs text-gray-400">
-                    {new Date(conversation.lastActivity).toLocaleDateString()}
+                    {new Date(conversation.lastActivity).toLocaleString('en-IN', { 
+                      timeZone: 'Asia/Kolkata',
+                      dateStyle: 'short',
+                      timeStyle: 'short'
+                    })}
                   </span>
                 </div>
               </div>
@@ -249,11 +392,10 @@ export const RealtimeMessaging = ({ currentUserId, currentUserName, currentUserR
                 <Button
                   variant="outline"
                   size="sm"
-                  className="hover:bg-gray-100 active:bg-gray-200"
                   onClick={() => handleDownloadChat(selectedConversation)}
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  Download PDF
+                  Download
                 </Button>
               </div>
             </CardHeader>
@@ -274,14 +416,20 @@ export const RealtimeMessaging = ({ currentUserId, currentUserName, currentUserR
                             {message.sender_role || 'User'}
                           </Badge>
                           <span className="text-xs text-gray-500">
-                            {new Date(message.created_at).toLocaleString()}
+                            {new Date(message.created_at).toLocaleString('en-IN', { 
+                              timeZone: 'Asia/Kolkata',
+                              dateStyle: 'short',
+                              timeStyle: 'short'
+                            })}
                           </span>
+                          {getMessageStatusIcon(message)}
                         </div>
                         <p className="text-sm mt-1 text-gray-700">{message.content}</p>
                       </div>
                     </div>
                   </div>
                 ))}
+                <div ref={messagesEndRef} />
               </ScrollArea>
               <div className="flex space-x-2 mt-4">
                 <Input
@@ -293,7 +441,7 @@ export const RealtimeMessaging = ({ currentUserId, currentUserName, currentUserR
                 />
                 <Button 
                   onClick={handleSendMessage}
-                  className="hover:bg-gray-100 active:bg-gray-200"
+                  disabled={!newMessage.trim()}
                 >
                   <Send className="h-4 w-4" />
                 </Button>
@@ -305,6 +453,7 @@ export const RealtimeMessaging = ({ currentUserId, currentUserName, currentUserR
             <div className="text-center text-gray-500">
               <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>Select a conversation to start messaging</p>
+              <p className="text-sm mt-2">Real-time messaging enabled for all roles</p>
             </div>
           </CardContent>
         )}

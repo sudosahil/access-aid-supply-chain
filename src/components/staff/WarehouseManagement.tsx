@@ -4,11 +4,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Plus, Building, Package, Users, MapPin, Phone, Mail } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Search, Plus, Building, Package, Users, MapPin, Phone, Mail, Eye, Settings, Truck } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export const WarehouseManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedWarehouse, setSelectedWarehouse] = useState<any>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const { toast } = useToast();
 
   const mockWarehouses = [
     {
@@ -57,6 +62,29 @@ export const WarehouseManagement = () => {
       workers: 10
     }
   ];
+
+  const handleViewDetails = (warehouse: any) => {
+    setSelectedWarehouse(warehouse);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleManageInventory = (warehouseId: string) => {
+    toast({
+      title: "Opening Inventory Management",
+      description: `Redirecting to inventory management for ${warehouseId}`,
+    });
+    // In a real app, this would navigate to the inventory management page
+    console.log(`Navigate to inventory management for ${warehouseId}`);
+  };
+
+  const handleTransferRequests = (warehouseId: string) => {
+    toast({
+      title: "Opening Transfer Requests",
+      description: `Viewing transfer requests for ${warehouseId}`,
+    });
+    // In a real app, this would navigate to the transfer requests page
+    console.log(`Navigate to transfer requests for ${warehouseId}`);
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -202,14 +230,29 @@ export const WarehouseManagement = () => {
                   </p>
                 </div>
                 
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
+                <div className="flex gap-2 flex-wrap">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleViewDetails(warehouse)}
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
                     View Details
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleManageInventory(warehouse.id)}
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
                     Manage Inventory
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleTransferRequests(warehouse.id)}
+                  >
+                    <Truck className="h-4 w-4 mr-2" />
                     Transfer Requests
                   </Button>
                 </div>
@@ -218,6 +261,61 @@ export const WarehouseManagement = () => {
           </Card>
         ))}
       </div>
+
+      {/* Warehouse Details Modal */}
+      <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Warehouse Details</DialogTitle>
+            <DialogDescription>
+              Complete information for {selectedWarehouse?.name}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedWarehouse && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Warehouse ID</Label>
+                  <p className="text-sm font-medium">{selectedWarehouse.id}</p>
+                </div>
+                <div>
+                  <Label>Status</Label>
+                  <div className="mt-1">{getStatusBadge(selectedWarehouse.status)}</div>
+                </div>
+              </div>
+              <div>
+                <Label>Full Address</Label>
+                <p className="text-sm">{selectedWarehouse.address}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Manager</Label>
+                  <p className="text-sm">{selectedWarehouse.manager}</p>
+                </div>
+                <div>
+                  <Label>Contact</Label>
+                  <p className="text-sm">{selectedWarehouse.phone}</p>
+                  <p className="text-sm text-gray-600">{selectedWarehouse.email}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label>Capacity</Label>
+                  <p className="text-sm font-medium">{selectedWarehouse.capacity}</p>
+                </div>
+                <div>
+                  <Label>Total Items</Label>
+                  <p className="text-sm font-medium">{selectedWarehouse.totalItems}</p>
+                </div>
+                <div>
+                  <Label>Workers</Label>
+                  <p className="text-sm font-medium">{selectedWarehouse.workers}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -122,7 +122,7 @@ export const RealtimeMessaging = ({ currentUserId, currentUserName, currentUserR
         ...msg,
         sender_name: msg.sender?.name,
         sender_role: msg.sender?.role,
-        status: msg.sender_id === currentUserId ? 'delivered' : 'read'
+        status: (msg.sender_id === currentUserId ? 'delivered' : 'read') as 'sent' | 'delivered' | 'read'
       })) || [];
       
       setMessages(messagesWithSender);
@@ -217,8 +217,8 @@ export const RealtimeMessaging = ({ currentUserId, currentUserName, currentUserR
       created_at: timestamp,
       sender_name: currentUserName,
       sender_role: currentUserRole,
-      status: 'sent',
-      rfq_id: selectedConversation === 'conv-001' ? 'rfq1' : selectedConversation === 'conv-002' ? 'rfq2' : null
+      status: 'sent' as const,
+      rfq_id: selectedConversation === 'conv-001' ? 'rfq1' : selectedConversation === 'conv-002' ? 'rfq2' : undefined
     };
 
     setMessages(prev => [...prev, optimisticMessage]);
@@ -241,7 +241,7 @@ export const RealtimeMessaging = ({ currentUserId, currentUserName, currentUserR
       // Replace optimistic message with real one
       setMessages(prev => prev.map(msg => 
         msg.id === tempId 
-          ? { ...msg, id: data.id, status: 'delivered' }
+          ? { ...msg, id: data.id, status: 'delivered' as const }
           : msg
       ));
     } catch (error) {

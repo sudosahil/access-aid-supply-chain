@@ -13,7 +13,8 @@ const themes = [
   { id: 'forest', name: 'Forest Green', colors: ['#22c55e', '#16a34a', '#15803d'] },
   { id: 'sunset', name: 'Sunset Orange', colors: ['#f97316', '#ea580c', '#c2410c'] },
   { id: 'purple', name: 'Royal Purple', colors: ['#a855f7', '#9333ea', '#7c3aed'] },
-  { id: 'rose', name: 'Rose Pink', colors: ['#f43f5e', '#e11d48', '#be123c'] }
+  { id: 'rose', name: 'Rose Pink', colors: ['#f43f5e', '#e11d48', '#be123c'] },
+  { id: 'monochrome', name: 'Monochrome', colors: ['#6b7280', '#4b5563', '#374151'] }
 ] as const;
 
 export const ThemeSelector = () => {
@@ -47,7 +48,7 @@ export const ThemeSelector = () => {
               <Button
                 key={theme.id}
                 variant={themeVariant === theme.id ? "default" : "outline"}
-                className="h-auto p-3 flex flex-col items-center gap-2"
+                className="h-auto p-3 flex flex-col items-center gap-2 hover:bg-gray-100 active:bg-gray-200 disabled:bg-gray-50"
                 onClick={() => setThemeVariant(theme.id as ThemeVariant)}
               >
                 <div className="flex gap-1">

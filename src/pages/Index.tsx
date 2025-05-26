@@ -1,50 +1,40 @@
 
-import { useState } from 'react';
+import React from 'react';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { AdminDashboard } from '@/components/dashboards/AdminDashboard';
 import { StaffDashboard } from '@/components/dashboards/StaffDashboard';
 import { ContractorDashboard } from '@/components/dashboards/ContractorDashboard';
 import { WarehouseDashboard } from '@/components/dashboards/WarehouseDashboard';
-import { mockUsers, User } from '@/data/mockData';
-import { warehouseUsers } from '@/data/warehouseData';
+import { useAuth } from '@/hooks/useAuth';
 
 const Index = () => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { currentUser, loading, login, logout } = useAuth();
 
-  const handleLogin = (email: string, password: string) => {
-    // Check regular users first
-    let user = mockUsers.find(u => u.email === email && u.password === password);
-    
-    // If not found, check warehouse users
-    if (!user) {
-      user = warehouseUsers.find(u => u.email === email && u.password === password);
-    }
-    
-    if (user) {
-      setCurrentUser(user);
-      return true;
-    }
-    return false;
-  };
-
-  const handleLogout = () => {
-    setCurrentUser(null);
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!currentUser) {
-    return <LoginForm onLogin={handleLogin} />;
+    return <LoginForm onLogin={login} />;
   }
 
   const renderDashboard = () => {
     switch (currentUser.role) {
       case 'admin':
-        return <AdminDashboard user={currentUser} onLogout={handleLogout} />;
+        return <AdminDashboard user={currentUser} onLogout={logout} />;
       case 'staff':
-        return <StaffDashboard user={currentUser} onLogout={handleLogout} />;
+        return <StaffDashboard user={currentUser} onLogout={logout} />;
       case 'contractor':
-        return <ContractorDashboard user={currentUser} onLogout={handleLogout} />;
+        return <ContractorDashboard user={currentUser} onLogout={logout} />;
       case 'warehouse':
-        return <WarehouseDashboard user={currentUser} onLogout={handleLogout} />;
+        return <WarehouseDashboard user={currentUser} onLogout={logout} />;
       default:
         return <div>Invalid role</div>;
     }

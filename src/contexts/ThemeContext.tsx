@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export type ThemeVariant = 'default' | 'ocean' | 'forest' | 'sunset' | 'purple' | 'rose';
+export type ThemeVariant = 'default' | 'ocean' | 'forest' | 'sunset' | 'purple' | 'rose' | 'monochrome';
 
 interface ThemeContextType {
   themeVariant: ThemeVariant;

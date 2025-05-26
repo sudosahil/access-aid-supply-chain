@@ -45,8 +45,6 @@ export const useAuth = () => {
           phone: '', // Default empty since not in database
           address: '', // Default empty since not in database
           organization: user.warehouse_name || '', // Use warehouse_name as organization fallback
-          warehouseName: user.warehouse_name,
-          warehouseId: user.warehouse_id,
           isActive: true,
           createdAt: user.created_at
         });
@@ -81,8 +79,6 @@ export const useAuth = () => {
         phone: '', // Default empty since not in database
         address: '', // Default empty since not in database
         organization: user.warehouse_name || '', // Use warehouse_name as organization fallback
-        warehouseName: user.warehouse_name,
-        warehouseId: user.warehouse_id,
         isActive: true,
         createdAt: user.created_at
       });

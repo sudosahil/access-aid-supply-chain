@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,9 +23,13 @@ export const WarehouseDashboard = ({ user, onLogout }: WarehouseDashboardProps) 
     completedToday: 12
   };
 
+  // Get warehouse info from user data
+  const warehouseId = user.organization || 'WH-001'; // Fallback to default warehouse
+  const warehouseName = user.organization || 'Main Warehouse';
+
   const getPageTitle = () => {
     switch (activeTab) {
-      case 'dashboard': return `${user.warehouseName} - Dashboard`;
+      case 'dashboard': return `${warehouseName} - Dashboard`;
       case 'inventory': return 'Warehouse Inventory';
       case 'transfers': return 'Transfer Requests';
       case 'messaging': return 'Messaging System';
@@ -143,9 +146,9 @@ export const WarehouseDashboard = ({ user, onLogout }: WarehouseDashboardProps) 
           </div>
         );
       case 'inventory':
-        return <WarehouseInventory warehouseId={user.warehouseId} />;
+        return <WarehouseInventory warehouseId={warehouseId} />;
       case 'transfers':
-        return <TransferRequests warehouseId={user.warehouseId} />;
+        return <TransferRequests warehouseId={warehouseId} />;
       case 'messaging':
         return <MessagingSystem 
           currentUserId={user.id}

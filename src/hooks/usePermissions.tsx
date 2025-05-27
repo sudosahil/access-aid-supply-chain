@@ -37,16 +37,24 @@ export const usePermissions = (user: User) => {
   const loadPermissions = async () => {
     try {
       // Load role permissions
-      const { data: rolePerms } = await supabase
+      const { data: rolePerms, error: roleError } = await supabase
         .from('role_permissions')
         .select('*')
         .eq('role', user.role);
 
+      if (roleError) {
+        console.error('Error loading role permissions:', roleError);
+      }
+
       // Load user-specific permissions
-      const { data: userPerms } = await supabase
+      const { data: userPerms, error: userError } = await supabase
         .from('user_permissions')
         .select('*')
         .eq('user_id', user.id);
+
+      if (userError) {
+        console.error('Error loading user permissions:', userError);
+      }
 
       setRolePermissions(rolePerms || []);
       setUserPermissions(userPerms || []);
@@ -58,29 +66,31 @@ export const usePermissions = (user: User) => {
   };
 
   useEffect(() => {
-    loadPermissions();
+    if (user?.id && user?.role) {
+      loadPermissions();
 
-    // Set up real-time subscriptions for permission changes
-    const roleChannel = supabase
-      .channel('role-permissions')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'role_permissions' },
-        () => loadPermissions()
-      )
-      .subscribe();
+      // Set up real-time subscriptions for permission changes
+      const roleChannel = supabase
+        .channel('role-permissions')
+        .on('postgres_changes', 
+          { event: '*', schema: 'public', table: 'role_permissions' },
+          () => loadPermissions()
+        )
+        .subscribe();
 
-    const userChannel = supabase
-      .channel('user-permissions')
-      .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'user_permissions' },
-        () => loadPermissions()
-      )
-      .subscribe();
+      const userChannel = supabase
+        .channel('user-permissions')
+        .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'user_permissions' },
+          () => loadPermissions()
+        )
+        .subscribe();
 
-    return () => {
-      supabase.removeChannel(roleChannel);
-      supabase.removeChannel(userChannel);
-    };
+      return () => {
+        supabase.removeChannel(roleChannel);
+        supabase.removeChannel(userChannel);
+      };
+    }
   }, [user.id, user.role]);
 
   return { hasPermission, loading, rolePermissions, userPermissions };

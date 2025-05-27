@@ -29,10 +29,42 @@ const PERMISSIONS = [
 
 const ROLES = ['admin', 'staff', 'contractor', 'warehouse'];
 
+interface RolePermission {
+  id: string;
+  role: string;
+  permission: string;
+  enabled: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface UserPermission {
+  id: string;
+  user_id: string;
+  permission: string;
+  enabled: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface AuditLog {
+  id: string;
+  changed_by: string | null;
+  target_user_id: string | null;
+  target_role: string | null;
+  permission: string;
+  old_value: boolean;
+  new_value: boolean;
+  action_type: string;
+  created_at: string;
+  users?: { name: string };
+  target_users?: { name: string };
+}
+
 export const PermissionManagement = () => {
-  const [rolePermissions, setRolePermissions] = useState<any[]>([]);
-  const [userPermissions, setUserPermissions] = useState<any[]>([]);
-  const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [rolePermissions, setRolePermissions] = useState<RolePermission[]>([]);
+  const [userPermissions, setUserPermissions] = useState<UserPermission[]>([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [selectedRole, setSelectedRole] = useState('admin');
   const [selectedUser, setSelectedUser] = useState('');
   const [loading, setLoading] = useState(true);
@@ -65,24 +97,34 @@ export const PermissionManagement = () => {
       const existing = rolePermissions.find(p => p.role === role && p.permission === permission);
       
       if (existing) {
-        await supabase
+        const { error } = await supabase
           .from('role_permissions')
           .update({ enabled, updated_at: new Date().toISOString() })
           .eq('id', existing.id);
+
+        if (error) throw error;
       } else {
-        await supabase
+        const { error } = await supabase
           .from('role_permissions')
-          .insert({ role, permission, enabled });
+          .insert([{ 
+            role, 
+            permission: permission as any,
+            enabled 
+          }]);
+
+        if (error) throw error;
       }
 
       // Log the change
-      await supabase.from('permission_audit_logs').insert({
+      const { error: logError } = await supabase.from('permission_audit_logs').insert([{
         target_role: role,
-        permission,
+        permission: permission as any,
         old_value: existing?.enabled || false,
         new_value: enabled,
         action_type: 'role_permission_change'
-      });
+      }]);
+
+      if (logError) console.error('Error logging permission change:', logError);
 
       toast({
         title: "Permission Updated",
@@ -106,30 +148,42 @@ export const PermissionManagement = () => {
       
       if (existing) {
         if (enabled) {
-          await supabase
+          const { error } = await supabase
             .from('user_permissions')
             .update({ enabled, updated_at: new Date().toISOString() })
             .eq('id', existing.id);
+
+          if (error) throw error;
         } else {
-          await supabase
+          const { error } = await supabase
             .from('user_permissions')
             .delete()
             .eq('id', existing.id);
+
+          if (error) throw error;
         }
       } else if (enabled) {
-        await supabase
+        const { error } = await supabase
           .from('user_permissions')
-          .insert({ user_id: userId, permission, enabled });
+          .insert([{ 
+            user_id: userId, 
+            permission: permission as any,
+            enabled 
+          }]);
+
+        if (error) throw error;
       }
 
       // Log the change
-      await supabase.from('permission_audit_logs').insert({
+      const { error: logError } = await supabase.from('permission_audit_logs').insert([{
         target_user_id: userId,
-        permission,
+        permission: permission as any,
         old_value: existing?.enabled || false,
         new_value: enabled,
         action_type: 'user_permission_override'
-      });
+      }]);
+
+      if (logError) console.error('Error logging permission change:', logError);
 
       const userName = mockUsers.find(u => u.id === userId)?.name || 'Unknown User';
       toast({

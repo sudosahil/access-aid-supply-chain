@@ -79,7 +79,7 @@ export const MessagingSystem = ({ currentUserId, currentUserName, currentUserRol
                         <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                       )}
                     </div>
-                    <Badge className={getMessageTypeColor(message.message_type)} size="sm">
+                    <Badge className={getMessageTypeColor(message.message_type)}>
                       {message.message_type.replace('_', ' ')}
                     </Badge>
                     <p className="text-sm text-gray-600 mt-2 line-clamp-2">

@@ -2,143 +2,88 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Upload } from 'lucide-react';
-import { mockInvoices, mockContracts, Invoice } from '@/data/mockData';
-import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { FileText, Plus, DollarSign, Calendar, Download } from 'lucide-react';
+import { sampleInvoices } from '@/data/sampleData';
 
 interface InvoiceManagementProps {
   contractorId: string;
 }
 
 export const InvoiceManagement = ({ contractorId }: InvoiceManagementProps) => {
-  const [invoices, setInvoices] = useState(mockInvoices);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    contractId: '',
-    amount: '',
-    description: '',
-    documents: ''
-  });
-  const { toast } = useToast();
-
-  const myInvoices = invoices.filter(invoice => invoice.contractorId === contractorId);
-  const myContracts = mockContracts.filter(contract => contract.contractorId === contractorId);
-
-  const handleSubmitInvoice = () => {
-    const newInvoice: Invoice = {
-      id: `inv${invoices.length + 1}`,
-      contractId: formData.contractId,
-      contractorId: contractorId,
-      amount: parseFloat(formData.amount),
-      description: formData.description,
-      documents: formData.documents.split(',').map(d => d.trim()).filter(d => d),
-      status: 'pending',
-      submittedAt: new Date().toISOString(),
-      dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now
-    };
-
-    setInvoices([...invoices, newInvoice]);
-    setIsAddDialogOpen(false);
-    setFormData({ contractId: '', amount: '', description: '', documents: '' });
-    toast({
-      title: "Invoice Submitted",
-      description: "Your invoice has been submitted successfully.",
-    });
-  };
+  const [invoices] = useState(sampleInvoices);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'paid': return 'bg-green-100 text-green-800';
-      case 'approved': return 'bg-blue-100 text-blue-800';
       case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
+      case 'overdue': return 'bg-red-100 text-red-800';
+      case 'draft': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
-  };
-
-  const getContractTitle = (contractId: string) => {
-    const contract = mockContracts.find(c => c.id === contractId);
-    return contract ? contract.title : 'Unknown Contract';
   };
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Invoice Management</CardTitle>
-              <CardDescription>Submit and track your invoices</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Invoice Management
+              </CardTitle>
+              <CardDescription>
+                Create and manage invoices for your contracts
+              </CardDescription>
             </div>
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="h-4 w-4 mr-2" />
-                  Submit Invoice
+                  New Invoice
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                  <DialogTitle>Submit Invoice</DialogTitle>
-                  <DialogDescription>Submit a new invoice for your contract work</DialogDescription>
+                  <DialogTitle>Create New Invoice</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="contract">Select Contract</Label>
-                    <Select value={formData.contractId} onValueChange={(value) => setFormData({ ...formData, contractId: value })}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select contract" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {myContracts.map((contract) => (
-                          <SelectItem key={contract.id} value={contract.id}>
-                            {contract.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium">Contract</label>
+                      <Input placeholder="Select contract..." className="mt-1" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Amount</label>
+                      <Input placeholder="Enter amount..." className="mt-1" />
+                    </div>
                   </div>
                   <div>
-                    <Label htmlFor="amount">Invoice Amount ($)</Label>
-                    <Input
-                      id="amount"
-                      type="number"
-                      step="0.01"
-                      value={formData.amount}
-                      onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                      required
-                    />
+                    <label className="text-sm font-medium">Description</label>
+                    <Textarea placeholder="Invoice description..." className="mt-1" />
                   </div>
-                  <div>
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      placeholder="Describe the work performed..."
-                      rows={3}
-                      required
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium">Due Date</label>
+                      <Input type="date" className="mt-1" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Payment Terms</label>
+                      <Input placeholder="e.g., Net 30" className="mt-1" />
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="documents">Supporting Documents (comma-separated filenames)</Label>
-                    <Input
-                      id="documents"
-                      value={formData.documents}
-                      onChange={(e) => setFormData({ ...formData, documents: e.target.value })}
-                      placeholder="e.g., receipt.pdf, work_report.pdf"
-                    />
-                  </div>
-                  <div className="flex justify-end space-x-2">
-                    <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
-                    <Button onClick={handleSubmitInvoice}>Submit Invoice</Button>
+                  <div className="flex gap-2 pt-4">
+                    <Button onClick={() => setShowCreateDialog(false)}>
+                      Create Invoice
+                    </Button>
+                    <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+                      Cancel
+                    </Button>
                   </div>
                 </div>
               </DialogContent>
@@ -146,34 +91,73 @@ export const InvoiceManagement = ({ contractorId }: InvoiceManagementProps) => {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Invoice ID</TableHead>
-                <TableHead>Contract</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Submitted</TableHead>
-                <TableHead>Due Date</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {myInvoices.map((invoice) => (
-                <TableRow key={invoice.id}>
-                  <TableCell className="font-medium">{invoice.id.toUpperCase()}</TableCell>
-                  <TableCell>{getContractTitle(invoice.contractId)}</TableCell>
-                  <TableCell>${invoice.amount.toLocaleString()}</TableCell>
-                  <TableCell>{new Date(invoice.submittedAt).toLocaleDateString()}</TableCell>
-                  <TableCell>{new Date(invoice.dueDate).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <Badge className={getStatusColor(invoice.status)}>
-                      {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <div className="space-y-4">
+            {invoices.map((invoice) => (
+              <Card key={invoice.id} className="border">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-medium">{invoice.id}</h3>
+                        <Badge className={getStatusColor(invoice.status)}>
+                          {invoice.status}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-gray-600">{invoice.description}</p>
+                      <div className="flex items-center gap-4 text-sm text-gray-600">
+                        <span className="flex items-center gap-1">
+                          <DollarSign className="h-3 w-3" />
+                          ₹{(invoice.amount / 100000).toFixed(1)}L
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          Due: {invoice.due_date}
+                        </span>
+                      </div>
+                      {invoice.paid_date && (
+                        <p className="text-xs text-green-600">
+                          Paid on: {invoice.paid_date}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm">
+                        <Download className="h-4 w-4 mr-2" />
+                        Download
+                      </Button>
+                      {invoice.status === 'draft' && (
+                        <Button size="sm">
+                          Submit
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
+                  {invoice.items && (
+                    <div className="mt-4 pt-4 border-t">
+                      <h4 className="text-sm font-medium mb-2">Line Items</h4>
+                      <div className="space-y-1">
+                        {invoice.items.map((item, index) => (
+                          <div key={index} className="flex justify-between text-sm">
+                            <span>{item.description}</span>
+                            <span>₹{(item.total / 100000).toFixed(1)}L</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {invoices.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              <FileText className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+              <p>No invoices found.</p>
+              <p className="text-sm">Create your first invoice to get started.</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

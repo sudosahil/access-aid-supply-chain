@@ -3,11 +3,11 @@ import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Package, FileText, Settings, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Users, Package, FileText, Settings, TrendingUp, AlertTriangle, DollarSign } from 'lucide-react';
 import { UserManagement } from '@/components/admin/UserManagement';
-import { SupplierApproval } from '@/components/admin/SupplierApproval';
+import { PermissionManagement } from '@/components/admin/PermissionManagement';
+import { BudgetManagement } from '@/components/admin/BudgetManagement';
 import { SystemConfig } from '@/components/admin/SystemConfig';
-import { AdminReports } from '@/components/admin/AdminReports';
 import { ProfileManagement } from '@/components/common/ProfileManagement';
 import { RFQManagement } from '@/components/rfq/RFQManagement';
 import { MessagingSystem } from '@/components/messaging/MessagingSystem';
@@ -44,6 +44,8 @@ export const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
       case 'messaging': return 'Messaging System';
       case 'audit': return 'Audit Logs';
       case 'users': return 'User Management';
+      case 'permissions': return 'Permission Management';
+      case 'budgets': return 'Budget Management';
       case 'settings': return 'System Settings';
       case 'profile': return 'Profile Management';
       default: return 'Administrator Dashboard';
@@ -140,17 +142,17 @@ export const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
                     <Users className="h-4 w-4 mr-2" />
                     Add New User
                   </Button>
-                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('suppliers')}>
-                    <Package className="h-4 w-4 mr-2" />
-                    Review Supplier Applications
+                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('permissions')}>
+                    <Settings className="h-4 w-4 mr-2" />
+                    Manage Permissions
+                  </Button>
+                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('budgets')}>
+                    <DollarSign className="h-4 w-4 mr-2" />
+                    Create Budget
                   </Button>
                   <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('audit')}>
                     <TrendingUp className="h-4 w-4 mr-2" />
                     View Audit Logs
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('settings')}>
-                    <Settings className="h-4 w-4 mr-2" />
-                    Configure System Settings
                   </Button>
                 </CardContent>
               </Card>
@@ -177,6 +179,10 @@ export const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
         return <AuditLogs />;
       case 'users':
         return <UserManagement />;
+      case 'permissions':
+        return <PermissionManagement />;
+      case 'budgets':
+        return <BudgetManagement user={user} />;
       case 'settings':
         return <SystemConfig />;
       case 'profile':

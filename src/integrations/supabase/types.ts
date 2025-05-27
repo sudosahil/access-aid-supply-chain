@@ -63,6 +63,121 @@ export type Database = {
           },
         ]
       }
+      budget_approvals: {
+        Row: {
+          approved_at: string | null
+          approver_id: string | null
+          budget_id: string | null
+          comments: string | null
+          created_at: string | null
+          id: string
+          status: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approver_id?: string | null
+          budget_id?: string | null
+          comments?: string | null
+          created_at?: string | null
+          id?: string
+          status?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approver_id?: string | null
+          budget_id?: string | null
+          comments?: string | null
+          created_at?: string | null
+          id?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_approvals_approver_id_fkey"
+            columns: ["approver_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_approvals_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "budgets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budgets: {
+        Row: {
+          amount: number
+          approved_by: string | null
+          assigned_to: string | null
+          attachments: Json | null
+          created_at: string | null
+          created_by: string
+          id: string
+          notes: string | null
+          purpose: string
+          source: Database["public"]["Enums"]["budget_source"]
+          status: Database["public"]["Enums"]["budget_status"] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          approved_by?: string | null
+          assigned_to?: string | null
+          attachments?: Json | null
+          created_at?: string | null
+          created_by: string
+          id?: string
+          notes?: string | null
+          purpose: string
+          source: Database["public"]["Enums"]["budget_source"]
+          status?: Database["public"]["Enums"]["budget_status"] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          approved_by?: string | null
+          assigned_to?: string | null
+          attachments?: Json | null
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          notes?: string | null
+          purpose?: string
+          source?: Database["public"]["Enums"]["budget_source"]
+          status?: Database["public"]["Enums"]["budget_status"] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budgets_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budgets_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budgets_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory: {
         Row: {
           category: string
@@ -184,6 +299,57 @@ export type Database = {
           },
         ]
       }
+      permission_audit_logs: {
+        Row: {
+          action_type: string | null
+          changed_by: string | null
+          created_at: string | null
+          id: string
+          new_value: boolean | null
+          old_value: boolean | null
+          permission: Database["public"]["Enums"]["permission_type"] | null
+          target_role: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          action_type?: string | null
+          changed_by?: string | null
+          created_at?: string | null
+          id?: string
+          new_value?: boolean | null
+          old_value?: boolean | null
+          permission?: Database["public"]["Enums"]["permission_type"] | null
+          target_role?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          action_type?: string | null
+          changed_by?: string | null
+          created_at?: string | null
+          id?: string
+          new_value?: boolean | null
+          old_value?: boolean | null
+          permission?: Database["public"]["Enums"]["permission_type"] | null
+          target_role?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permission_audit_logs_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "permission_audit_logs_target_user_id_fkey"
+            columns: ["target_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rfqs: {
         Row: {
           budget: number
@@ -233,6 +399,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      role_permissions: {
+        Row: {
+          created_at: string | null
+          enabled: boolean | null
+          id: string
+          permission: Database["public"]["Enums"]["permission_type"]
+          role: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          permission: Database["public"]["Enums"]["permission_type"]
+          role: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          permission?: Database["public"]["Enums"]["permission_type"]
+          role?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       transfer_requests: {
         Row: {
@@ -287,6 +480,41 @@ export type Database = {
           },
         ]
       }
+      user_permissions: {
+        Row: {
+          created_at: string | null
+          enabled: boolean | null
+          id: string
+          permission: Database["public"]["Enums"]["permission_type"]
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          permission: Database["public"]["Enums"]["permission_type"]
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          permission?: Database["public"]["Enums"]["permission_type"]
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_permissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           created_at: string
@@ -334,7 +562,33 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      budget_source:
+        | "government_grant"
+        | "internal_allocation"
+        | "donor_funding"
+        | "emergency_fund"
+        | "project_specific"
+        | "other"
+      budget_status:
+        | "draft"
+        | "pending_approval"
+        | "approved"
+        | "active"
+        | "completed"
+        | "cancelled"
+      permission_type:
+        | "dashboard"
+        | "rfqs"
+        | "bids"
+        | "suppliers"
+        | "inventory"
+        | "warehouses"
+        | "messaging"
+        | "audit"
+        | "users"
+        | "settings"
+        | "budgets"
+        | "reports"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -449,6 +703,37 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      budget_source: [
+        "government_grant",
+        "internal_allocation",
+        "donor_funding",
+        "emergency_fund",
+        "project_specific",
+        "other",
+      ],
+      budget_status: [
+        "draft",
+        "pending_approval",
+        "approved",
+        "active",
+        "completed",
+        "cancelled",
+      ],
+      permission_type: [
+        "dashboard",
+        "rfqs",
+        "bids",
+        "suppliers",
+        "inventory",
+        "warehouses",
+        "messaging",
+        "audit",
+        "users",
+        "settings",
+        "budgets",
+        "reports",
+      ],
+    },
   },
 } as const

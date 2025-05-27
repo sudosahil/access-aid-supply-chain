@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Package, FileText, Users, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Package, FileText, Users, TrendingUp, AlertTriangle, CheckCircle, DollarSign } from 'lucide-react';
 import { ProfileManagement } from '@/components/common/ProfileManagement';
 import { RFQManagement } from '@/components/rfq/RFQManagement';
 import { MessagingSystem } from '@/components/messaging/MessagingSystem';
@@ -12,6 +12,7 @@ import { BidManagement } from '@/components/staff/BidManagement';
 import { SupplierManagement } from '@/components/staff/SupplierManagement';
 import { InventoryManagement } from '@/components/staff/InventoryManagement';
 import { WarehouseManagement } from '@/components/staff/WarehouseManagement';
+import { BudgetOverview } from '@/components/staff/BudgetOverview';
 import { User, mockInventoryItems, mockRFQs, mockPurchaseOrders } from '@/data/mockData';
 
 interface StaffDashboardProps {
@@ -39,6 +40,7 @@ export const StaffDashboard = ({ user, onLogout }: StaffDashboardProps) => {
       case 'warehouses': return 'Warehouse Coordination';
       case 'messaging': return 'Messaging System';
       case 'audit': return 'Audit Logs';
+      case 'budgets': return 'Budget Overview';
       case 'profile': return 'Profile Management';
       default: return 'Staff Dashboard';
     }
@@ -138,9 +140,9 @@ export const StaffDashboard = ({ user, onLogout }: StaffDashboardProps) => {
                     <Users className="h-4 w-4 mr-2" />
                     Evaluate Bids
                   </Button>
-                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('inventory')}>
-                    <Package className="h-4 w-4 mr-2" />
-                    Manage Inventory
+                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('budgets')}>
+                    <DollarSign className="h-4 w-4 mr-2" />
+                    View Budget Overview
                   </Button>
                   <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('messaging')}>
                     <TrendingUp className="h-4 w-4 mr-2" />
@@ -169,6 +171,8 @@ export const StaffDashboard = ({ user, onLogout }: StaffDashboardProps) => {
         />;
       case 'audit':
         return <AuditLogs />;
+      case 'budgets':
+        return <BudgetOverview />;
       case 'profile':
         return <ProfileManagement user={user} />;
       default:

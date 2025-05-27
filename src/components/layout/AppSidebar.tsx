@@ -1,181 +1,124 @@
-import { Calendar, FileText, Package, MessageSquare, Activity, Settings, User, Home, Building, Users, ClipboardList } from 'lucide-react';
+
+import { Calendar, FileText, Package, MessageSquare, Activity, Settings, User, Home, Building, Users, ClipboardList, DollarSign } from 'lucide-react';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { User as UserType } from '@/data/mockData';
+import { usePermissions } from '@/hooks/usePermissions';
+
 interface AppSidebarProps {
   user: UserType;
   activeTab: string;
   onTabChange: (tab: string) => void;
 }
-const getMenuItemsForRole = (role: string) => {
-  const commonItems = [{
-    id: 'dashboard',
-    title: 'Dashboard',
-    icon: Home
-  }, {
-    id: 'profile',
-    title: 'Profile',
-    icon: User
-  }];
-  const adminItems = [{
-    id: 'dashboard',
-    title: 'Dashboard',
-    icon: Home
-  }, {
-    id: 'rfqs',
-    title: 'RFQs',
-    icon: FileText
-  }, {
-    id: 'bids',
-    title: 'Bids',
-    icon: ClipboardList
-  }, {
-    id: 'suppliers',
-    title: 'Suppliers',
-    icon: Building
-  }, {
-    id: 'inventory',
-    title: 'Inventory',
-    icon: Package
-  }, {
-    id: 'warehouses',
-    title: 'Warehouses',
-    icon: Building
-  }, {
-    id: 'messaging',
-    title: 'Messaging',
-    icon: MessageSquare
-  }, {
-    id: 'audit',
-    title: 'Audit Logs',
-    icon: Activity
-  }, {
-    id: 'users',
-    title: 'User Management',
-    icon: Users
-  }, {
-    id: 'settings',
-    title: 'Settings',
-    icon: Settings
-  }, {
-    id: 'profile',
-    title: 'Profile',
-    icon: User
-  }];
-  const staffItems = [{
-    id: 'dashboard',
-    title: 'Dashboard',
-    icon: Home
-  }, {
-    id: 'rfqs',
-    title: 'RFQs',
-    icon: FileText
-  }, {
-    id: 'bids',
-    title: 'Bids',
-    icon: ClipboardList
-  }, {
-    id: 'suppliers',
-    title: 'Suppliers',
-    icon: Building
-  }, {
-    id: 'inventory',
-    title: 'Inventory',
-    icon: Package
-  }, {
-    id: 'warehouses',
-    title: 'Warehouses',
-    icon: Building
-  }, {
-    id: 'messaging',
-    title: 'Messaging',
-    icon: MessageSquare
-  }, {
-    id: 'audit',
-    title: 'Audit Logs',
-    icon: Activity
-  }, {
-    id: 'profile',
-    title: 'Profile',
-    icon: User
-  }];
-  const contractorItems = [{
-    id: 'dashboard',
-    title: 'Dashboard',
-    icon: Home
-  }, {
-    id: 'rfqs',
-    title: 'Available RFQs',
-    icon: FileText
-  }, {
-    id: 'bids',
-    title: 'My Bids',
-    icon: ClipboardList
-  }, {
-    id: 'messaging',
-    title: 'Messaging',
-    icon: MessageSquare
-  }, {
-    id: 'profile',
-    title: 'Profile',
-    icon: User
-  }];
-  const warehouseItems = [{
-    id: 'dashboard',
-    title: 'Dashboard',
-    icon: Home
-  }, {
-    id: 'inventory',
-    title: 'Warehouse Inventory',
-    icon: Package
-  }, {
-    id: 'transfers',
-    title: 'Transfer Requests',
-    icon: Activity
-  }, {
-    id: 'messaging',
-    title: 'Messaging',
-    icon: MessageSquare
-  }, {
-    id: 'profile',
-    title: 'Profile',
-    icon: User
-  }];
-  switch (role) {
-    case 'admin':
-      return adminItems;
-    case 'staff':
-      return staffItems;
-    case 'contractor':
-      return contractorItems;
-    case 'warehouse':
-      return warehouseItems;
-    default:
-      return commonItems;
-  }
+
+const ALL_MENU_ITEMS = [
+  { id: 'dashboard', title: 'Dashboard', icon: Home },
+  { id: 'rfqs', title: 'RFQs', icon: FileText },
+  { id: 'bids', title: 'Bids', icon: ClipboardList },
+  { id: 'suppliers', title: 'Suppliers', icon: Building },
+  { id: 'inventory', title: 'Inventory', icon: Package },
+  { id: 'warehouses', title: 'Warehouses', icon: Building },
+  { id: 'messaging', title: 'Messaging', icon: MessageSquare },
+  { id: 'audit', title: 'Audit Logs', icon: Activity },
+  { id: 'users', title: 'User Management', icon: Users },
+  { id: 'settings', title: 'Settings', icon: Settings },
+  { id: 'budgets', title: 'Budget Management', icon: DollarSign },
+  { id: 'reports', title: 'Reports', icon: FileText },
+  { id: 'profile', title: 'Profile', icon: User }
+];
+
+// Warehouse-specific menu items for different naming
+const WAREHOUSE_SPECIFIC_ITEMS = {
+  'inventory': { id: 'inventory', title: 'Warehouse Inventory', icon: Package },
+  'transfers': { id: 'transfers', title: 'Transfer Requests', icon: Activity }
 };
-export const AppSidebar = ({
-  user,
-  activeTab,
-  onTabChange
-}: AppSidebarProps) => {
-  const menuItems = getMenuItemsForRole(user.role);
-  return <Sidebar>
+
+export const AppSidebar = ({ user, activeTab, onTabChange }: AppSidebarProps) => {
+  const { hasPermission, loading } = usePermissions(user);
+
+  if (loading) {
+    return (
+      <Sidebar>
+        <SidebarContent className="bg-slate-900">
+          <SidebarGroup>
+            <SidebarGroupLabel>Loading...</SidebarGroupLabel>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
+    );
+  }
+
+  // Filter menu items based on permissions
+  let menuItems = ALL_MENU_ITEMS.filter(item => {
+    // Profile is always available
+    if (item.id === 'profile') return true;
+    // Check if user has permission for this item
+    return hasPermission(item.id);
+  });
+
+  // Special handling for warehouse role
+  if (user.role === 'warehouse') {
+    menuItems = menuItems.map(item => {
+      if (item.id === 'inventory') {
+        return WAREHOUSE_SPECIFIC_ITEMS.inventory;
+      }
+      return item;
+    });
+    
+    // Add transfer requests for warehouse users if they have inventory permission
+    if (hasPermission('inventory')) {
+      const transfersIndex = menuItems.findIndex(item => item.id === 'inventory') + 1;
+      menuItems.splice(transfersIndex, 0, WAREHOUSE_SPECIFIC_ITEMS.transfers);
+    }
+  }
+
+  // Special handling for contractor role - rename some items
+  if (user.role === 'contractor') {
+    menuItems = menuItems.map(item => {
+      if (item.id === 'rfqs') {
+        return { ...item, title: 'Available RFQs' };
+      }
+      if (item.id === 'bids') {
+        return { ...item, title: 'My Bids' };
+      }
+      return item;
+    });
+  }
+
+  // For staff role, rename budget management
+  if (user.role === 'staff') {
+    menuItems = menuItems.map(item => {
+      if (item.id === 'budgets') {
+        return { ...item, title: 'Budget Overview' };
+      }
+      return item;
+    });
+  }
+
+  return (
+    <Sidebar>
       <SidebarContent className="bg-slate-900">
         <SidebarGroup>
           <SidebarGroupLabel>SSEPD Procurement</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map(item => <SidebarMenuItem key={item.id}>
-                  <SidebarMenuButton asChild isActive={activeTab === item.id} onClick={() => onTabChange(item.id)}>
+              {menuItems.map(item => (
+                <SidebarMenuItem key={item.id}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={activeTab === item.id} 
+                    onClick={() => onTabChange(item.id)}
+                  >
                     <button className="w-full">
                       <item.icon />
                       <span>{item.title}</span>
                     </button>
                   </SidebarMenuButton>
-                </SidebarMenuItem>)}
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-    </Sidebar>;
+    </Sidebar>
+  );
 };

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -156,6 +155,7 @@ export const SupplierManagement = () => {
         </CardContent>
       </Card>
 
+      
       <div className="grid gap-4">
         {filteredSuppliers.map((supplier) => (
           <Card key={supplier.id}>

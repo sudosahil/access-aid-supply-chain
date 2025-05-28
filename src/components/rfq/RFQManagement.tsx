@@ -303,11 +303,11 @@ export const RFQManagement = () => {
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Mobility Aids">Mobility Aids</SelectItem>
-                        <SelectItem value="Prosthetics">Prosthetics</SelectItem>
-                        <SelectItem value="Hearing Aids">Hearing Aids</SelectItem>
-                        <SelectItem value="Vision Aids">Vision Aids</SelectItem>
-                        <SelectItem value="Medical Equipment">Medical Equipment</SelectItem>
+                        <SelectItem value="mobility-aids">Mobility Aids</SelectItem>
+                        <SelectItem value="prosthetics">Prosthetics</SelectItem>
+                        <SelectItem value="hearing-aids">Hearing Aids</SelectItem>
+                        <SelectItem value="vision-aids">Vision Aids</SelectItem>
+                        <SelectItem value="medical-equipment">Medical Equipment</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -461,11 +461,11 @@ export const RFQManagement = () => {
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Mobility Aids">Mobility Aids</SelectItem>
-                  <SelectItem value="Prosthetics">Prosthetics</SelectItem>
-                  <SelectItem value="Hearing Aids">Hearing Aids</SelectItem>
-                  <SelectItem value="Vision Aids">Vision Aids</SelectItem>
-                  <SelectItem value="Medical Equipment">Medical Equipment</SelectItem>
+                  <SelectItem value="mobility-aids">Mobility Aids</SelectItem>
+                  <SelectItem value="prosthetics">Prosthetics</SelectItem>
+                  <SelectItem value="hearing-aids">Hearing Aids</SelectItem>
+                  <SelectItem value="vision-aids">Vision Aids</SelectItem>
+                  <SelectItem value="medical-equipment">Medical Equipment</SelectItem>
                 </SelectContent>
               </Select>
             </div>

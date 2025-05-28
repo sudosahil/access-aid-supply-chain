@@ -35,12 +35,20 @@ const WAREHOUSE_SPECIFIC_ITEMS = {
 export const AppSidebar = ({ user, activeTab, onTabChange }: AppSidebarProps) => {
   const { hasPermission, loading } = usePermissions(user);
 
+  console.log('AppSidebar render - user:', user);
+  console.log('AppSidebar render - loading:', loading);
+
+  // Show loading state briefly but don't block the UI
   if (loading) {
+    console.log('AppSidebar showing loading state');
     return (
       <Sidebar>
         <SidebarContent className="bg-slate-900">
           <SidebarGroup>
-            <SidebarGroupLabel>Loading...</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-white">SSEPD Procurement</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <div className="text-white text-sm p-2">Loading menu...</div>
+            </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
       </Sidebar>
@@ -52,8 +60,12 @@ export const AppSidebar = ({ user, activeTab, onTabChange }: AppSidebarProps) =>
     // Profile is always available
     if (item.id === 'profile') return true;
     // Check if user has permission for this item
-    return hasPermission(item.id);
+    const hasAccess = hasPermission(item.id);
+    console.log(`Menu item ${item.id}: hasAccess = ${hasAccess}`);
+    return hasAccess;
   });
+
+  console.log('Filtered menu items:', menuItems.map(item => item.id));
 
   // Special handling for warehouse role
   if (user.role === 'warehouse') {
@@ -94,11 +106,13 @@ export const AppSidebar = ({ user, activeTab, onTabChange }: AppSidebarProps) =>
     });
   }
 
+  console.log('Final menu items for role', user.role, ':', menuItems.map(item => item.title));
+
   return (
     <Sidebar>
       <SidebarContent className="bg-slate-900">
         <SidebarGroup>
-          <SidebarGroupLabel>SSEPD Procurement</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-white">SSEPD Procurement</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map(item => (
@@ -107,6 +121,7 @@ export const AppSidebar = ({ user, activeTab, onTabChange }: AppSidebarProps) =>
                     asChild 
                     isActive={activeTab === item.id} 
                     onClick={() => onTabChange(item.id)}
+                    className="text-white hover:bg-slate-800"
                   >
                     <button className="w-full">
                       <item.icon />

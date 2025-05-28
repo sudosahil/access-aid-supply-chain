@@ -29,28 +29,59 @@ export const usePermissions = (user: User) => {
   const [rolePermissions, setRolePermissions] = useState<RolePermission[]>([]);
   const [userPermissions, setUserPermissions] = useState<UserPermission[]>([]);
   const [loading, setLoading] = useState(true);
-  const [useFallback, setUseFallback] = useState(false);
+  const [useFallback, setUseFallback] = useState(true); // Default to fallback for mock users
+
+  console.log('usePermissions - User:', user);
+  console.log('usePermissions - User role:', user?.role);
 
   const hasPermission = (permission: string): boolean => {
-    // If using fallback permissions
-    if (useFallback) {
-      const userRole = user.role as keyof typeof FALLBACK_PERMISSIONS;
-      return FALLBACK_PERMISSIONS[userRole]?.includes(permission) || false;
+    console.log('Checking permission:', permission, 'for user role:', user?.role);
+    
+    // Always use fallback permissions for mock users
+    if (useFallback || !user?.id) {
+      const userRole = user?.role as keyof typeof FALLBACK_PERMISSIONS;
+      const hasAccess = FALLBACK_PERMISSIONS[userRole]?.includes(permission) || false;
+      console.log('Using fallback permissions. Has access:', hasAccess);
+      return hasAccess;
     }
 
     // Check user-specific override first
     const userOverride = userPermissions.find(p => p.permission === permission);
     if (userOverride) {
+      console.log('User override found:', userOverride.enabled);
       return userOverride.enabled;
     }
 
     // Fall back to role permission
     const rolePermission = rolePermissions.find(p => p.role === user.role && p.permission === permission);
-    return rolePermission?.enabled || false;
+    const hasAccess = rolePermission?.enabled || false;
+    console.log('Role permission result:', hasAccess);
+    return hasAccess;
   };
 
   const loadPermissions = async () => {
+    console.log('Loading permissions for user:', user);
+    
+    // For mock users (which don't have proper Supabase auth), use fallback immediately
+    if (!user?.id || typeof user.id === 'string') {
+      console.log('Mock user detected, using fallback permissions');
+      setUseFallback(true);
+      setLoading(false);
+      return;
+    }
+
     try {
+      console.log('Attempting to load permissions from database');
+      
+      // Check if we have a valid Supabase session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.log('No Supabase session found, using fallback permissions');
+        setUseFallback(true);
+        setLoading(false);
+        return;
+      }
+
       // Load role permissions
       const { data: rolePerms, error: roleError } = await supabase
         .from('role_permissions')
@@ -60,6 +91,7 @@ export const usePermissions = (user: User) => {
       if (roleError) {
         console.error('Error loading role permissions:', roleError);
         setUseFallback(true);
+        setLoading(false);
         return;
       }
 
@@ -73,6 +105,7 @@ export const usePermissions = (user: User) => {
         console.error('Error loading user permissions:', userError);
       }
 
+      console.log('Successfully loaded permissions from database');
       setRolePermissions(rolePerms || []);
       setUserPermissions(userPerms || []);
       setUseFallback(false);
@@ -85,32 +118,18 @@ export const usePermissions = (user: User) => {
   };
 
   useEffect(() => {
-    if (user?.id && user?.role) {
+    console.log('usePermissions useEffect triggered');
+    
+    if (user?.role) {
       loadPermissions();
-
-      // Set up real-time subscriptions for permission changes
-      const roleChannel = supabase
-        .channel('role-permissions')
-        .on('postgres_changes', 
-          { event: '*', schema: 'public', table: 'role_permissions' },
-          () => loadPermissions()
-        )
-        .subscribe();
-
-      const userChannel = supabase
-        .channel('user-permissions')
-        .on('postgres_changes',
-          { event: '*', schema: 'public', table: 'user_permissions' },
-          () => loadPermissions()
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(roleChannel);
-        supabase.removeChannel(userChannel);
-      };
+    } else {
+      console.log('No user or role found, using fallback');
+      setUseFallback(true);
+      setLoading(false);
     }
-  }, [user.id, user.role]);
+  }, [user?.id, user?.role]);
 
+  console.log('usePermissions returning - loading:', loading, 'useFallback:', useFallback);
+  
   return { hasPermission, loading, rolePermissions, userPermissions };
 };

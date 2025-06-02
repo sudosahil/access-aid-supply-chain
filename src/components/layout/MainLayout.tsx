@@ -1,4 +1,3 @@
-
 import { ReactNode } from 'react';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
@@ -104,7 +103,11 @@ export const MainLayout = ({
       
       // Common tabs
       case 'messaging':
-        return <EnhancedMessagingSystem currentUserId={user.id} />;
+        return <EnhancedMessagingSystem 
+          currentUserId={user.id} 
+          currentUserName={user.name}
+          currentUserRole={user.role}
+        />;
       case 'audit':
         return <AuditLogs />;
       case 'profile':

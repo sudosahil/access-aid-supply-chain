@@ -16,7 +16,7 @@ export const AssetDistribution = () => {
   const [distributions, setDistributions] = useState(mockAssetDistribution);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
-    itemId: '',
+    itemId: mockInventoryItems.length > 0 ? mockInventoryItems[0].id : 'default-item', // Set default value instead of empty string
     quantity: '',
     assignedTo: '',
     purpose: ''
@@ -37,7 +37,12 @@ export const AssetDistribution = () => {
 
     setDistributions([...distributions, newDistribution]);
     setIsAddDialogOpen(false);
-    setFormData({ itemId: '', quantity: '', assignedTo: '', purpose: '' });
+    setFormData({ 
+      itemId: mockInventoryItems.length > 0 ? mockInventoryItems[0].id : 'default-item', // Reset to default value instead of empty string
+      quantity: '', 
+      assignedTo: '', 
+      purpose: '' 
+    });
     toast({
       title: "Asset Distributed",
       description: "Asset has been successfully distributed.",

@@ -1,3 +1,4 @@
+
 import { ReactNode } from 'react';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
@@ -8,6 +9,25 @@ import { Bell, LogOut, Palette } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ThemeSelector } from '@/components/common/ThemeSelector';
 
+// Import all the components that can be rendered based on active tab
+import { ApprovalManagement } from '@/components/admin/ApprovalManagement';
+import { TransferTrackingDashboard } from '@/components/admin/TransferTrackingDashboard';
+import { LiveBidViewing } from '@/components/contractor/LiveBidViewing';
+import { RFQManagement } from '@/components/staff/RFQManagement';
+import { BidManagement } from '@/components/staff/BidManagement';
+import { InventoryManagement } from '@/components/staff/InventoryManagement';
+import { SupplierManagement } from '@/components/staff/SupplierManagement';
+import { WarehouseInventory } from '@/components/warehouse/WarehouseInventory';
+import { EnhancedTransferRequests } from '@/components/warehouse/EnhancedTransferRequests';
+import { EnhancedMessagingSystem } from '@/components/messaging/EnhancedMessagingSystem';
+import { AuditLogs } from '@/components/audit/AuditLogs';
+import { UserManagement } from '@/components/admin/UserManagement';
+import { BudgetManagement } from '@/components/admin/BudgetManagement';
+import { AdminReports } from '@/components/admin/AdminReports';
+import { ProfileManagement } from '@/components/common/ProfileManagement';
+import { AvailableRFQs } from '@/components/contractor/AvailableRFQs';
+import { MyBids } from '@/components/contractor/MyBids';
+
 interface MainLayoutProps {
   children: ReactNode;
   user: User;
@@ -16,6 +36,7 @@ interface MainLayoutProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
 }
+
 export const MainLayout = ({
   children,
   user,
@@ -24,7 +45,75 @@ export const MainLayout = ({
   activeTab,
   onTabChange
 }: MainLayoutProps) => {
-  return <div className="min-h-screen flex w-full">
+  
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return children;
+      
+      // Admin specific tabs
+      case 'approvals':
+        return <ApprovalManagement currentUserId={user.id} currentUserName={user.name} />;
+      case 'transfers':
+        return <TransferTrackingDashboard />;
+      case 'users':
+        return <UserManagement />;
+      case 'budgets':
+        return <BudgetManagement />;
+      case 'reports':
+        return <AdminReports />;
+      
+      // Staff specific tabs
+      case 'rfqs':
+        if (user.role === 'contractor') {
+          return <AvailableRFQs />;
+        }
+        return <RFQManagement />;
+      case 'bids':
+        if (user.role === 'contractor') {
+          return <MyBids />;
+        }
+        return <BidManagement />;
+      case 'suppliers':
+        return <SupplierManagement />;
+      
+      // Warehouse specific tabs
+      case 'inventory':
+        if (user.role === 'warehouse') {
+          return <WarehouseInventory warehouseId={user.warehouse_id || 'warehouse-a'} />;
+        }
+        return <InventoryManagement />;
+      case 'transfers':
+        if (user.role === 'warehouse') {
+          return (
+            <EnhancedTransferRequests 
+              warehouseId={user.warehouse_id || 'warehouse-a'}
+              currentUserId={user.id}
+              currentUserName={user.name}
+            />
+          );
+        }
+        return <TransferTrackingDashboard />;
+      
+      // Contractor specific tabs
+      case 'live-bids':
+        return <LiveBidViewing />;
+      
+      // Common tabs
+      case 'messaging':
+        return <EnhancedMessagingSystem currentUser={user} />;
+      case 'audit':
+        return <AuditLogs />;
+      case 'profile':
+        return <ProfileManagement user={user} />;
+      
+      default:
+        return children;
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex w-full">
       <SidebarProvider>
         <AppSidebar user={user} activeTab={activeTab} onTabChange={onTabChange} />
         <SidebarInset>
@@ -66,9 +155,10 @@ export const MainLayout = ({
             </div>
           </header>
           <main className="flex-1 overflow-auto p-6">
-            {children}
+            {renderTabContent()}
           </main>
         </SidebarInset>
       </SidebarProvider>
-    </div>;
+    </div>
+  );
 };

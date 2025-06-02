@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -19,7 +18,7 @@ export const EnhancedStockModal = ({ isOpen, onClose, item, onUpdate }: Enhanced
   const [stockData, setStockData] = useState({
     quantity: 0,
     unitPrice: 0,
-    supplier: '',
+    supplier: 'medequip-corp', // Set default value instead of empty string
     batchId: '',
     purchaseDate: new Date().toISOString().split('T')[0]
   });
@@ -90,11 +89,11 @@ export const EnhancedStockModal = ({ isOpen, onClose, item, onUpdate }: Enhanced
       description: `Added ${stockData.quantity} units. New total: ${newQuantity} units at ₹${Math.round(newUnitPrice).toLocaleString()} per unit.`
     });
 
-    // Reset form
+    // Reset form with valid default values
     setStockData({
       quantity: 0,
       unitPrice: 0,
-      supplier: '',
+      supplier: 'medequip-corp', // Reset to default value instead of empty string
       batchId: '',
       purchaseDate: new Date().toISOString().split('T')[0]
     });

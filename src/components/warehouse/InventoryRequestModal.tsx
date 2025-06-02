@@ -18,7 +18,7 @@ interface InventoryRequestModalProps {
 export const InventoryRequestModal = ({ isOpen, onClose, warehouseId, warehouseName }: InventoryRequestModalProps) => {
   const [formData, setFormData] = useState({
     itemName: '',
-    category: '',
+    category: 'mobility-aids', // Set default value instead of empty string
     quantity: '',
     urgency: 'medium',
     justification: '',
@@ -52,7 +52,7 @@ export const InventoryRequestModal = ({ isOpen, onClose, warehouseId, warehouseN
 
     setFormData({
       itemName: '',
-      category: '',
+      category: 'mobility-aids', // Reset to default value instead of empty string
       quantity: '',
       urgency: 'medium',
       justification: '',

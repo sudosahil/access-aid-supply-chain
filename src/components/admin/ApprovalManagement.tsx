@@ -13,6 +13,7 @@ interface ApprovalManagementProps {
   currentUserName: string;
 }
 
+// Use simplified interfaces that match the database schema
 interface PendingRfq {
   id: string;
   title: string;
@@ -20,7 +21,11 @@ interface PendingRfq {
   budget: number;
   category: string;
   deadline: string;
-  approval_status: string;
+  status: string;
+  created_at: string;
+  created_by: string;
+  updated_at: string;
+  requirements: string[];
 }
 
 interface PendingBid {
@@ -30,7 +35,10 @@ interface PendingBid {
   amount: number;
   submitted_date: string;
   documents: number;
-  approval_status: string;
+  status: string;
+  contractor_id: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export const ApprovalManagement = ({ currentUserId, currentUserName }: ApprovalManagementProps) => {
@@ -46,19 +54,19 @@ export const ApprovalManagement = ({ currentUserId, currentUserName }: ApprovalM
 
   const loadPendingApprovals = async () => {
     try {
-      // Load pending RFQs
+      // Load pending RFQs - using status = 'pending'
       const { data: rfqData, error: rfqError } = await supabase
         .from('rfqs')
         .select('*')
-        .eq('approval_status', 'pending');
+        .eq('status', 'pending');
 
       if (rfqError) throw rfqError;
 
-      // Load pending bids
+      // Load pending bids - using status = 'pending'  
       const { data: bidData, error: bidError } = await supabase
         .from('bids')
         .select('*')
-        .eq('approval_status', 'pending');
+        .eq('status', 'pending');
 
       if (bidError) throw bidError;
 
@@ -105,9 +113,6 @@ export const ApprovalManagement = ({ currentUserId, currentUserName }: ApprovalM
       const { error } = await supabase
         .from('rfqs')
         .update({
-          approval_status: 'approved',
-          approved_by: currentUserId,
-          approved_at: new Date().toISOString(),
           status: 'published'
         })
         .eq('id', rfqId);
@@ -135,9 +140,6 @@ export const ApprovalManagement = ({ currentUserId, currentUserName }: ApprovalM
       const { error } = await supabase
         .from('bids')
         .update({
-          approval_status: 'approved',
-          approved_by: currentUserId,
-          approved_at: new Date().toISOString(),
           status: 'approved'
         })
         .eq('id', bidId);
@@ -166,9 +168,6 @@ export const ApprovalManagement = ({ currentUserId, currentUserName }: ApprovalM
       const { error } = await supabase
         .from(table)
         .update({
-          approval_status: 'rejected',
-          approved_by: currentUserId,
-          approved_at: new Date().toISOString(),
           status: 'rejected'
         })
         .eq('id', id);
@@ -243,7 +242,7 @@ export const ApprovalManagement = ({ currentUserId, currentUserName }: ApprovalM
                           </div>
                           <Badge variant="outline" className="flex items-center gap-1 w-fit">
                             <Clock className="h-3 w-3" />
-                            {rfq.approval_status}
+                            {rfq.status}
                           </Badge>
                         </div>
                         <div className="flex gap-2">
@@ -292,7 +291,7 @@ export const ApprovalManagement = ({ currentUserId, currentUserName }: ApprovalM
                           </div>
                           <Badge variant="outline" className="flex items-center gap-1 w-fit">
                             <Clock className="h-3 w-3" />
-                            {bid.approval_status}
+                            {bid.status}
                           </Badge>
                         </div>
                         <div className="flex gap-2">

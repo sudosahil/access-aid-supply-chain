@@ -165,11 +165,11 @@ export const EnhancedStockModal = ({ isOpen, onClose, item, onUpdate }: Enhanced
                   <SelectValue placeholder="Select supplier" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="MedEquip Corp">MedEquip Corp</SelectItem>
-                  <SelectItem value="ProstheTech">ProstheTech</SelectItem>
-                  <SelectItem value="AudioTech">AudioTech</SelectItem>
-                  <SelectItem value="HealthSupply Co">HealthSupply Co</SelectItem>
-                  <SelectItem value="MedCare Solutions">MedCare Solutions</SelectItem>
+                  <SelectItem value="medequip-corp">MedEquip Corp</SelectItem>
+                  <SelectItem value="prosthetech">ProstheTech</SelectItem>
+                  <SelectItem value="audiotech">AudioTech</SelectItem>
+                  <SelectItem value="healthsupply-co">HealthSupply Co</SelectItem>
+                  <SelectItem value="medcare-solutions">MedCare Solutions</SelectItem>
                 </SelectContent>
               </Select>
             </div>

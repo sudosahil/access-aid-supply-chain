@@ -128,6 +128,7 @@ export const UserManagement = () => {
                           <SelectItem value="admin">Administrator</SelectItem>
                           <SelectItem value="staff">Staff</SelectItem>
                           <SelectItem value="contractor">Contractor</SelectItem>
+                          <SelectItem value="warehouse">Warehouse</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

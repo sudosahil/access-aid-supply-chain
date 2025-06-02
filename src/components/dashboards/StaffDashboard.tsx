@@ -1,194 +1,165 @@
 
 import { useState } from 'react';
-import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Package, FileText, Users, TrendingUp, AlertTriangle, CheckCircle, DollarSign } from 'lucide-react';
-import { ProfileManagement } from '@/components/common/ProfileManagement';
-import { RFQManagement } from '@/components/rfq/RFQManagement';
-import { MessagingSystem } from '@/components/messaging/MessagingSystem';
-import { AuditLogs } from '@/components/audit/AuditLogs';
-import { BidManagement } from '@/components/staff/BidManagement';
-import { SupplierManagement } from '@/components/staff/SupplierManagement';
-import { InventoryManagement } from '@/components/staff/InventoryManagement';
-import { WarehouseManagement } from '@/components/staff/WarehouseManagement';
-import { BudgetOverview } from '@/components/staff/BudgetOverview';
-import { User, mockInventoryItems, mockRFQs, mockPurchaseOrders } from '@/data/mockData';
+import { Badge } from '@/components/ui/badge';
+import { FileText, Eye, Package, MessageSquare, DollarSign, Users, TrendingUp } from 'lucide-react';
+import { BudgetButton } from '@/components/common/BudgetButton';
 
 interface StaffDashboardProps {
-  user: User;
-  onLogout: () => void;
+  user: any;
+  onTabChange: (tab: string) => void;
 }
 
-export const StaffDashboard = ({ user, onLogout }: StaffDashboardProps) => {
-  const [activeTab, setActiveTab] = useState('dashboard');
-
-  const stats = {
-    openRFQs: mockRFQs.filter(r => r.status === 'published').length,
-    pendingPOs: mockPurchaseOrders.filter(po => po.status === 'draft').length,
-    lowStockItems: mockInventoryItems.filter(i => i.currentStock <= i.reorderLevel).length,
-    completedTasks: 24
-  };
-
-  const getPageTitle = () => {
-    switch (activeTab) {
-      case 'dashboard': return 'Staff Dashboard';
-      case 'rfqs': return 'RFQ Management';
-      case 'bids': return 'Bid Evaluation';
-      case 'suppliers': return 'Supplier Management';
-      case 'inventory': return 'Inventory Management';
-      case 'warehouses': return 'Warehouse Coordination';
-      case 'messaging': return 'Messaging System';
-      case 'audit': return 'Audit Logs';
-      case 'budgets': return 'Budget Overview';
-      case 'profile': return 'Profile Management';
-      default: return 'Staff Dashboard';
-    }
-  };
-
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'dashboard':
-        return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center">
-                    <FileText className="h-8 w-8 text-blue-600" />
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Open RFQs</p>
-                      <p className="text-2xl font-bold">{stats.openRFQs}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center">
-                    <Package className="h-8 w-8 text-orange-600" />
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Pending POs</p>
-                      <p className="text-2xl font-bold">{stats.pendingPOs}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center">
-                    <AlertTriangle className="h-8 w-8 text-yellow-600" />
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Low Stock Items</p>
-                      <p className="text-2xl font-bold">{stats.lowStockItems}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center">
-                    <CheckCircle className="h-8 w-8 text-green-600" />
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Completed Tasks</p>
-                      <p className="text-2xl font-bold">{stats.completedTasks}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Today's Priorities</CardTitle>
-                  <CardDescription>Tasks requiring immediate attention</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                      <p className="text-sm">Review bids for Electric Wheelchairs RFQ</p>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <p className="text-sm">Approve pending purchase orders</p>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                      <p className="text-sm">Update inventory levels for low stock items</p>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <p className="text-sm">Generate monthly procurement report</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
-                  <CardDescription>Common staff tasks</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('rfqs')}>
-                    <FileText className="h-4 w-4 mr-2" />
-                    Create New RFQ
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('bids')}>
-                    <Users className="h-4 w-4 mr-2" />
-                    Evaluate Bids
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('budgets')}>
-                    <DollarSign className="h-4 w-4 mr-2" />
-                    View Budget Overview
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('messaging')}>
-                    <TrendingUp className="h-4 w-4 mr-2" />
-                    View Messages
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        );
-      case 'rfqs':
-        return <RFQManagement />;
-      case 'bids':
-        return <BidManagement />;
-      case 'suppliers':
-        return <SupplierManagement />;
-      case 'inventory':
-        return <InventoryManagement />;
-      case 'warehouses':
-        return <WarehouseManagement />;
-      case 'messaging':
-        return <MessagingSystem 
-          currentUserId={user.id}
-          currentUserName={user.name}
-          currentUserRole={user.role}
-        />;
-      case 'audit':
-        return <AuditLogs />;
-      case 'budgets':
-        return <BudgetOverview />;
-      case 'profile':
-        return <ProfileManagement user={user} />;
-      default:
-        return null;
-    }
+export const StaffDashboard = ({ user, onTabChange }: StaffDashboardProps) => {
+  // Mock staff stats
+  const staffStats = {
+    activeRfqs: 6,
+    pendingBids: 15,
+    managedInventory: 230,
+    budgetUtilization: 68,
+    suppliers: 25,
+    warehouses: 4
   };
 
   return (
-    <MainLayout 
-      user={user} 
-      onLogout={onLogout} 
-      title={getPageTitle()}
-      activeTab={activeTab}
-      onTabChange={setActiveTab}
-    >
-      {renderContent()}
-    </MainLayout>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Staff Dashboard</h1>
+        <BudgetButton 
+          userRole={user.role} 
+          onViewBudgets={() => onTabChange('budgets')} 
+        />
+      </div>
+
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>Essential staff management functions</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Button onClick={() => onTabChange('rfqs')} className="h-20 flex-col">
+              <FileText className="h-6 w-6 mb-2" />
+              Manage RFQs
+              <Badge variant="default" className="mt-1">
+                {staffStats.activeRfqs}
+              </Badge>
+            </Button>
+            <Button onClick={() => onTabChange('bids')} variant="outline" className="h-20 flex-col">
+              <Eye className="h-6 w-6 mb-2" />
+              Review Bids
+              {staffStats.pendingBids > 0 && (
+                <Badge variant="secondary" className="mt-1">
+                  {staffStats.pendingBids} pending
+                </Badge>
+              )}
+            </Button>
+            <Button onClick={() => onTabChange('inventory')} variant="outline" className="h-20 flex-col">
+              <Package className="h-6 w-6 mb-2" />
+              Inventory
+              <Badge variant="outline" className="mt-1">
+                {staffStats.managedInventory} items
+              </Badge>
+            </Button>
+            <Button onClick={() => onTabChange('suppliers')} variant="outline" className="h-20 flex-col">
+              <Users className="h-6 w-6 mb-2" />
+              Suppliers
+              <Badge variant="outline" className="mt-1">
+                {staffStats.suppliers}
+              </Badge>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Staff Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Active RFQs</p>
+                <p className="text-3xl font-bold">{staffStats.activeRfqs}</p>
+              </div>
+              <FileText className="h-8 w-8 text-blue-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Pending Bids</p>
+                <p className="text-3xl font-bold">{staffStats.pendingBids}</p>
+              </div>
+              <Eye className="h-8 w-8 text-orange-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Managed Items</p>
+                <p className="text-3xl font-bold">{staffStats.managedInventory}</p>
+              </div>
+              <Package className="h-8 w-8 text-green-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Budget Usage</p>
+                <p className="text-3xl font-bold">{staffStats.budgetUtilization}%</p>
+              </div>
+              <DollarSign className="h-8 w-8 text-purple-600" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Activity</CardTitle>
+          <CardDescription>Latest staff activities and updates</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 p-3 border rounded-lg">
+              <FileText className="h-5 w-5 text-blue-600" />
+              <div className="flex-1">
+                <p className="font-medium">RFQ created</p>
+                <p className="text-sm text-gray-600">Emergency Medical Supplies - Budget: ₹5,00,000</p>
+              </div>
+              <span className="text-sm text-gray-500">2 hours ago</span>
+            </div>
+            <div className="flex items-center gap-3 p-3 border rounded-lg">
+              <Eye className="h-5 w-5 text-green-600" />
+              <div className="flex-1">
+                <p className="font-medium">Bid approved</p>
+                <p className="text-sm text-gray-600">Wheelchair procurement - TechCare Solutions</p>
+              </div>
+              <span className="text-sm text-gray-500">4 hours ago</span>
+            </div>
+            <div className="flex items-center gap-3 p-3 border rounded-lg">
+              <Package className="h-5 w-5 text-orange-600" />
+              <div className="flex-1">
+                <p className="font-medium">Inventory updated</p>
+                <p className="text-sm text-gray-600">Prosthetic limbs stock levels adjusted</p>
+              </div>
+              <span className="text-sm text-gray-500">6 hours ago</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };

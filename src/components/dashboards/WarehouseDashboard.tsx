@@ -1,189 +1,257 @@
+
 import { useState } from 'react';
-import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Package, TrendingUp, AlertTriangle, Truck, FileText, MessageSquare, Plus } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Package, Truck, AlertTriangle, CheckCircle, Plus, TrendingUp } from 'lucide-react';
+import { BudgetButton } from '@/components/common/BudgetButton';
 import { WarehouseInventory } from '@/components/warehouse/WarehouseInventory';
-import { TransferRequests } from '@/components/warehouse/TransferRequests';
-import { ProfileManagement } from '@/components/common/ProfileManagement';
-import { MessagingSystem } from '@/components/messaging/MessagingSystem';
-import { InventoryRequestModal } from '@/components/warehouse/InventoryRequestModal';
+import { EnhancedTransferRequests } from '@/components/warehouse/EnhancedTransferRequests';
 
 interface WarehouseDashboardProps {
   user: any;
-  onLogout: () => void;
+  onTabChange: (tab: string) => void;
 }
 
-export const WarehouseDashboard = ({ user, onLogout }: WarehouseDashboardProps) => {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+export const WarehouseDashboard = ({ user, onTabChange }: WarehouseDashboardProps) => {
+  const [activeView, setActiveView] = useState('overview');
 
-  const stats = {
+  // Mock warehouse stats - in real implementation, this would come from props or API
+  const warehouseStats = {
     totalItems: 156,
     lowStockItems: 8,
     pendingTransfers: 5,
-    completedToday: 12
+    completedTransfers: 23,
+    incomingTransfers: 3,
+    inventoryValue: 1250000
   };
 
-  // Get warehouse info from user data
-  const warehouseId = user.organization || 'WH-001'; // Fallback to default warehouse
-  const warehouseName = user.organization || 'Main Warehouse';
-
-  const getPageTitle = () => {
-    switch (activeTab) {
-      case 'dashboard': return `${warehouseName} - Dashboard`;
-      case 'inventory': return 'Warehouse Inventory';
-      case 'transfers': return 'Transfer Requests';
-      case 'messaging': return 'Messaging System';
-      case 'profile': return 'Profile Management';
-      default: return 'Warehouse Dashboard';
-    }
-  };
-
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'dashboard':
+  const renderActiveView = () => {
+    switch (activeView) {
+      case 'inventory':
+        return <WarehouseInventory warehouseId={user.warehouse_id || 'warehouse-a'} />;
+      case 'transfers':
+        return (
+          <EnhancedTransferRequests 
+            warehouseId={user.warehouse_id || 'warehouse-a'}
+            currentUserId={user.id}
+            currentUserName={user.name}
+          />
+        );
+      default:
         return (
           <div className="space-y-6">
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+                <CardDescription>Essential warehouse management tools</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <Button onClick={() => setActiveView('inventory')} className="h-20 flex-col">
+                    <Package className="h-6 w-6 mb-2" />
+                    Inventory
+                    {warehouseStats.lowStockItems > 0 && (
+                      <Badge variant="destructive" className="mt-1">
+                        {warehouseStats.lowStockItems} low
+                      </Badge>
+                    )}
+                  </Button>
+                  <Button onClick={() => setActiveView('transfers')} variant="outline" className="h-20 flex-col">
+                    <Truck className="h-6 w-6 mb-2" />
+                    Transfers
+                    {warehouseStats.pendingTransfers > 0 && (
+                      <Badge variant="secondary" className="mt-1">
+                        {warehouseStats.pendingTransfers} pending
+                      </Badge>
+                    )}
+                  </Button>
+                  <Button 
+                    onClick={() => setActiveView('transfers')} 
+                    variant="default" 
+                    className="h-20 flex-col bg-green-600 hover:bg-green-700"
+                  >
+                    <Plus className="h-6 w-6 mb-2" />
+                    Generate Transfer Request
+                  </Button>
+                  <BudgetButton 
+                    userRole={user.role} 
+                    onViewBudgets={() => onTabChange('budgets')} 
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Warehouse Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
                 <CardContent className="p-6">
-                  <div className="flex items-center">
-                    <Package className="h-8 w-8 text-blue-600" />
-                    <div className="ml-4">
+                  <div className="flex items-center justify-between">
+                    <div>
                       <p className="text-sm font-medium text-gray-600">Total Items</p>
-                      <p className="text-2xl font-bold">{stats.totalItems}</p>
+                      <p className="text-3xl font-bold">{warehouseStats.totalItems}</p>
                     </div>
+                    <Package className="h-8 w-8 text-blue-600" />
                   </div>
                 </CardContent>
               </Card>
+
               <Card>
                 <CardContent className="p-6">
-                  <div className="flex items-center">
-                    <AlertTriangle className="h-8 w-8 text-yellow-600" />
-                    <div className="ml-4">
+                  <div className="flex items-center justify-between">
+                    <div>
                       <p className="text-sm font-medium text-gray-600">Low Stock Items</p>
-                      <p className="text-2xl font-bold">{stats.lowStockItems}</p>
+                      <p className="text-3xl font-bold text-red-600">{warehouseStats.lowStockItems}</p>
                     </div>
+                    <AlertTriangle className="h-8 w-8 text-red-600" />
                   </div>
                 </CardContent>
               </Card>
+
               <Card>
                 <CardContent className="p-6">
-                  <div className="flex items-center">
-                    <Truck className="h-8 w-8 text-orange-600" />
-                    <div className="ml-4">
+                  <div className="flex items-center justify-between">
+                    <div>
                       <p className="text-sm font-medium text-gray-600">Pending Transfers</p>
-                      <p className="text-2xl font-bold">{stats.pendingTransfers}</p>
+                      <p className="text-3xl font-bold">{warehouseStats.pendingTransfers}</p>
                     </div>
+                    <Truck className="h-8 w-8 text-orange-600" />
                   </div>
                 </CardContent>
               </Card>
+
               <Card>
                 <CardContent className="p-6">
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Inventory Value</p>
+                      <p className="text-2xl font-bold">₹{warehouseStats.inventoryValue.toLocaleString()}</p>
+                    </div>
                     <TrendingUp className="h-8 w-8 text-green-600" />
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Completed Today</p>
-                      <p className="text-2xl font-bold">{stats.completedToday}</p>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Today's Tasks</CardTitle>
-                  <CardDescription>Items requiring immediate attention</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                      <p className="text-sm">Process incoming shipment - Electric Wheelchairs</p>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <p className="text-sm">Transfer request: 5 Prosthetic Limbs to Warehouse B</p>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                      <p className="text-sm">Update stock levels for Hearing Aids</p>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <p className="text-sm">Quality check on new inventory batch</p>
+            {/* Incoming Transfers Section */}
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>Incoming Transfers</CardTitle>
+                    <CardDescription>Transfers awaiting your approval or confirmation</CardDescription>
+                  </div>
+                  <Button onClick={() => setActiveView('transfers')}>
+                    Manage All
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 border rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600">Awaiting Approval</p>
+                        <p className="text-2xl font-bold">2</p>
+                      </div>
+                      <CheckCircle className="h-6 w-6 text-yellow-600" />
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="p-4 border rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600">In Transit</p>
+                        <p className="text-2xl font-bold">1</p>
+                      </div>
+                      <Truck className="h-6 w-6 text-blue-600" />
+                    </div>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600">Ready for Receipt</p>
+                        <p className="text-2xl font-bold">{warehouseStats.incomingTransfers}</p>
+                      </div>
+                      <Package className="h-6 w-6 text-green-600" />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
-                  <CardDescription>Common warehouse tasks</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('inventory')}>
-                    <Package className="h-4 w-4 mr-2" />
-                    Manage Inventory
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('transfers')}>
-                    <Truck className="h-4 w-4 mr-2" />
-                    Process Transfers
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline" onClick={() => setIsRequestModalOpen(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Request Inventory
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('messaging')}>
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    Check Messages
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <FileText className="h-4 w-4 mr-2" />
-                    Generate Reports
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+            {/* Recent Activity */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+                <CardDescription>Latest warehouse operations</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 p-3 border rounded-lg">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <div className="flex-1">
+                      <p className="font-medium">Transfer completed</p>
+                      <p className="text-sm text-gray-600">Electric Wheelchair - 5 units to Warehouse B</p>
+                    </div>
+                    <span className="text-sm text-gray-500">2 hours ago</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 border rounded-lg">
+                    <Package className="h-5 w-5 text-blue-600" />
+                    <div className="flex-1">
+                      <p className="font-medium">Inventory updated</p>
+                      <p className="text-sm text-gray-600">Prosthetic Leg restocked - 10 units</p>
+                    </div>
+                    <span className="text-sm text-gray-500">4 hours ago</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 border rounded-lg">
+                    <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                    <div className="flex-1">
+                      <p className="font-medium">Low stock alert</p>
+                      <p className="text-sm text-gray-600">Hearing Aid Digital - 3 units remaining</p>
+                    </div>
+                    <span className="text-sm text-gray-500">6 hours ago</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         );
-      case 'inventory':
-        return <WarehouseInventory warehouseId={warehouseId} />;
-      case 'transfers':
-        return <TransferRequests warehouseId={warehouseId} />;
-      case 'messaging':
-        return <MessagingSystem 
-          currentUserId={user.id}
-          currentUserName={user.name}
-          currentUserRole={user.role}
-        />;
-      case 'profile':
-        return <ProfileManagement user={user} />;
-      default:
-        return null;
     }
   };
 
   return (
-    <MainLayout 
-      user={user} 
-      onLogout={onLogout} 
-      title={getPageTitle()}
-      activeTab={activeTab}
-      onTabChange={setActiveTab}
-    >
-      {renderContent()}
-      
-      <InventoryRequestModal
-        isOpen={isRequestModalOpen}
-        onClose={() => setIsRequestModalOpen(false)}
-        warehouseId={warehouseId}
-        warehouseName={warehouseName}
-      />
-    </MainLayout>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Warehouse Dashboard</h1>
+        <div className="flex gap-2">
+          <Button 
+            variant={activeView === 'overview' ? 'default' : 'outline'}
+            onClick={() => setActiveView('overview')}
+          >
+            Overview
+          </Button>
+          <Button 
+            variant={activeView === 'inventory' ? 'default' : 'outline'}
+            onClick={() => setActiveView('inventory')}
+          >
+            Inventory
+          </Button>
+          <Button 
+            variant={activeView === 'transfers' ? 'default' : 'outline'}
+            onClick={() => setActiveView('transfers')}
+          >
+            Transfers
+            {warehouseStats.pendingTransfers > 0 && (
+              <Badge variant="secondary" className="ml-2">
+                {warehouseStats.pendingTransfers}
+              </Badge>
+            )}
+          </Button>
+        </div>
+      </div>
+
+      {renderActiveView()}
+    </div>
   );
 };

@@ -17,6 +17,7 @@ export const SystemConfig = () => {
   const [approvalSettings, setApprovalSettings] = useState({
     autoApproveAmount: 1000,
     requireDualApproval: true,
+    rfqWorkflow: 'standard',
     notificationSettings: {
       emailNotifications: true,
       smsNotifications: false,
@@ -142,7 +143,13 @@ export const SystemConfig = () => {
 
               <div>
                 <Label>RFQ Approval Workflow</Label>
-                <Select defaultValue="standard">
+                <Select 
+                  value={approvalSettings.rfqWorkflow} 
+                  onValueChange={(value) => setApprovalSettings({
+                    ...approvalSettings,
+                    rfqWorkflow: value
+                  })}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

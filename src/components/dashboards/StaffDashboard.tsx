@@ -8,10 +8,11 @@ import { BudgetButton } from '@/components/common/BudgetButton';
 
 interface StaffDashboardProps {
   user: any;
-  onTabChange: (tab: string) => void;
+  onLogout: () => void;
+  onTabChange?: (tab: string) => void;
 }
 
-export const StaffDashboard = ({ user, onTabChange }: StaffDashboardProps) => {
+export const StaffDashboard = ({ user, onLogout, onTabChange }: StaffDashboardProps) => {
   // Mock staff stats
   const staffStats = {
     activeRfqs: 6,
@@ -28,7 +29,7 @@ export const StaffDashboard = ({ user, onTabChange }: StaffDashboardProps) => {
         <h1 className="text-3xl font-bold">Staff Dashboard</h1>
         <BudgetButton 
           userRole={user.role} 
-          onViewBudgets={() => onTabChange('budgets')} 
+          onViewBudgets={() => onTabChange && onTabChange('budgets')} 
         />
       </div>
 
@@ -40,14 +41,14 @@ export const StaffDashboard = ({ user, onTabChange }: StaffDashboardProps) => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button onClick={() => onTabChange('rfqs')} className="h-20 flex-col">
+            <Button onClick={() => onTabChange && onTabChange('rfqs')} className="h-20 flex-col">
               <FileText className="h-6 w-6 mb-2" />
               Manage RFQs
               <Badge variant="default" className="mt-1">
                 {staffStats.activeRfqs}
               </Badge>
             </Button>
-            <Button onClick={() => onTabChange('bids')} variant="outline" className="h-20 flex-col">
+            <Button onClick={() => onTabChange && onTabChange('bids')} variant="outline" className="h-20 flex-col">
               <Eye className="h-6 w-6 mb-2" />
               Review Bids
               {staffStats.pendingBids > 0 && (
@@ -56,14 +57,14 @@ export const StaffDashboard = ({ user, onTabChange }: StaffDashboardProps) => {
                 </Badge>
               )}
             </Button>
-            <Button onClick={() => onTabChange('inventory')} variant="outline" className="h-20 flex-col">
+            <Button onClick={() => onTabChange && onTabChange('inventory')} variant="outline" className="h-20 flex-col">
               <Package className="h-6 w-6 mb-2" />
               Inventory
               <Badge variant="outline" className="mt-1">
                 {staffStats.managedInventory} items
               </Badge>
             </Button>
-            <Button onClick={() => onTabChange('suppliers')} variant="outline" className="h-20 flex-col">
+            <Button onClick={() => onTabChange && onTabChange('suppliers')} variant="outline" className="h-20 flex-col">
               <Users className="h-6 w-6 mb-2" />
               Suppliers
               <Badge variant="outline" className="mt-1">

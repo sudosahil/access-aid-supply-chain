@@ -13,9 +13,29 @@ interface ApprovalManagementProps {
   currentUserName: string;
 }
 
+interface PendingRfq {
+  id: string;
+  title: string;
+  description: string;
+  budget: number;
+  category: string;
+  deadline: string;
+  approval_status: string;
+}
+
+interface PendingBid {
+  id: string;
+  supplier_name: string;
+  rfq_id: string;
+  amount: number;
+  submitted_date: string;
+  documents: number;
+  approval_status: string;
+}
+
 export const ApprovalManagement = ({ currentUserId, currentUserName }: ApprovalManagementProps) => {
-  const [pendingRfqs, setPendingRfqs] = useState<any[]>([]);
-  const [pendingBids, setPendingBids] = useState<any[]>([]);
+  const [pendingRfqs, setPendingRfqs] = useState<PendingRfq[]>([]);
+  const [pendingBids, setPendingBids] = useState<PendingBid[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 

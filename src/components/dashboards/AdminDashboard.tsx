@@ -11,10 +11,11 @@ import { LiveBidViewing } from '@/components/contractor/LiveBidViewing';
 
 interface AdminDashboardProps {
   user: any;
-  onTabChange: (tab: string) => void;
+  onLogout: () => void;
+  onTabChange?: (tab: string) => void;
 }
 
-export const AdminDashboard = ({ user, onTabChange }: AdminDashboardProps) => {
+export const AdminDashboard = ({ user, onLogout, onTabChange }: AdminDashboardProps) => {
   const [activeView, setActiveView] = useState('overview');
 
   const dashboardStats = {
@@ -66,7 +67,7 @@ export const AdminDashboard = ({ user, onTabChange }: AdminDashboardProps) => {
                   </Button>
                   <BudgetButton 
                     userRole={user.role} 
-                    onViewBudgets={() => onTabChange('budgets')} 
+                    onViewBudgets={() => onTabChange && onTabChange('budgets')} 
                   />
                 </div>
               </CardContent>

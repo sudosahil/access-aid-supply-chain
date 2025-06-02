@@ -10,10 +10,11 @@ import { EnhancedTransferRequests } from '@/components/warehouse/EnhancedTransfe
 
 interface WarehouseDashboardProps {
   user: any;
-  onTabChange: (tab: string) => void;
+  onLogout: () => void;
+  onTabChange?: (tab: string) => void;
 }
 
-export const WarehouseDashboard = ({ user, onTabChange }: WarehouseDashboardProps) => {
+export const WarehouseDashboard = ({ user, onLogout, onTabChange }: WarehouseDashboardProps) => {
   const [activeView, setActiveView] = useState('overview');
 
   // Mock warehouse stats - in real implementation, this would come from props or API
@@ -77,7 +78,7 @@ export const WarehouseDashboard = ({ user, onTabChange }: WarehouseDashboardProp
                   </Button>
                   <BudgetButton 
                     userRole={user.role} 
-                    onViewBudgets={() => onTabChange('budgets')} 
+                    onViewBudgets={() => onTabChange && onTabChange('budgets')} 
                   />
                 </div>
               </CardContent>

@@ -9,10 +9,11 @@ import { LiveBidViewing } from '@/components/contractor/LiveBidViewing';
 
 interface ContractorDashboardProps {
   user: any;
-  onTabChange: (tab: string) => void;
+  onLogout: () => void;
+  onTabChange?: (tab: string) => void;
 }
 
-export const ContractorDashboard = ({ user, onTabChange }: ContractorDashboardProps) => {
+export const ContractorDashboard = ({ user, onLogout, onTabChange }: ContractorDashboardProps) => {
   const [activeView, setActiveView] = useState('overview');
 
   // Mock contractor stats
@@ -40,14 +41,14 @@ export const ContractorDashboard = ({ user, onTabChange }: ContractorDashboardPr
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Button onClick={() => onTabChange('rfqs')} className="h-20 flex-col">
+                  <Button onClick={() => onTabChange && onTabChange('rfqs')} className="h-20 flex-col">
                     <FileText className="h-6 w-6 mb-2" />
                     Available RFQs
                     <Badge variant="default" className="mt-1">
                       {contractorStats.availableRfqs}
                     </Badge>
                   </Button>
-                  <Button onClick={() => onTabChange('bids')} variant="outline" className="h-20 flex-col">
+                  <Button onClick={() => onTabChange && onTabChange('bids')} variant="outline" className="h-20 flex-col">
                     <Eye className="h-6 w-6 mb-2" />
                     My Bids
                     {contractorStats.pendingBids > 0 && (
@@ -60,7 +61,7 @@ export const ContractorDashboard = ({ user, onTabChange }: ContractorDashboardPr
                     <TrendingUp className="h-6 w-6 mb-2" />
                     Live Bid Status
                   </Button>
-                  <Button onClick={() => onTabChange('messaging')} variant="outline" className="h-20 flex-col">
+                  <Button onClick={() => onTabChange && onTabChange('messaging')} variant="outline" className="h-20 flex-col">
                     <MessageSquare className="h-6 w-6 mb-2" />
                     Messages
                   </Button>
@@ -127,7 +128,7 @@ export const ContractorDashboard = ({ user, onTabChange }: ContractorDashboardPr
                     <CardTitle>Pending Bids</CardTitle>
                     <CardDescription>Bids awaiting review or decision</CardDescription>
                   </div>
-                  <Button onClick={() => onTabChange('bids')}>
+                  <Button onClick={() => onTabChange && onTabChange('bids')}>
                     View All Bids
                   </Button>
                 </div>

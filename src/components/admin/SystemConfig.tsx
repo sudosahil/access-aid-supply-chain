@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,6 +25,10 @@ export const SystemConfig = () => {
     }
   });
   const { toast } = useToast();
+
+  // Debug logging
+  console.log('SystemConfig approvalSettings:', approvalSettings);
+  console.log('RFQ Workflow value:', approvalSettings.rfqWorkflow);
 
   const handleAddCategory = () => {
     if (newCategory.name && newCategory.description) {
@@ -145,10 +148,13 @@ export const SystemConfig = () => {
                 <Label>RFQ Approval Workflow</Label>
                 <Select 
                   value={approvalSettings.rfqWorkflow} 
-                  onValueChange={(value) => setApprovalSettings({
-                    ...approvalSettings,
-                    rfqWorkflow: value
-                  })}
+                  onValueChange={(value) => {
+                    console.log('RFQ Workflow changing to:', value);
+                    setApprovalSettings({
+                      ...approvalSettings,
+                      rfqWorkflow: value
+                    });
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue />

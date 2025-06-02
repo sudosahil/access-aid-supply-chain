@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,7 @@ export const SystemConfig = () => {
   const [approvalSettings, setApprovalSettings] = useState({
     autoApproveAmount: 1000,
     requireDualApproval: true,
-    rfqWorkflow: 'standard',
+    rfqWorkflow: 'standard' as string,
     notificationSettings: {
       emailNotifications: true,
       smsNotifications: false,
@@ -147,13 +148,15 @@ export const SystemConfig = () => {
               <div>
                 <Label>RFQ Approval Workflow</Label>
                 <Select 
-                  value={approvalSettings.rfqWorkflow} 
+                  value={approvalSettings.rfqWorkflow || 'standard'} 
                   onValueChange={(value) => {
                     console.log('RFQ Workflow changing to:', value);
-                    setApprovalSettings({
-                      ...approvalSettings,
-                      rfqWorkflow: value
-                    });
+                    if (value && value.trim() !== '') {
+                      setApprovalSettings({
+                        ...approvalSettings,
+                        rfqWorkflow: value
+                      });
+                    }
                   }}
                 >
                   <SelectTrigger>

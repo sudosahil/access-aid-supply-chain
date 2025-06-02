@@ -1,4 +1,3 @@
-
 import { Calendar, FileText, Package, MessageSquare, Activity, Settings, User, Home, Building, Users, ClipboardList, DollarSign } from 'lucide-react';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { User as UserType } from '@/data/mockData';
@@ -79,7 +78,11 @@ export const AppSidebar = ({ user, activeTab, onTabChange }: AppSidebarProps) =>
     // Add transfer requests for warehouse users if they have inventory permission
     if (hasPermission('inventory')) {
       const transfersIndex = menuItems.findIndex(item => item.id === 'inventory') + 1;
-      menuItems.splice(transfersIndex, 0, WAREHOUSE_SPECIFIC_ITEMS.transfers);
+      menuItems.splice(transfersIndex, 0, { 
+        id: 'warehouse-transfers', 
+        title: 'Transfer Requests', 
+        icon: Activity 
+      });
     }
   }
 

@@ -59,19 +59,19 @@ export const MainLayout = ({
       case 'users':
         return <UserManagement />;
       case 'budgets':
-        return <BudgetManagement />;
+        return <BudgetManagement user={user} />;
       case 'reports':
         return <AdminReports />;
       
       // Staff specific tabs
       case 'rfqs':
         if (user.role === 'contractor') {
-          return <AvailableRFQs />;
+          return <AvailableRFQs contractorId={user.id} />;
         }
         return <RFQManagement />;
       case 'bids':
         if (user.role === 'contractor') {
-          return <MyBids />;
+          return <MyBids contractorId={user.id} />;
         }
         return <BidManagement />;
       case 'suppliers':
@@ -80,14 +80,17 @@ export const MainLayout = ({
       // Warehouse specific tabs
       case 'inventory':
         if (user.role === 'warehouse') {
-          return <WarehouseInventory warehouseId={user.warehouse_id || 'warehouse-a'} />;
+          // Use a default warehouse ID if not available on user
+          const warehouseId = (user as any).warehouse_id || 'warehouse-a';
+          return <WarehouseInventory warehouseId={warehouseId} />;
         }
         return <InventoryManagement />;
-      case 'transfers':
+      case 'warehouse-transfers':
         if (user.role === 'warehouse') {
+          const warehouseId = (user as any).warehouse_id || 'warehouse-a';
           return (
             <EnhancedTransferRequests 
-              warehouseId={user.warehouse_id || 'warehouse-a'}
+              warehouseId={warehouseId}
               currentUserId={user.id}
               currentUserName={user.name}
             />
@@ -101,7 +104,7 @@ export const MainLayout = ({
       
       // Common tabs
       case 'messaging':
-        return <EnhancedMessagingSystem currentUser={user} />;
+        return <EnhancedMessagingSystem currentUserId={user.id} />;
       case 'audit':
         return <AuditLogs />;
       case 'profile':

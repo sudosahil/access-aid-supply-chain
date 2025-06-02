@@ -94,16 +94,6 @@ export const ApprovalManagement = ({ currentUserId, currentUserName }: ApprovalM
 
       if (error) throw error;
 
-      // Log the approval
-      await supabase
-        .from('approval_logs')
-        .insert({
-          entity_type: 'rfq',
-          entity_id: rfqId,
-          action: 'approved',
-          approved_by: currentUserId
-        });
-
       toast({
         title: "RFQ Approved",
         description: "RFQ has been approved and published"
@@ -133,16 +123,6 @@ export const ApprovalManagement = ({ currentUserId, currentUserName }: ApprovalM
         .eq('id', bidId);
 
       if (error) throw error;
-
-      // Log the approval
-      await supabase
-        .from('approval_logs')
-        .insert({
-          entity_type: 'bid',
-          entity_id: bidId,
-          action: 'approved',
-          approved_by: currentUserId
-        });
 
       toast({
         title: "Bid Approved",
@@ -174,16 +154,6 @@ export const ApprovalManagement = ({ currentUserId, currentUserName }: ApprovalM
         .eq('id', id);
 
       if (error) throw error;
-
-      // Log the rejection
-      await supabase
-        .from('approval_logs')
-        .insert({
-          entity_type: type,
-          entity_id: id,
-          action: 'rejected',
-          approved_by: currentUserId
-        });
 
       toast({
         title: `${type.toUpperCase()} Rejected`,

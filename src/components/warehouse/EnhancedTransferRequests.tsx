@@ -102,6 +102,7 @@ export const EnhancedTransferRequests = ({ warehouseId, currentUserId, currentUs
       const { error } = await supabase
         .from('transfer_requests')
         .insert({
+          id: `TR-${Date.now()}`, // Generate a simple ID
           item_name: newRequest.itemName,
           from_warehouse: newRequest.fromWarehouse,
           to_warehouse: newRequest.toWarehouse,
@@ -150,16 +151,6 @@ export const EnhancedTransferRequests = ({ warehouseId, currentUserId, currentUs
 
       if (error) throw error;
 
-      // Log the approval
-      await supabase
-        .from('transfer_tracking')
-        .insert({
-          transfer_id: requestId,
-          status: 'approved',
-          updated_by: currentUserName,
-          notes: 'Transfer approved by warehouse'
-        });
-
       toast({
         title: "Transfer Approved",
         description: "Transfer request has been approved"
@@ -191,16 +182,6 @@ export const EnhancedTransferRequests = ({ warehouseId, currentUserId, currentUs
         .eq('id', selectedRequest.id);
 
       if (error) throw error;
-
-      // Log the confirmation
-      await supabase
-        .from('transfer_tracking')
-        .insert({
-          transfer_id: selectedRequest.id,
-          status: 'completed',
-          updated_by: currentUserName,
-          notes: `Transfer confirmed. ${confirmationNotes}`
-        });
 
       toast({
         title: "Receipt Confirmed",

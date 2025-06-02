@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Eye, TrendingUp, Clock, Users, Refresh } from 'lucide-react';
+import { Eye, TrendingUp, Clock, Users, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -146,7 +146,7 @@ export const LiveBidViewing = () => {
                 Last updated: {lastUpdate.toLocaleTimeString()}
               </span>
               <Button variant="outline" size="sm" onClick={loadData}>
-                <Refresh className="h-4 w-4" />
+                <RefreshCw className="h-4 w-4" />
               </Button>
             </div>
           </div>

@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { mockUsers } from '@/data/mockData';
+import { sampleBudgets } from '@/data/sampleBudgetData';
 import { DollarSign, TrendingUp, Filter, Eye } from 'lucide-react';
 import { BudgetCharts } from '../admin/BudgetCharts';
 
@@ -48,16 +49,35 @@ export const BudgetOverview = () => {
   ];
 
   const loadBudgets = async () => {
+    console.log('BudgetOverview: Loading budgets...');
     try {
+      // First try to load from Supabase
       const { data, error } = await supabase
         .from('budgets')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setBudgets(data || []);
+      console.log('BudgetOverview: Supabase response:', { data, error });
+
+      if (error) {
+        console.log('BudgetOverview: Supabase error, using sample data:', error);
+        setBudgets(sampleBudgets as Budget[]);
+      } else if (data && data.length > 0) {
+        // Transform the data to match our interface
+        const transformedBudgets: Budget[] = data.map(budget => ({
+          ...budget,
+          attachments: Array.isArray(budget.attachments) ? budget.attachments : []
+        }));
+        console.log('BudgetOverview: Using Supabase data:', transformedBudgets);
+        setBudgets(transformedBudgets);
+      } else {
+        // If no data in Supabase, use sample data
+        console.log('BudgetOverview: No data in Supabase, using sample data');
+        setBudgets(sampleBudgets as Budget[]);
+      }
     } catch (error) {
-      console.error('Error loading budgets:', error);
+      console.error('BudgetOverview: Error loading budgets:', error);
+      setBudgets(sampleBudgets as Budget[]);
     } finally {
       setLoading(false);
     }
@@ -71,7 +91,10 @@ export const BudgetOverview = () => {
       .channel('budget-overview-changes')
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'budgets' },
-        () => loadBudgets()
+        (payload) => {
+          console.log('BudgetOverview: Budget change detected:', payload);
+          loadBudgets(); // Reload data when changes occur
+        }
       )
       .subscribe();
 

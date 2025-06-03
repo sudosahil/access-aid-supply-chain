@@ -37,14 +37,9 @@ export const AdminDashboard = ({ user, onLogout, onTabChange }: AdminDashboardPr
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button onClick={() => onTabChange && onTabChange('approvals')} className="h-20 flex-col">
+            <Button onClick={() => onTabChange && onTabChange('approval-workflows')} className="h-20 flex-col">
               <CheckCircle className="h-6 w-6 mb-2" />
-              Approvals
-              {dashboardStats.pendingApprovals > 0 && (
-                <Badge variant="destructive" className="mt-1">
-                  {dashboardStats.pendingApprovals}
-                </Badge>
-              )}
+              Approval Workflows
             </Button>
             <Button onClick={() => onTabChange && onTabChange('transfers')} variant="outline" className="h-20 flex-col">
               <Package className="h-6 w-6 mb-2" />
@@ -121,7 +116,7 @@ export const AdminDashboard = ({ user, onLogout, onTabChange }: AdminDashboardPr
               <CardTitle>Pending Approvals</CardTitle>
               <CardDescription>Items requiring immediate attention</CardDescription>
             </div>
-            <Button onClick={() => onTabChange && onTabChange('approvals')}>
+            <Button onClick={() => onTabChange && onTabChange('approval-workflows')}>
               View All
             </Button>
           </div>

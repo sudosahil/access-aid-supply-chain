@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { DollarSign, TrendingUp, AlertTriangle } from 'lucide-react';
+import { useBudgetContext } from '@/contexts/BudgetContext';
 
 interface BudgetButtonProps {
   userRole: string;
@@ -12,19 +13,23 @@ interface BudgetButtonProps {
 
 export const BudgetButton = ({ userRole, onViewBudgets }: BudgetButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { 
+    getTotalBudget, 
+    getUtilizedBudget, 
+    getPendingBudget, 
+    getAvailableBudget, 
+    getUtilizationPercentage,
+    loading 
+  } = useBudgetContext();
 
-  const getBudgetStats = () => {
-    // Mock budget stats - in real implementation, this would come from props or API
-    return {
-      total: 2500000,
-      utilized: 1750000,
-      pending: 300000,
-      available: 450000
-    };
+  const stats = {
+    total: getTotalBudget(),
+    utilized: getUtilizedBudget(),
+    pending: getPendingBudget(),
+    available: getAvailableBudget()
   };
 
-  const stats = getBudgetStats();
-  const utilizationPercentage = (stats.utilized / stats.total) * 100;
+  const utilizationPercentage = getUtilizationPercentage();
 
   const getBudgetStatusColor = () => {
     if (utilizationPercentage > 90) return 'text-red-600';
@@ -37,6 +42,18 @@ export const BudgetButton = ({ userRole, onViewBudgets }: BudgetButtonProps) => 
     if (utilizationPercentage > 75) return <TrendingUp className="h-4 w-4" />;
     return <DollarSign className="h-4 w-4" />;
   };
+
+  if (loading) {
+    return (
+      <Button variant="outline" disabled className="flex items-center gap-2">
+        <DollarSign className="h-4 w-4" />
+        Budget
+        <Badge variant="secondary" className="ml-1">
+          ...
+        </Badge>
+      </Button>
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -89,7 +106,7 @@ export const BudgetButton = ({ userRole, onViewBudgets }: BudgetButtonProps) => 
                 utilizationPercentage > 90 ? 'bg-red-600' :
                 utilizationPercentage > 75 ? 'bg-yellow-600' : 'bg-green-600'
               }`}
-              style={{ width: `${utilizationPercentage}%` }}
+              style={{ width: `${Math.min(utilizationPercentage, 100)}%` }}
             ></div>
           </div>
           

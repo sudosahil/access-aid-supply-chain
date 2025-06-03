@@ -60,6 +60,12 @@ export const AppSidebar = ({ user, activeTab, onTabChange }: AppSidebarProps) =>
   let menuItems = ALL_MENU_ITEMS.filter(item => {
     // Profile is always available
     if (item.id === 'profile') return true;
+    
+    // For approval-workflows, only show to admin users
+    if (item.id === 'approval-workflows') {
+      return user.role === 'admin';
+    }
+    
     // Check if user has permission for this item
     const hasAccess = hasPermission(item.id);
     console.log(`Menu item ${item.id}: hasAccess = ${hasAccess}`);

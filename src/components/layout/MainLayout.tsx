@@ -26,6 +26,7 @@ import { AdminReports } from '@/components/admin/AdminReports';
 import { ProfileManagement } from '@/components/common/ProfileManagement';
 import { AvailableRFQs } from '@/components/contractor/AvailableRFQs';
 import { MyBids } from '@/components/contractor/MyBids';
+import { ApprovalWorkflows } from '@/components/admin/ApprovalWorkflows';
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -59,6 +60,8 @@ export const MainLayout = ({
         return <UserManagement />;
       case 'budgets':
         return <BudgetManagement user={user} />;
+      case 'approval-workflows':
+        return <ApprovalWorkflows />;
       case 'reports':
         return <AdminReports />;
       

@@ -21,6 +21,7 @@ const ALL_MENU_ITEMS = [
   { id: 'users', title: 'User Management', icon: Users },
   { id: 'settings', title: 'Settings', icon: Settings },
   { id: 'budgets', title: 'Budget Management', icon: DollarSign },
+  { id: 'approval-workflows', title: 'Approval Workflows', icon: Settings },
   { id: 'reports', title: 'Reports', icon: FileText },
   { id: 'profile', title: 'Profile', icon: User }
 ];

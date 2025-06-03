@@ -7,14 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { User, mockUsers } from '@/data/mockData';
 import { sampleBudgets } from '@/data/sampleBudgetData';
 import { BudgetCharts } from './BudgetCharts';
 import { BudgetModal } from './BudgetModal';
-import { ApprovalWorkflows } from './ApprovalWorkflows';
 import { Plus, Edit, Trash2, DollarSign } from 'lucide-react';
 
 interface Budget {
@@ -63,14 +61,18 @@ export const BudgetManagement = ({ user }: BudgetManagementProps) => {
   const [filterStatus, setFilterStatus] = useState('all');
   const { toast } = useToast();
   const [showBudgetModal, setShowBudgetModal] = useState(false);
+  const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
 
   const loadBudgets = async () => {
+    console.log('Loading budgets...');
     try {
       // First try to load from Supabase
       const { data, error } = await supabase
         .from('budgets')
         .select('*')
         .order('created_at', { ascending: false });
+
+      console.log('Supabase response:', { data, error });
 
       if (error) {
         console.log('Supabase error, using sample data:', error);
@@ -82,6 +84,7 @@ export const BudgetManagement = ({ user }: BudgetManagementProps) => {
           ...budget,
           attachments: Array.isArray(budget.attachments) ? budget.attachments : []
         }));
+        console.log('Using Supabase data:', transformedBudgets);
         setBudgets(transformedBudgets);
       } else {
         // If no data in Supabase, use sample data
@@ -109,7 +112,10 @@ export const BudgetManagement = ({ user }: BudgetManagementProps) => {
       .channel('budgets-changes')
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'budgets' },
-        () => loadBudgets()
+        (payload) => {
+          console.log('Budget change detected:', payload);
+          loadBudgets();
+        }
       )
       .subscribe();
 
@@ -120,10 +126,8 @@ export const BudgetManagement = ({ user }: BudgetManagementProps) => {
 
   const handleEdit = (budget: Budget) => {
     console.log('Edit budget:', budget);
-    toast({
-      title: "Edit Budget",
-      description: "Budget editing functionality will be implemented.",
-    });
+    setEditingBudget(budget);
+    setShowBudgetModal(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -180,6 +184,19 @@ export const BudgetManagement = ({ user }: BudgetManagementProps) => {
     }).format(amount);
   };
 
+  const handleModalClose = () => {
+    setShowBudgetModal(false);
+    setEditingBudget(null);
+  };
+
+  const handleModalSuccess = () => {
+    loadBudgets();
+    toast({
+      title: editingBudget ? "Budget Updated" : "Budget Added",
+      description: editingBudget ? "Budget has been updated successfully." : "New budget has been added successfully.",
+    });
+  };
+
   if (loading) return <div>Loading budgets...</div>;
 
   return (
@@ -187,7 +204,7 @@ export const BudgetManagement = ({ user }: BudgetManagementProps) => {
       {/* Budget Charts */}
       <BudgetCharts budgets={budgets} />
 
-      {/* Budget Management with Tabs */}
+      {/* Budget Management */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -198,155 +215,137 @@ export const BudgetManagement = ({ user }: BudgetManagementProps) => {
             Create and manage budgets with approval workflows
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="budgets" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="budgets">Budgets</TabsTrigger>
-              <TabsTrigger value="workflows">Approval Workflows</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="budgets" className="space-y-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="text-lg font-semibold">Budget Overview</h3>
-                  <p className="text-sm text-gray-600">Manage organizational budgets</p>
-                </div>
-                {user.role === 'admin' && (
-                  <Button onClick={() => setShowBudgetModal(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Budget
-                  </Button>
-                )}
-              </div>
+        <CardContent className="space-y-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="text-lg font-semibold">Budget Overview</h3>
+              <p className="text-sm text-gray-600">Manage organizational budgets</p>
+            </div>
+            {user.role === 'admin' && (
+              <Button onClick={() => setShowBudgetModal(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Budget
+              </Button>
+            )}
+          </div>
 
-              {/* Filters */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="search">Search Budgets</Label>
-                  <Input
-                    id="search"
-                    placeholder="Search by title or purpose..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="source-filter">Filter by Source</Label>
-                  <Select value={filterSource} onValueChange={setFilterSource}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Sources</SelectItem>
-                      {BUDGET_SOURCES.map(source => (
-                        <SelectItem key={source.value} value={source.value}>
-                          {source.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="status-filter">Filter by Status</Label>
-                  <Select value={filterStatus} onValueChange={setFilterStatus}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Statuses</SelectItem>
-                      {BUDGET_STATUSES.map(status => (
-                        <SelectItem key={status.value} value={status.value}>
-                          {status.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Budget List */}
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Source</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Assigned To</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredBudgets.map((budget) => (
-                    <TableRow key={budget.id}>
-                      <TableCell className="font-medium">{budget.title}</TableCell>
-                      <TableCell>{formatCurrency(budget.amount)}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">
-                          {BUDGET_SOURCES.find(s => s.value === budget.source)?.label || budget.source}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={budget.status === 'approved' ? 'default' : 'secondary'}>
-                          {BUDGET_STATUSES.find(s => s.value === budget.status)?.label || budget.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{getUserName(budget.assigned_to)}</TableCell>
-                      <TableCell>{new Date(budget.created_at).toLocaleDateString()}</TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          {user.role === 'admin' && (
-                            <>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleEdit(budget)}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleDelete(budget.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
+          {/* Filters */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label htmlFor="search">Search Budgets</Label>
+              <Input
+                id="search"
+                placeholder="Search by title or purpose..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="source-filter">Filter by Source</Label>
+              <Select value={filterSource} onValueChange={setFilterSource}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Sources</SelectItem>
+                  {BUDGET_SOURCES.map(source => (
+                    <SelectItem key={source.value} value={source.value}>
+                      {source.label}
+                    </SelectItem>
                   ))}
-                </TableBody>
-              </Table>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="status-filter">Filter by Status</Label>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  {BUDGET_STATUSES.map(status => (
+                    <SelectItem key={status.value} value={status.value}>
+                      {status.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-              {filteredBudgets.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  No budgets found matching your criteria.
-                </div>
-              )}
-            </TabsContent>
-            
-            <TabsContent value="workflows">
-              <ApprovalWorkflows />
-            </TabsContent>
-          </Tabs>
+          {/* Budget List */}
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Title</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Source</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Assigned To</TableHead>
+                <TableHead>Created</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredBudgets.map((budget) => (
+                <TableRow key={budget.id}>
+                  <TableCell className="font-medium">{budget.title}</TableCell>
+                  <TableCell>{formatCurrency(budget.amount)}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline">
+                      {BUDGET_SOURCES.find(s => s.value === budget.source)?.label || budget.source}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={budget.status === 'approved' ? 'default' : 'secondary'}>
+                      {BUDGET_STATUSES.find(s => s.value === budget.status)?.label || budget.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{getUserName(budget.assigned_to)}</TableCell>
+                  <TableCell>{new Date(budget.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      {user.role === 'admin' && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEdit(budget)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDelete(budget.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+          {filteredBudgets.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              No budgets found matching your criteria.
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Budget Modal */}
       <BudgetModal
         isOpen={showBudgetModal}
-        onClose={() => setShowBudgetModal(false)}
+        onClose={handleModalClose}
         user={user}
-        onSuccess={() => {
-          loadBudgets();
-          toast({
-            title: "Budget Added",
-            description: "New budget has been added successfully.",
-          });
-        }}
+        onSuccess={handleModalSuccess}
+        editBudget={editingBudget}
       />
     </div>
   );

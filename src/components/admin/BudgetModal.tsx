@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,11 +11,28 @@ import { supabase } from '@/integrations/supabase/client';
 import { User } from '@/data/mockData';
 import { Upload, X, FileText } from 'lucide-react';
 
+interface Budget {
+  id: string;
+  title: string;
+  amount: number;
+  source: string;
+  purpose: string;
+  assigned_to: string | null;
+  approved_by: string | null;
+  status: string;
+  notes: string | null;
+  attachments: any[];
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
 interface BudgetModalProps {
   isOpen: boolean;
   onClose: () => void;
   user: User;
   onSuccess: () => void;
+  editBudget?: Budget | null;
 }
 
 const BUDGET_SOURCES = [
@@ -35,7 +52,7 @@ const FISCAL_YEARS = [
 
 type BudgetSource = typeof BUDGET_SOURCES[number]['value'];
 
-export const BudgetModal = ({ isOpen, onClose, user, onSuccess }: BudgetModalProps) => {
+export const BudgetModal = ({ isOpen, onClose, user, onSuccess, editBudget }: BudgetModalProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   
@@ -53,6 +70,29 @@ export const BudgetModal = ({ isOpen, onClose, user, onSuccess }: BudgetModalPro
     type: string;
     url: string;
   }>>([]);
+
+  // Reset form when modal opens/closes or editBudget changes
+  useEffect(() => {
+    if (editBudget) {
+      setFormData({
+        title: editBudget.title,
+        amount: editBudget.amount.toString(),
+        source: editBudget.source as BudgetSource,
+        fiscal_year: '2025', // Extract from notes if needed
+        description: editBudget.purpose
+      });
+      setUploadedFiles(editBudget.attachments || []);
+    } else {
+      setFormData({
+        title: '',
+        amount: '',
+        source: 'internal_allocation',
+        fiscal_year: '2025',
+        description: ''
+      });
+      setUploadedFiles([]);
+    }
+  }, [editBudget, isOpen]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -125,25 +165,44 @@ export const BudgetModal = ({ isOpen, onClose, user, onSuccess }: BudgetModalPro
         attachments: uploadedFiles
       };
 
-      console.log('Attempting to save budget:', budgetData);
+      console.log(editBudget ? 'Updating budget:' : 'Creating budget:', budgetData);
 
-      // Try to save to Supabase first
-      const { data, error } = await supabase
-        .from('budgets')
-        .insert(budgetData)
-        .select();
+      if (editBudget) {
+        // Update existing budget
+        const { data, error } = await supabase
+          .from('budgets')
+          .update(budgetData)
+          .eq('id', editBudget.id)
+          .select();
 
-      if (error) {
-        console.log('Supabase error, budget created locally:', error);
-        // Even if Supabase fails, we'll consider it successful for demo purposes
+        if (error) {
+          console.log('Supabase update error:', error);
+          throw error;
+        }
+
+        console.log('Budget updated successfully:', data);
+        toast({
+          title: "Budget Updated",
+          description: "Budget has been successfully updated."
+        });
       } else {
-        console.log('Budget saved successfully to Supabase:', data);
-      }
+        // Create new budget
+        const { data, error } = await supabase
+          .from('budgets')
+          .insert(budgetData)
+          .select();
 
-      toast({
-        title: "Budget Created",
-        description: "Budget has been successfully created."
-      });
+        if (error) {
+          console.log('Supabase insert error:', error);
+          throw error;
+        }
+
+        console.log('Budget created successfully:', data);
+        toast({
+          title: "Budget Created",
+          description: "Budget has been successfully created."
+        });
+      }
 
       // Reset form
       setFormData({
@@ -160,22 +219,10 @@ export const BudgetModal = ({ isOpen, onClose, user, onSuccess }: BudgetModalPro
     } catch (error) {
       console.error('Error saving budget:', error);
       toast({
-        title: "Budget Created",
-        description: "Budget has been created successfully.",
+        title: "Error",
+        description: "Failed to save budget. Please try again.",
+        variant: "destructive"
       });
-      
-      // Reset form even on error for demo purposes
-      setFormData({
-        title: '',
-        amount: '',
-        source: 'internal_allocation',
-        fiscal_year: '2025',
-        description: ''
-      });
-      setUploadedFiles([]);
-
-      onSuccess();
-      onClose();
     } finally {
       setLoading(false);
     }
@@ -197,9 +244,9 @@ export const BudgetModal = ({ isOpen, onClose, user, onSuccess }: BudgetModalPro
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New Budget</DialogTitle>
+          <DialogTitle>{editBudget ? 'Edit Budget' : 'Add New Budget'}</DialogTitle>
           <DialogDescription>
-            Create a new budget entry for your organization
+            {editBudget ? 'Update the budget details' : 'Create a new budget entry for your organization'}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -326,7 +373,7 @@ export const BudgetModal = ({ isOpen, onClose, user, onSuccess }: BudgetModalPro
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Creating...' : 'Create Budget'}
+              {loading ? (editBudget ? 'Updating...' : 'Creating...') : (editBudget ? 'Update Budget' : 'Create Budget')}
             </Button>
           </div>
         </form>

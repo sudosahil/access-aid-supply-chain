@@ -7,8 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { supabase } from '@/integrations/supabase/client';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { mockUsers } from '@/data/mockData';
 import { Plus, Edit, Trash2, ArrowRight, Settings } from 'lucide-react';
@@ -43,7 +42,9 @@ const WORKFLOW_TYPES = [
 const ROLES = [
   { value: 'admin', label: 'Admin' },
   { value: 'staff', label: 'Staff' },
-  { value: 'manager', label: 'Manager' }
+  { value: 'manager', label: 'Manager' },
+  { value: 'warehouse', label: 'Warehouse' },
+  { value: 'contractor', label: 'Contractor' }
 ];
 
 export const ApprovalWorkflows = () => {
@@ -63,7 +64,7 @@ export const ApprovalWorkflows = () => {
 
   const [stepForm, setStepForm] = useState({
     approver_type: 'role' as 'role' | 'user',
-    approver_role: 'admin',
+    approver_role: '',
     approver_user_id: ''
   });
 
@@ -93,6 +94,24 @@ export const ApprovalWorkflows = () => {
               step_order: 2,
               approver_type: 'role',
               approver_role: 'admin',
+              created_at: new Date().toISOString()
+            }
+          ]
+        },
+        {
+          id: '2',
+          name: 'RFQ Review Process',
+          description: 'Workflow for RFQ approvals and reviews',
+          workflow_type: 'rfq_approval',
+          is_active: true,
+          created_at: new Date().toISOString(),
+          steps: [
+            {
+              id: '3',
+              workflow_id: '2',
+              step_order: 1,
+              approver_type: 'role',
+              approver_role: 'manager',
               created_at: new Date().toISOString()
             }
           ]
@@ -161,6 +180,25 @@ export const ApprovalWorkflows = () => {
     
     if (!selectedWorkflow) return;
 
+    // Validate step form
+    if (stepForm.approver_type === 'role' && !stepForm.approver_role) {
+      toast({
+        title: "Error",
+        description: "Please select a role.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (stepForm.approver_type === 'user' && !stepForm.approver_user_id) {
+      toast({
+        title: "Error",
+        description: "Please select a user.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       const workflow = workflows.find(w => w.id === selectedWorkflow);
       if (!workflow) return;
@@ -181,7 +219,7 @@ export const ApprovalWorkflows = () => {
           : w
       ));
 
-      setStepForm({ approver_type: 'role', approver_role: 'admin', approver_user_id: '' });
+      setStepForm({ approver_type: 'role', approver_role: '', approver_user_id: '' });
       setShowStepForm(false);
       
       toast({
@@ -277,7 +315,7 @@ export const ApprovalWorkflows = () => {
                         <div key={step.id} className="flex items-center gap-1">
                           <Badge variant="secondary" className="text-xs">
                             {step.approver_type === 'role' 
-                              ? step.approver_role 
+                              ? ROLES.find(r => r.value === step.approver_role)?.label || step.approver_role
                               : getUserName(step.approver_user_id || '')}
                           </Badge>
                           {index < (workflow.steps?.length || 0) - 1 && (
@@ -418,7 +456,14 @@ export const ApprovalWorkflows = () => {
           <form onSubmit={handleStepSubmit} className="space-y-4">
             <div>
               <Label htmlFor="approver-type">Approver Type*</Label>
-              <Select value={stepForm.approver_type} onValueChange={(value: 'role' | 'user') => setStepForm({...stepForm, approver_type: value})}>
+              <Select value={stepForm.approver_type} onValueChange={(value: 'role' | 'user') => {
+                setStepForm({
+                  ...stepForm, 
+                  approver_type: value,
+                  approver_role: '',
+                  approver_user_id: ''
+                });
+              }}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -434,7 +479,7 @@ export const ApprovalWorkflows = () => {
                 <Label htmlFor="approver-role">Role*</Label>
                 <Select value={stepForm.approver_role} onValueChange={(value) => setStepForm({...stepForm, approver_role: value})}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
                   <SelectContent>
                     {ROLES.map(role => (
@@ -466,7 +511,7 @@ export const ApprovalWorkflows = () => {
             <div className="flex justify-end space-x-2">
               <Button type="button" variant="outline" onClick={() => {
                 setShowStepForm(false);
-                setStepForm({ approver_type: 'role', approver_role: 'admin', approver_user_id: '' });
+                setStepForm({ approver_type: 'role', approver_role: '', approver_user_id: '' });
               }}>
                 Cancel
               </Button>

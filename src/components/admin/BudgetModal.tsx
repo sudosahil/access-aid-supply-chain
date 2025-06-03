@@ -25,13 +25,15 @@ const BUDGET_SOURCES = [
   { value: 'emergency_fund', label: 'Emergency Fund' },
   { value: 'project_specific', label: 'Project Specific' },
   { value: 'other', label: 'Other' }
-];
+] as const;
 
 const FISCAL_YEARS = [
   { value: '2024', label: '2024' },
   { value: '2025', label: '2025' },
   { value: '2026', label: '2026' }
 ];
+
+type BudgetSource = typeof BUDGET_SOURCES[number]['value'];
 
 export const BudgetModal = ({ isOpen, onClose, user, onSuccess }: BudgetModalProps) => {
   const [loading, setLoading] = useState(false);
@@ -40,7 +42,7 @@ export const BudgetModal = ({ isOpen, onClose, user, onSuccess }: BudgetModalPro
   const [formData, setFormData] = useState({
     title: '',
     amount: '',
-    source: 'internal_allocation',
+    source: 'internal_allocation' as BudgetSource,
     fiscal_year: '2025',
     description: ''
   });
@@ -117,7 +119,7 @@ export const BudgetModal = ({ isOpen, onClose, user, onSuccess }: BudgetModalPro
         purpose: formData.description || `Budget for fiscal year ${formData.fiscal_year}`,
         assigned_to: null,
         approved_by: null,
-        status: 'draft',
+        status: 'draft' as const,
         notes: `Fiscal Year: ${formData.fiscal_year}${formData.description ? `\nDescription: ${formData.description}` : ''}`,
         created_by: user.id,
         attachments: uploadedFiles
@@ -128,7 +130,7 @@ export const BudgetModal = ({ isOpen, onClose, user, onSuccess }: BudgetModalPro
       // Try to save to Supabase first
       const { data, error } = await supabase
         .from('budgets')
-        .insert([budgetData])
+        .insert(budgetData)
         .select();
 
       if (error) {
@@ -228,7 +230,7 @@ export const BudgetModal = ({ isOpen, onClose, user, onSuccess }: BudgetModalPro
 
           <div>
             <Label htmlFor="source">Source of Funds*</Label>
-            <Select value={formData.source} onValueChange={(value) => setFormData({...formData, source: value})}>
+            <Select value={formData.source} onValueChange={(value: BudgetSource) => setFormData({...formData, source: value})}>
               <SelectTrigger>
                 <SelectValue placeholder="Select source" />
               </SelectTrigger>

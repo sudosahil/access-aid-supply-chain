@@ -76,7 +76,6 @@ export const BudgetManagement = ({ user }: BudgetManagementProps) => {
 
       if (error) {
         console.log('Supabase error, using sample data:', error);
-        // If Supabase fails, use sample data
         setBudgets(sampleBudgets as Budget[]);
       } else if (data && data.length > 0) {
         // Transform the data to match our interface
@@ -93,7 +92,6 @@ export const BudgetManagement = ({ user }: BudgetManagementProps) => {
       }
     } catch (error) {
       console.error('Error loading budgets:', error);
-      // Fallback to sample data
       setBudgets(sampleBudgets as Budget[]);
       toast({
         title: "Using Sample Data",
@@ -107,14 +105,14 @@ export const BudgetManagement = ({ user }: BudgetManagementProps) => {
   useEffect(() => {
     loadBudgets();
 
-    // Set up real-time subscription if Supabase is available
+    // Set up real-time subscription
     const channel = supabase
       .channel('budgets-changes')
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'budgets' },
         (payload) => {
           console.log('Budget change detected:', payload);
-          loadBudgets();
+          loadBudgets(); // Reload data when changes occur
         }
       )
       .subscribe();
@@ -134,18 +132,19 @@ export const BudgetManagement = ({ user }: BudgetManagementProps) => {
     if (!confirm('Are you sure you want to delete this budget?')) return;
 
     try {
-      // Try to delete from Supabase first
       const { error } = await supabase
         .from('budgets')
         .delete()
         .eq('id', id);
 
       if (error) {
-        console.log('Supabase delete error, removing from local state:', error);
+        console.log('Supabase delete error:', error);
+        // Remove from local state for demo purposes
+        setBudgets(prev => prev.filter(budget => budget.id !== id));
+      } else {
+        // Refresh data after successful delete
+        loadBudgets();
       }
-
-      // Always remove from local state
-      setBudgets(prev => prev.filter(budget => budget.id !== id));
 
       toast({
         title: "Budget Deleted",
@@ -190,7 +189,7 @@ export const BudgetManagement = ({ user }: BudgetManagementProps) => {
   };
 
   const handleModalSuccess = () => {
-    loadBudgets();
+    loadBudgets(); // Refresh the budget list
     toast({
       title: editingBudget ? "Budget Updated" : "Budget Added",
       description: editingBudget ? "Budget has been updated successfully." : "New budget has been added successfully.",
@@ -201,10 +200,8 @@ export const BudgetManagement = ({ user }: BudgetManagementProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Budget Charts */}
       <BudgetCharts budgets={budgets} />
 
-      {/* Budget Management */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -339,7 +336,6 @@ export const BudgetManagement = ({ user }: BudgetManagementProps) => {
         </CardContent>
       </Card>
 
-      {/* Budget Modal */}
       <BudgetModal
         isOpen={showBudgetModal}
         onClose={handleModalClose}

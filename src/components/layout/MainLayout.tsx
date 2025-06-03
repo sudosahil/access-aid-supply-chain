@@ -1,3 +1,4 @@
+
 import { ReactNode } from 'react';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
@@ -27,6 +28,7 @@ import { ProfileManagement } from '@/components/common/ProfileManagement';
 import { AvailableRFQs } from '@/components/contractor/AvailableRFQs';
 import { MyBids } from '@/components/contractor/MyBids';
 import { ApprovalWorkflows } from '@/components/admin/ApprovalWorkflows';
+import { BudgetOverview } from '@/components/staff/BudgetOverview';
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -59,6 +61,9 @@ export const MainLayout = ({
       case 'users':
         return <UserManagement />;
       case 'budgets':
+        if (user.role === 'staff') {
+          return <BudgetOverview />;
+        }
         return <BudgetManagement user={user} />;
       case 'approval-workflows':
         return <ApprovalWorkflows />;

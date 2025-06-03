@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -178,7 +177,14 @@ export const ApprovalWorkflows = () => {
   const handleStepSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedWorkflow) return;
+    if (!selectedWorkflow) {
+      toast({
+        title: "Error",
+        description: "Please select a workflow first.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     // Validate step form
     if (stepForm.approver_type === 'role' && !stepForm.approver_role) {
@@ -456,14 +462,16 @@ export const ApprovalWorkflows = () => {
           <form onSubmit={handleStepSubmit} className="space-y-4">
             <div>
               <Label htmlFor="approver-type">Approver Type*</Label>
-              <Select value={stepForm.approver_type} onValueChange={(value: 'role' | 'user') => {
-                setStepForm({
-                  ...stepForm, 
-                  approver_type: value,
-                  approver_role: '',
-                  approver_user_id: ''
-                });
-              }}>
+              <Select 
+                value={stepForm.approver_type} 
+                onValueChange={(value: 'role' | 'user') => {
+                  setStepForm({
+                    approver_type: value,
+                    approver_role: '',
+                    approver_user_id: ''
+                  });
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -477,7 +485,10 @@ export const ApprovalWorkflows = () => {
             {stepForm.approver_type === 'role' ? (
               <div>
                 <Label htmlFor="approver-role">Role*</Label>
-                <Select value={stepForm.approver_role} onValueChange={(value) => setStepForm({...stepForm, approver_role: value})}>
+                <Select 
+                  value={stepForm.approver_role} 
+                  onValueChange={(value) => setStepForm({...stepForm, approver_role: value})}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
@@ -493,7 +504,10 @@ export const ApprovalWorkflows = () => {
             ) : (
               <div>
                 <Label htmlFor="approver-user">User*</Label>
-                <Select value={stepForm.approver_user_id} onValueChange={(value) => setStepForm({...stepForm, approver_user_id: value})}>
+                <Select 
+                  value={stepForm.approver_user_id} 
+                  onValueChange={(value) => setStepForm({...stepForm, approver_user_id: value})}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select user" />
                   </SelectTrigger>

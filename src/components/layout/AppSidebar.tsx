@@ -1,4 +1,5 @@
-import { Calendar, FileText, Package, MessageSquare, Activity, Settings, User, Home, Building, Users, ClipboardList, DollarSign } from 'lucide-react';
+
+import { Calendar, FileText, Package, MessageSquare, Activity, Settings, User, Home, Building, Users, ClipboardList, DollarSign, GitBranch } from 'lucide-react';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { User as UserType } from '@/data/mockData';
 import { usePermissions } from '@/hooks/usePermissions';
@@ -21,7 +22,7 @@ const ALL_MENU_ITEMS = [
   { id: 'users', title: 'User Management', icon: Users },
   { id: 'settings', title: 'Settings', icon: Settings },
   { id: 'budgets', title: 'Budget Management', icon: DollarSign },
-  { id: 'approval-workflows', title: 'Approval Workflows', icon: Settings },
+  { id: 'approval-workflows', title: 'Approval Workflows', icon: GitBranch },
   { id: 'reports', title: 'Reports', icon: FileText },
   { id: 'profile', title: 'Profile', icon: User }
 ];

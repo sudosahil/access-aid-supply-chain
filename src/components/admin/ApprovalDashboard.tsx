@@ -6,30 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, XCircle, Clock, Users, TrendingUp } from 'lucide-react';
-
-interface ApprovalStep {
-  id: string;
-  step_number: number;
-  approver_role: string;
-  approver_name: string;
-  approver_email: string;
-  status: 'pending' | 'approved' | 'rejected';
-  approved_at: string | null;
-  comments: string | null;
-}
-
-interface ApprovalWorkflow {
-  id: string;
-  budget_id: string;
-  workflow_name: string;
-  current_step: number;
-  status: 'pending' | 'approved' | 'rejected';
-  budget: {
-    title: string;
-    amount: number;
-  };
-  steps: ApprovalStep[];
-}
+import { sharedApprovalWorkflows, ApprovalWorkflow } from '@/data/approvalWorkflowData';
 
 export const ApprovalDashboard = () => {
   const [workflows, setWorkflows] = useState<ApprovalWorkflow[]>([]);
@@ -38,54 +15,8 @@ export const ApprovalDashboard = () => {
 
   const loadWorkflows = async () => {
     try {
-      // Create mock data for the 3-tier approval workflow as requested
-      const mockWorkflows: ApprovalWorkflow[] = [
-        {
-          id: 'workflow-1',
-          budget_id: 'budget-1',
-          workflow_name: '3-Tier Approval Process',
-          current_step: 1,
-          status: 'pending',
-          budget: {
-            title: 'Q3 Marketing Campaign',
-            amount: 45000
-          },
-          steps: [
-            {
-              id: 'step-1',
-              step_number: 1,
-              approver_role: 'manager',
-              approver_name: 'Priya Rao',
-              approver_email: 'priya@company.com',
-              status: 'pending',
-              approved_at: null,
-              comments: null
-            },
-            {
-              id: 'step-2',
-              step_number: 2,
-              approver_role: 'finance_lead',
-              approver_name: 'Jordan Smith',
-              approver_email: 'jordan@company.com',
-              status: 'pending',
-              approved_at: null,
-              comments: null
-            },
-            {
-              id: 'step-3',
-              step_number: 3,
-              approver_role: 'admin',
-              approver_name: 'Alex Chen',
-              approver_email: 'alex@company.com',
-              status: 'approved',
-              approved_at: new Date().toISOString(),
-              comments: 'Budget approved for Q3 marketing initiatives'
-            }
-          ]
-        }
-      ];
-
-      setWorkflows(mockWorkflows);
+      console.log('Loading shared approval workflows...');
+      setWorkflows(sharedApprovalWorkflows);
     } catch (error) {
       console.error('Error loading approval workflows:', error);
     } finally {
@@ -95,7 +26,7 @@ export const ApprovalDashboard = () => {
 
   const handleApproval = async (stepId: string, action: 'approved' | 'rejected', comments?: string) => {
     try {
-      // Update the mock data
+      // Update the shared data
       setWorkflows(prevWorkflows => 
         prevWorkflows.map(workflow => ({
           ...workflow,
@@ -147,7 +78,7 @@ export const ApprovalDashboard = () => {
     }
   };
 
-  const getApprovalProgress = (steps: ApprovalStep[]) => {
+  const getApprovalProgress = (steps: any[]) => {
     const approved = steps.filter(step => step.status === 'approved').length;
     return `${approved}/${steps.length}`;
   };
@@ -265,7 +196,7 @@ export const ApprovalDashboard = () => {
                         <TableCell>
                           <Badge className={getStatusColor(step.status)}>
                             {step.status === 'approved' ? '✅ Approved' :
-                             step.status === 'rejected' ? '❌ Rejected' : '❌ Pending'}
+                             step.status === 'rejected' ? '❌ Rejected' : '⏳ Pending'}
                           </Badge>
                         </TableCell>
                         <TableCell>

@@ -10,26 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useToast } from '@/hooks/use-toast';
 import { mockUsers } from '@/data/mockData';
 import { Plus, Edit, Trash2, ArrowRight, Settings } from 'lucide-react';
-
-interface WorkflowStep {
-  id: string;
-  workflow_id: string;
-  step_order: number;
-  approver_type: 'role' | 'user';
-  approver_role?: string;
-  approver_user_id?: string;
-  created_at: string;
-}
-
-interface Workflow {
-  id: string;
-  name: string;
-  description: string;
-  workflow_type: string;
-  is_active: boolean;
-  created_at: string;
-  steps?: WorkflowStep[];
-}
+import { sharedWorkflowTemplates, sharedApprovalWorkflows, sharedContractsData, sharedRFQsData, sharedBidsData, Workflow, WorkflowStep } from '@/data/approvalWorkflowData';
 
 const WORKFLOW_TYPES = [
   { value: 'budget_approval', label: 'Budget Approval' },
@@ -69,54 +50,14 @@ export const ApprovalWorkflows = () => {
 
   const loadWorkflows = async () => {
     try {
-      // Since we don't have the workflows table yet, let's use mock data
-      const mockWorkflows: Workflow[] = [
-        {
-          id: '1',
-          name: 'Standard Budget Approval',
-          description: 'Default workflow for budget approvals',
-          workflow_type: 'budget_approval',
-          is_active: true,
-          created_at: new Date().toISOString(),
-          steps: [
-            {
-              id: '1',
-              workflow_id: '1',
-              step_order: 1,
-              approver_type: 'role',
-              approver_role: 'staff',
-              created_at: new Date().toISOString()
-            },
-            {
-              id: '2',
-              workflow_id: '1',
-              step_order: 2,
-              approver_type: 'role',
-              approver_role: 'admin',
-              created_at: new Date().toISOString()
-            }
-          ]
-        },
-        {
-          id: '2',
-          name: 'RFQ Review Process',
-          description: 'Workflow for RFQ approvals and reviews',
-          workflow_type: 'rfq_approval',
-          is_active: true,
-          created_at: new Date().toISOString(),
-          steps: [
-            {
-              id: '3',
-              workflow_id: '2',
-              step_order: 1,
-              approver_type: 'role',
-              approver_role: 'manager',
-              created_at: new Date().toISOString()
-            }
-          ]
-        }
-      ];
-      setWorkflows(mockWorkflows);
+      console.log('Loading shared workflow templates...');
+      setWorkflows(sharedWorkflowTemplates);
+      
+      // Log shared data for debugging
+      console.log('Shared approval workflows:', sharedApprovalWorkflows);
+      console.log('Shared contracts:', sharedContractsData);
+      console.log('Shared RFQs:', sharedRFQsData);
+      console.log('Shared bids:', sharedBidsData);
     } catch (error) {
       console.error('Error loading workflows:', error);
       toast({
@@ -186,7 +127,6 @@ export const ApprovalWorkflows = () => {
       return;
     }
 
-    // Validate step form
     if (stepForm.approver_type === 'role' && !stepForm.approver_role) {
       toast({
         title: "Error",

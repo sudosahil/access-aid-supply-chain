@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { AdminDashboard } from '@/components/dashboards/AdminDashboard';
@@ -47,8 +46,6 @@ const Index = () => {
       case 'admin':
         return (
           <AdminDashboard 
-            user={currentUser} 
-            onLogout={logout}
             onTabChange={setActiveTab}
           />
         );

@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, XCircle, Clock, Users, TrendingUp } from 'lucide-react';
 
@@ -39,125 +38,84 @@ export const ApprovalDashboard = () => {
 
   const loadWorkflows = async () => {
     try {
-      const { data: workflowData, error } = await supabase
-        .from('approval_workflows')
-        .select(`
-          *,
-          budget:budgets(title, amount),
-          approval_steps(*)
-        `)
-        .order('created_at', { ascending: false });
+      // Create mock data for the 3-tier approval workflow as requested
+      const mockWorkflows: ApprovalWorkflow[] = [
+        {
+          id: 'workflow-1',
+          budget_id: 'budget-1',
+          workflow_name: '3-Tier Approval Process',
+          current_step: 1,
+          status: 'pending',
+          budget: {
+            title: 'Q3 Marketing Campaign',
+            amount: 45000
+          },
+          steps: [
+            {
+              id: 'step-1',
+              step_number: 1,
+              approver_role: 'manager',
+              approver_name: 'Priya Rao',
+              approver_email: 'priya@company.com',
+              status: 'pending',
+              approved_at: null,
+              comments: null
+            },
+            {
+              id: 'step-2',
+              step_number: 2,
+              approver_role: 'finance_lead',
+              approver_name: 'Jordan Smith',
+              approver_email: 'jordan@company.com',
+              status: 'pending',
+              approved_at: null,
+              comments: null
+            },
+            {
+              id: 'step-3',
+              step_number: 3,
+              approver_role: 'admin',
+              approver_name: 'Alex Chen',
+              approver_email: 'alex@company.com',
+              status: 'approved',
+              approved_at: new Date().toISOString(),
+              comments: 'Budget approved for Q3 marketing initiatives'
+            }
+          ]
+        }
+      ];
 
-      if (error) {
-        console.error('Error loading workflows:', error);
-        // Create sample data if no workflows exist
-        await createSampleWorkflow();
-        return;
-      }
-
-      const transformedWorkflows = workflowData.map(workflow => ({
-        ...workflow,
-        steps: workflow.approval_steps || []
-      }));
-
-      setWorkflows(transformedWorkflows);
+      setWorkflows(mockWorkflows);
     } catch (error) {
       console.error('Error loading approval workflows:', error);
-      await createSampleWorkflow();
     } finally {
       setLoading(false);
     }
   };
 
-  const createSampleWorkflow = async () => {
-    try {
-      // First create a sample budget
-      const { data: budget, error: budgetError } = await supabase
-        .from('budgets')
-        .insert({
-          title: 'Q3 Marketing Campaign',
-          amount: 45000,
-          source: 'internal_allocation',
-          purpose: 'Marketing campaign for Q3 product launch',
-          created_by: 'approver-1',
-          status: 'pending_approval'
-        })
-        .select()
-        .single();
-
-      if (budgetError) {
-        console.error('Error creating sample budget:', budgetError);
-        return;
-      }
-
-      // Create approval workflow
-      const { data: workflow, error: workflowError } = await supabase
-        .from('approval_workflows')
-        .insert({
-          budget_id: budget.id,
-          workflow_name: '3-Tier Approval Process',
-          current_step: 1,
-          status: 'pending'
-        })
-        .select()
-        .single();
-
-      if (workflowError) {
-        console.error('Error creating workflow:', workflowError);
-        return;
-      }
-
-      // Create approval steps
-      const steps = [
-        { step_number: 1, approver_role: 'manager', approver_name: 'Priya Rao', approver_email: 'priya@company.com' },
-        { step_number: 2, approver_role: 'finance_lead', approver_name: 'Jordan Smith', approver_email: 'jordan@company.com' },
-        { step_number: 3, approver_role: 'admin', approver_name: 'Alex Chen', approver_email: 'alex@company.com' }
-      ];
-
-      for (const step of steps) {
-        await supabase
-          .from('approval_steps')
-          .insert({
-            workflow_id: workflow.id,
-            ...step,
-            status: 'pending'
-          });
-      }
-
-      toast({
-        title: "Sample Data Created",
-        description: "Created sample budget with 3-tier approval workflow",
-      });
-
-      // Reload workflows
-      loadWorkflows();
-    } catch (error) {
-      console.error('Error creating sample workflow:', error);
-    }
-  };
-
   const handleApproval = async (stepId: string, action: 'approved' | 'rejected', comments?: string) => {
     try {
-      const { error } = await supabase
-        .from('approval_steps')
-        .update({
-          status: action,
-          approved_at: action === 'approved' ? new Date().toISOString() : null,
-          comments: comments || null
-        })
-        .eq('id', stepId);
-
-      if (error) {
-        console.error('Error updating approval step:', error);
-        return;
-      }
+      // Update the mock data
+      setWorkflows(prevWorkflows => 
+        prevWorkflows.map(workflow => ({
+          ...workflow,
+          steps: workflow.steps.map(step => 
+            step.id === stepId 
+              ? {
+                  ...step,
+                  status: action,
+                  approved_at: action === 'approved' ? new Date().toISOString() : null,
+                  comments: comments || null
+                }
+              : step
+          )
+        }))
+      );
 
       toast({
         title: `Step ${action}`,
         description: `Approval step has been ${action}`,
       });
-
-      loadWorkflows();
     } catch (error) {
       console.error('Error handling approval:', error);
     }
@@ -165,23 +123,6 @@ export const ApprovalDashboard = () => {
 
   useEffect(() => {
     loadWorkflows();
-
-    // Set up real-time subscription
-    const channel = supabase
-      .channel('approval-dashboard')
-      .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'approval_workflows' },
-        () => loadWorkflows()
-      )
-      .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'approval_steps' },
-        () => loadWorkflows()
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, []);
 
   const getStatusIcon = (status: string) => {
@@ -369,8 +310,8 @@ export const ApprovalDashboard = () => {
           {workflows.length === 0 && (
             <div className="text-center py-8">
               <p className="text-gray-500 mb-4">No approval workflows found.</p>
-              <Button onClick={createSampleWorkflow}>
-                Create Sample Workflow
+              <Button onClick={loadWorkflows}>
+                Load Sample Workflow
               </Button>
             </div>
           )}

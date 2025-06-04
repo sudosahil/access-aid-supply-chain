@@ -1,5 +1,5 @@
 
-import { Calendar, FileText, Package, MessageSquare, Activity, Settings, User, Home, Building, Users, ClipboardList, DollarSign, GitBranch } from 'lucide-react';
+import { Calendar, FileText, Package, MessageSquare, Activity, Settings, User, Home, Building, Users, ClipboardList, DollarSign, GitBranch, CheckSquare } from 'lucide-react';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { User as UserType } from '@/data/mockData';
 import { usePermissions } from '@/hooks/usePermissions';
@@ -23,6 +23,7 @@ const ALL_MENU_ITEMS = [
   { id: 'settings', title: 'Settings', icon: Settings },
   { id: 'budgets', title: 'Budget Management', icon: DollarSign },
   { id: 'approval-workflows', title: 'Approval Workflows', icon: GitBranch },
+  { id: 'approval-dashboard', title: 'Approval Dashboard', icon: CheckSquare },
   { id: 'reports', title: 'Reports', icon: FileText },
   { id: 'profile', title: 'Profile', icon: User }
 ];
@@ -61,8 +62,8 @@ export const AppSidebar = ({ user, activeTab, onTabChange }: AppSidebarProps) =>
     // Profile is always available
     if (item.id === 'profile') return true;
     
-    // For approval-workflows, only show to admin users
-    if (item.id === 'approval-workflows') {
+    // For approval-workflows and approval-dashboard, only show to admin users
+    if (item.id === 'approval-workflows' || item.id === 'approval-dashboard') {
       return user.role === 'admin';
     }
     

@@ -11,6 +11,7 @@ import { ThemeSelector } from '@/components/common/ThemeSelector';
 
 // Import all the components that can be rendered based on active tab
 import { ApprovalManagement } from '@/components/admin/ApprovalManagement';
+import { ApprovalDashboard } from '@/components/admin/ApprovalDashboard';
 import { TransferTrackingDashboard } from '@/components/admin/TransferTrackingDashboard';
 import { LiveBidViewing } from '@/components/contractor/LiveBidViewing';
 import { RFQManagement } from '@/components/staff/RFQManagement';
@@ -56,6 +57,8 @@ export const MainLayout = ({
       // Admin specific tabs
       case 'approvals':
         return <ApprovalManagement currentUserId={user.id} currentUserName={user.name} />;
+      case 'approval-dashboard':
+        return <ApprovalDashboard />;
       case 'transfers':
         return <TransferTrackingDashboard />;
       case 'users':

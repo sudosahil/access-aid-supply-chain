@@ -1,60 +1,35 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, XCircle, Clock, Users, TrendingUp } from 'lucide-react';
-import { sharedApprovalWorkflows, ApprovalWorkflow } from '@/data/approvalWorkflowData';
+import { useRealtimeApprovals } from '@/hooks/useRealtimeApprovals';
+import { approvalService } from '@/services/approvalService';
 
 export const ApprovalDashboard = () => {
-  const [workflows, setWorkflows] = useState<ApprovalWorkflow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { workflowInstances, loading, refetch } = useRealtimeApprovals();
   const { toast } = useToast();
-
-  const loadWorkflows = async () => {
-    try {
-      console.log('Loading shared approval workflows...');
-      setWorkflows(sharedApprovalWorkflows);
-    } catch (error) {
-      console.error('Error loading approval workflows:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleApproval = async (stepId: string, action: 'approved' | 'rejected', comments?: string) => {
     try {
-      // Update the shared data
-      setWorkflows(prevWorkflows => 
-        prevWorkflows.map(workflow => ({
-          ...workflow,
-          steps: workflow.steps.map(step => 
-            step.id === stepId 
-              ? {
-                  ...step,
-                  status: action,
-                  approved_at: action === 'approved' ? new Date().toISOString() : null,
-                  comments: comments || null
-                }
-              : step
-          )
-        }))
-      );
-
+      await approvalService.updateApprovalStep(stepId, action, comments);
       toast({
         title: `Step ${action}`,
         description: `Approval step has been ${action}`,
       });
+      refetch();
     } catch (error) {
       console.error('Error handling approval:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update approval status",
+        variant: "destructive"
+      });
     }
   };
-
-  useEffect(() => {
-    loadWorkflows();
-  }, []);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -79,8 +54,8 @@ export const ApprovalDashboard = () => {
   };
 
   const getApprovalProgress = (steps: any[]) => {
-    const approved = steps.filter(step => step.status === 'approved').length;
-    return `${approved}/${steps.length}`;
+    const approved = steps?.filter(step => step.status === 'approved').length || 0;
+    return `${approved}/${steps?.length || 0}`;
   };
 
   if (loading) return <div>Loading approval dashboard...</div>;
@@ -95,7 +70,7 @@ export const ApprovalDashboard = () => {
               <Users className="h-8 w-8 text-blue-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Workflows</p>
-                <p className="text-2xl font-bold">{workflows.length}</p>
+                <p className="text-2xl font-bold">{workflowInstances.length}</p>
               </div>
             </div>
           </CardContent>
@@ -107,7 +82,7 @@ export const ApprovalDashboard = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Approved</p>
                 <p className="text-2xl font-bold">
-                  {workflows.filter(w => w.status === 'approved').length}
+                  {workflowInstances.filter(w => w.status === 'approved').length}
                 </p>
               </div>
             </div>
@@ -120,7 +95,7 @@ export const ApprovalDashboard = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Pending</p>
                 <p className="text-2xl font-bold">
-                  {workflows.filter(w => w.status === 'pending').length}
+                  {workflowInstances.filter(w => w.status === 'pending').length}
                 </p>
               </div>
             </div>
@@ -133,25 +108,27 @@ export const ApprovalDashboard = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
-            Budget Approval Workflows
+            Live Approval Workflows
           </CardTitle>
           <CardDescription>
-            Monitor and manage budget approval processes with real-time status updates
+            Monitor and manage approval processes with real-time status updates
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {workflows.map((workflow) => (
-            <div key={workflow.id} className="mb-8 p-6 border rounded-lg">
+          {workflowInstances.map((instance) => (
+            <div key={instance.id} className="mb-8 p-6 border rounded-lg">
               <div className="flex justify-between items-center mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold">{workflow.budget?.title}</h3>
+                  <h3 className="text-lg font-semibold">
+                    {instance.document_type.toUpperCase()} - {instance.document_id}
+                  </h3>
                   <p className="text-gray-600">
-                    Amount: ₹{workflow.budget?.amount?.toLocaleString()} | 
-                    Progress: {getApprovalProgress(workflow.steps)}
+                    Workflow: {instance.workflow?.name} | 
+                    Progress: {getApprovalProgress(instance.approval_steps || [])}
                   </p>
                 </div>
-                <Badge className={getStatusColor(workflow.status)}>
-                  {workflow.status.toUpperCase()}
+                <Badge className={getStatusColor(instance.status)}>
+                  {instance.status.toUpperCase()}
                 </Badge>
               </div>
 
@@ -160,16 +137,16 @@ export const ApprovalDashboard = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Step</TableHead>
-                    <TableHead>Name</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Approved Date</TableHead>
+                    <TableHead>Comments</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {workflow.steps
-                    .sort((a, b) => a.step_number - b.step_number)
+                  {instance.approval_steps
+                    ?.sort((a, b) => a.step_number - b.step_number)
                     .map((step) => (
                       <TableRow 
                         key={step.id}
@@ -177,33 +154,28 @@ export const ApprovalDashboard = () => {
                                   step.status === 'rejected' ? 'bg-red-50' : 'bg-yellow-50'}
                       >
                         <TableCell>{step.step_number}</TableCell>
-                        <TableCell className="font-medium">
-                          <div className="flex items-center gap-2">
-                            {getStatusIcon(step.status)}
-                            <span className={
-                              step.status === 'approved' ? 'text-green-800' :
-                              step.status === 'rejected' ? 'text-red-800' : 'text-yellow-800'
-                            }>
-                              {step.approver_name}
-                            </span>
-                          </div>
-                        </TableCell>
                         <TableCell>
                           <Badge variant="outline" className="capitalize">
-                            {step.approver_role.replace('_', ' ')}
+                            {step.approver_role?.replace('_', ' ') || 'Specific User'}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge className={getStatusColor(step.status)}>
-                            {step.status === 'approved' ? '✅ Approved' :
-                             step.status === 'rejected' ? '❌ Rejected' : '⏳ Pending'}
-                          </Badge>
+                          <div className="flex items-center gap-2">
+                            {getStatusIcon(step.status)}
+                            <Badge className={getStatusColor(step.status)}>
+                              {step.status === 'approved' ? '✅ Approved' :
+                               step.status === 'rejected' ? '❌ Rejected' : '⏳ Pending'}
+                            </Badge>
+                          </div>
                         </TableCell>
                         <TableCell>
                           {step.approved_at ? 
                             new Date(step.approved_at).toLocaleDateString() : 
-                            step.status === 'pending' ? '(Overdue)' : '-'
+                            step.status === 'pending' ? '(Pending)' : '-'
                           }
+                        </TableCell>
+                        <TableCell>
+                          {step.comments || '-'}
                         </TableCell>
                         <TableCell>
                           {step.status === 'pending' && (
@@ -230,7 +202,7 @@ export const ApprovalDashboard = () => {
                 </TableBody>
               </Table>
 
-              {workflow.steps.length === 0 && (
+              {(!instance.approval_steps || instance.approval_steps.length === 0) && (
                 <div className="text-center py-4 text-gray-500">
                   No approval steps defined for this workflow.
                 </div>
@@ -238,12 +210,10 @@ export const ApprovalDashboard = () => {
             </div>
           ))}
 
-          {workflows.length === 0 && (
+          {workflowInstances.length === 0 && (
             <div className="text-center py-8">
               <p className="text-gray-500 mb-4">No approval workflows found.</p>
-              <Button onClick={loadWorkflows}>
-                Load Sample Workflow
-              </Button>
+              <p className="text-sm text-gray-400">Create an RFQ or Bid to see approval workflows here.</p>
             </div>
           )}
         </CardContent>

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,13 +11,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useToast } from '@/hooks/use-toast';
 import { mockUsers } from '@/data/mockData';
 import { Plus, Edit, Trash2, ArrowRight, Settings } from 'lucide-react';
-import { sharedWorkflowTemplates, sharedApprovalWorkflows, sharedContractsData, sharedRFQsData, sharedBidsData, Workflow, WorkflowStep } from '@/data/approvalWorkflowData';
+import { supabase } from '@/integrations/supabase/client';
 
 const WORKFLOW_TYPES = [
   { value: 'budget_approval', label: 'Budget Approval' },
   { value: 'rfq_approval', label: 'RFQ Approval' },
-  { value: 'purchase_approval', label: 'Purchase Approval' },
-  { value: 'contract_approval', label: 'Contract Approval' }
+  { value: 'bid_approval', label: 'Bid Approval' }
 ];
 
 const ROLES = [
@@ -28,10 +28,10 @@ const ROLES = [
 ];
 
 export const ApprovalWorkflows = () => {
-  const [workflows, setWorkflows] = useState<Workflow[]>([]);
+  const [workflows, setWorkflows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showWorkflowForm, setShowWorkflowForm] = useState(false);
-  const [editingWorkflow, setEditingWorkflow] = useState<Workflow | null>(null);
+  const [editingWorkflow, setEditingWorkflow] = useState<any>(null);
   const [showStepForm, setShowStepForm] = useState(false);
   const [selectedWorkflow, setSelectedWorkflow] = useState<string>('');
   const { toast } = useToast();
@@ -50,14 +50,17 @@ export const ApprovalWorkflows = () => {
 
   const loadWorkflows = async () => {
     try {
-      console.log('Loading shared workflow templates...');
-      setWorkflows(sharedWorkflowTemplates);
-      
-      // Log shared data for debugging
-      console.log('Shared approval workflows:', sharedApprovalWorkflows);
-      console.log('Shared contracts:', sharedContractsData);
-      console.log('Shared RFQs:', sharedRFQsData);
-      console.log('Shared bids:', sharedBidsData);
+      const { data, error } = await supabase
+        .from('approval_workflows')
+        .select(`
+          *,
+          workflow_steps(*)
+        `)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setWorkflows(data || []);
     } catch (error) {
       console.error('Error loading workflows:', error);
       toast({
@@ -78,24 +81,36 @@ export const ApprovalWorkflows = () => {
     e.preventDefault();
     
     try {
-      const newWorkflow: Workflow = {
-        id: Date.now().toString(),
-        name: workflowForm.name,
-        description: workflowForm.description,
-        workflow_type: workflowForm.workflow_type,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        steps: []
-      };
-
       if (editingWorkflow) {
-        setWorkflows(prev => prev.map(w => w.id === editingWorkflow.id ? {...newWorkflow, id: editingWorkflow.id} : w));
+        const { error } = await supabase
+          .from('approval_workflows')
+          .update({
+            name: workflowForm.name,
+            description: workflowForm.description,
+            workflow_type: workflowForm.workflow_type,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', editingWorkflow.id);
+
+        if (error) throw error;
+
         toast({
           title: "Workflow Updated",
           description: "Workflow has been successfully updated."
         });
       } else {
-        setWorkflows(prev => [...prev, newWorkflow]);
+        const { error } = await supabase
+          .from('approval_workflows')
+          .insert({
+            name: workflowForm.name,
+            description: workflowForm.description,
+            workflow_type: workflowForm.workflow_type,
+            is_default: false,
+            is_active: true
+          });
+
+        if (error) throw error;
+
         toast({
           title: "Workflow Created",
           description: "Workflow has been successfully created."
@@ -105,6 +120,7 @@ export const ApprovalWorkflows = () => {
       setWorkflowForm({ name: '', description: '', workflow_type: 'budget_approval' });
       setEditingWorkflow(null);
       setShowWorkflowForm(false);
+      loadWorkflows();
     } catch (error) {
       console.error('Error saving workflow:', error);
       toast({
@@ -127,46 +143,25 @@ export const ApprovalWorkflows = () => {
       return;
     }
 
-    if (stepForm.approver_type === 'role' && !stepForm.approver_role) {
-      toast({
-        title: "Error",
-        description: "Please select a role.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (stepForm.approver_type === 'user' && !stepForm.approver_user_id) {
-      toast({
-        title: "Error",
-        description: "Please select a user.",
-        variant: "destructive"
-      });
-      return;
-    }
-
     try {
       const workflow = workflows.find(w => w.id === selectedWorkflow);
       if (!workflow) return;
 
-      const newStep: WorkflowStep = {
-        id: Date.now().toString(),
-        workflow_id: selectedWorkflow,
-        step_order: (workflow.steps?.length || 0) + 1,
-        approver_type: stepForm.approver_type,
-        approver_role: stepForm.approver_type === 'role' ? stepForm.approver_role : undefined,
-        approver_user_id: stepForm.approver_type === 'user' ? stepForm.approver_user_id : undefined,
-        created_at: new Date().toISOString()
-      };
+      const { error } = await supabase
+        .from('workflow_steps')
+        .insert({
+          workflow_id: selectedWorkflow,
+          step_order: (workflow.workflow_steps?.length || 0) + 1,
+          approver_type: stepForm.approver_type,
+          approver_role: stepForm.approver_type === 'role' ? stepForm.approver_role : null,
+          approver_user_id: stepForm.approver_type === 'user' ? stepForm.approver_user_id : null
+        });
 
-      setWorkflows(prev => prev.map(w => 
-        w.id === selectedWorkflow 
-          ? {...w, steps: [...(w.steps || []), newStep]}
-          : w
-      ));
+      if (error) throw error;
 
       setStepForm({ approver_type: 'role', approver_role: '', approver_user_id: '' });
       setShowStepForm(false);
+      loadWorkflows();
       
       toast({
         title: "Step Added",
@@ -182,27 +177,29 @@ export const ApprovalWorkflows = () => {
     }
   };
 
-  const handleDeleteWorkflow = (id: string) => {
+  const handleDeleteWorkflow = async (id: string) => {
     if (confirm('Are you sure you want to delete this workflow?')) {
-      setWorkflows(prev => prev.filter(w => w.id !== id));
-      toast({
-        title: "Workflow Deleted",
-        description: "Workflow has been successfully deleted."
-      });
-    }
-  };
+      try {
+        const { error } = await supabase
+          .from('approval_workflows')
+          .update({ is_active: false })
+          .eq('id', id);
 
-  const handleDeleteStep = (workflowId: string, stepId: string) => {
-    if (confirm('Are you sure you want to delete this step?')) {
-      setWorkflows(prev => prev.map(w => 
-        w.id === workflowId 
-          ? {...w, steps: w.steps?.filter(s => s.id !== stepId)}
-          : w
-      ));
-      toast({
-        title: "Step Deleted",
-        description: "Workflow step has been successfully deleted."
-      });
+        if (error) throw error;
+
+        loadWorkflows();
+        toast({
+          title: "Workflow Deleted",
+          description: "Workflow has been successfully deleted."
+        });
+      } catch (error) {
+        console.error('Error deleting workflow:', error);
+        toast({
+          title: "Error",
+          description: "Failed to delete workflow.",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -241,7 +238,7 @@ export const ApprovalWorkflows = () => {
                 <TableHead>Type</TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead>Steps</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>Default</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -257,14 +254,14 @@ export const ApprovalWorkflows = () => {
                   <TableCell>{workflow.description}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      {workflow.steps?.map((step, index) => (
+                      {workflow.workflow_steps?.map((step: any, index: number) => (
                         <div key={step.id} className="flex items-center gap-1">
                           <Badge variant="secondary" className="text-xs">
                             {step.approver_type === 'role' 
                               ? ROLES.find(r => r.value === step.approver_role)?.label || step.approver_role
                               : getUserName(step.approver_user_id || '')}
                           </Badge>
-                          {index < (workflow.steps?.length || 0) - 1 && (
+                          {index < (workflow.workflow_steps?.length || 0) - 1 && (
                             <ArrowRight className="h-3 w-3 text-gray-400" />
                           )}
                         </div>
@@ -282,8 +279,8 @@ export const ApprovalWorkflows = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={workflow.is_active ? "default" : "secondary"}>
-                      {workflow.is_active ? 'Active' : 'Inactive'}
+                    <Badge variant={workflow.is_default ? "default" : "secondary"}>
+                      {workflow.is_default ? 'Default' : 'Custom'}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -303,13 +300,15 @@ export const ApprovalWorkflows = () => {
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDeleteWorkflow(workflow.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {!workflow.is_default && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDeleteWorkflow(workflow.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -319,7 +318,7 @@ export const ApprovalWorkflows = () => {
 
           {workflows.length === 0 && (
             <div className="text-center py-8 text-gray-500">
-              No workflows found. Create your first workflow to get started.
+              No workflows found. Default workflows should be created automatically.
             </div>
           )}
         </CardContent>

@@ -9,6 +9,107 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      approval_steps: {
+        Row: {
+          approved_at: string | null
+          approver_email: string | null
+          approver_name: string | null
+          approver_role: string | null
+          approver_user_id: string | null
+          comments: string | null
+          created_at: string | null
+          id: string
+          status: string | null
+          step_number: number
+          workflow_instance_id: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approver_email?: string | null
+          approver_name?: string | null
+          approver_role?: string | null
+          approver_user_id?: string | null
+          comments?: string | null
+          created_at?: string | null
+          id?: string
+          status?: string | null
+          step_number: number
+          workflow_instance_id?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approver_email?: string | null
+          approver_name?: string | null
+          approver_role?: string | null
+          approver_user_id?: string | null
+          comments?: string | null
+          created_at?: string | null
+          id?: string
+          status?: string | null
+          step_number?: number
+          workflow_instance_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approval_steps_approver_user_id_fkey"
+            columns: ["approver_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approval_steps_workflow_instance_id_fkey"
+            columns: ["workflow_instance_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      approval_workflows: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          name: string
+          updated_at: string | null
+          workflow_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name: string
+          updated_at?: string | null
+          workflow_type: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name?: string
+          updated_at?: string | null
+          workflow_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approval_workflows_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bids: {
         Row: {
           amount: number
@@ -553,6 +654,105 @@ export type Database = {
           warehouse_name?: string | null
         }
         Relationships: []
+      }
+      workflow_instances: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          created_by: string | null
+          current_step: number | null
+          document_id: string
+          document_type: string
+          id: string
+          status: string | null
+          workflow_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          current_step?: number | null
+          document_id: string
+          document_type: string
+          id?: string
+          status?: string | null
+          workflow_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          current_step?: number | null
+          document_id?: string
+          document_type?: string
+          id?: string
+          status?: string | null
+          workflow_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_instances_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_instances_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "approval_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_steps: {
+        Row: {
+          approver_role: string | null
+          approver_type: string
+          approver_user_id: string | null
+          created_at: string | null
+          id: string
+          is_required: boolean | null
+          step_order: number
+          workflow_id: string | null
+        }
+        Insert: {
+          approver_role?: string | null
+          approver_type: string
+          approver_user_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          step_order: number
+          workflow_id?: string | null
+        }
+        Update: {
+          approver_role?: string | null
+          approver_type?: string
+          approver_user_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          step_order?: number
+          workflow_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_steps_approver_user_id_fkey"
+            columns: ["approver_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_steps_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "approval_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

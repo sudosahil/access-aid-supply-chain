@@ -11,41 +11,83 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus, Edit, Eye } from 'lucide-react';
 import { mockRFQs, RFQ, mockInventoryCategories } from '@/data/mockData';
 import { useToast } from '@/hooks/use-toast';
+import { approvalService } from '@/services/approvalService';
 
 export const RFQManagement = () => {
   const [rfqs, setRfqs] = useState(mockRFQs);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [workflows, setWorkflows] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     requirements: '',
     deadline: '',
     budget: '',
-    category: ''
+    category: '',
+    customWorkflowId: ''
   });
   const { toast } = useToast();
 
-  const handleAddRFQ = () => {
-    const newRFQ: RFQ = {
-      id: `rfq${rfqs.length + 1}`,
-      title: formData.title,
-      description: formData.description,
-      requirements: formData.requirements.split('\n').filter(r => r.trim()),
-      deadline: formData.deadline,
-      budget: parseFloat(formData.budget),
-      status: 'draft',
-      createdBy: '4', // Current staff user
-      createdAt: new Date().toISOString().split('T')[0],
-      category: formData.category
-    };
+  // Load workflows when dialog opens
+  const handleDialogOpen = async (open: boolean) => {
+    setIsAddDialogOpen(open);
+    if (open) {
+      try {
+        const rfqWorkflows = await approvalService.getWorkflows('rfq_approval');
+        setWorkflows(rfqWorkflows);
+      } catch (error) {
+        console.error('Error loading workflows:', error);
+      }
+    }
+  };
 
-    setRfqs([...rfqs, newRFQ]);
-    setIsAddDialogOpen(false);
-    setFormData({ title: '', description: '', requirements: '', deadline: '', budget: '', category: '' });
-    toast({
-      title: "RFQ Created",
-      description: "New RFQ has been created in draft status.",
-    });
+  const handleAddRFQ = async () => {
+    try {
+      const newRFQ: RFQ = {
+        id: `rfq-${Date.now()}`,
+        title: formData.title,
+        description: formData.description,
+        requirements: formData.requirements.split('\n').filter(r => r.trim()),
+        deadline: formData.deadline,
+        budget: parseFloat(formData.budget),
+        status: 'draft',
+        createdBy: '4', // Current staff user
+        createdAt: new Date().toISOString().split('T')[0],
+        category: formData.category
+      };
+
+      setRfqs([...rfqs, newRFQ]);
+      
+      // Create approval workflow instance
+      await approvalService.createWorkflowInstance(
+        'rfq', 
+        newRFQ.id, 
+        formData.customWorkflowId || undefined
+      );
+
+      setIsAddDialogOpen(false);
+      setFormData({ 
+        title: '', 
+        description: '', 
+        requirements: '', 
+        deadline: '', 
+        budget: '', 
+        category: '',
+        customWorkflowId: ''
+      });
+      
+      toast({
+        title: "RFQ Created",
+        description: "New RFQ has been created and approval workflow started.",
+      });
+    } catch (error) {
+      console.error('Error creating RFQ:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create RFQ",
+        variant: "destructive"
+      });
+    }
   };
 
   const handlePublishRFQ = (rfqId: string) => {
@@ -75,9 +117,9 @@ export const RFQManagement = () => {
           <div className="flex justify-between items-center">
             <div>
               <CardTitle>RFQ Management</CardTitle>
-              <CardDescription>Create and manage Request for Quotations</CardDescription>
+              <CardDescription>Create and manage Request for Quotations with approval workflows</CardDescription>
             </div>
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <Dialog open={isAddDialogOpen} onOpenChange={handleDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="h-4 w-4 mr-2" />
@@ -87,7 +129,7 @@ export const RFQManagement = () => {
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
                   <DialogTitle>Create New RFQ</DialogTitle>
-                  <DialogDescription>Create a new Request for Quotation</DialogDescription>
+                  <DialogDescription>Create a new Request for Quotation with automatic approval workflow</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
@@ -110,6 +152,22 @@ export const RFQManagement = () => {
                         {mockInventoryCategories.map((category) => (
                           <SelectItem key={category.id} value={category.name}>
                             {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="workflow">Approval Workflow (Optional)</Label>
+                    <Select value={formData.customWorkflowId} onValueChange={(value) => setFormData({ ...formData, customWorkflowId: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Use default workflow" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Use Default Workflow</SelectItem>
+                        {workflows.map((workflow) => (
+                          <SelectItem key={workflow.id} value={workflow.id}>
+                            {workflow.name}
                           </SelectItem>
                         ))}
                       </SelectContent>

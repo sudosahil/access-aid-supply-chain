@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Search, FileText, Eye, CheckCircle, XCircle, Download } from 'lucide-react';
 import { BidDetailModal } from './BidDetailModal';
 import { useToast } from '@/hooks/use-toast';
+import { approvalService } from '@/services/approvalService';
 
 export const BidManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -48,6 +50,24 @@ export const BidManagement = () => {
     }
   ]);
 
+  // Create workflow instances for existing bids when component mounts
+  useEffect(() => {
+    const createBidWorkflows = async () => {
+      for (const bid of mockBids) {
+        if (bid.status === 'under_review') {
+          try {
+            await approvalService.createWorkflowInstance('bid', bid.id);
+            console.log(`Created workflow for bid ${bid.id}`);
+          } catch (error) {
+            console.error(`Error creating workflow for bid ${bid.id}:`, error);
+          }
+        }
+      }
+    };
+
+    createBidWorkflows();
+  }, []); // Only run once on mount
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'under_review':
@@ -66,10 +86,24 @@ export const BidManagement = () => {
     setIsModalOpen(true);
   };
 
-  const handleStatusUpdate = (bidId: string, status: string, notes: string) => {
+  const handleStatusUpdate = async (bidId: string, status: string, notes: string) => {
     setMockBids(prev => prev.map(bid => 
       bid.id === bidId ? { ...bid, status } : bid
     ));
+    
+    // Create workflow instance if bid is being reviewed
+    if (status === 'under_review') {
+      try {
+        await approvalService.createWorkflowInstance('bid', bidId);
+        toast({
+          title: "Workflow Started",
+          description: "Bid approval workflow has been initiated."
+        });
+      } catch (error) {
+        console.error('Error creating bid workflow:', error);
+      }
+    }
+    
     console.log('Status update:', { bidId, status, notes });
   };
 
@@ -80,14 +114,25 @@ export const BidManagement = () => {
     });
   };
 
-  const handleQuickApprove = (bidId: string) => {
+  const handleQuickApprove = async (bidId: string) => {
     setMockBids(prev => prev.map(bid => 
       bid.id === bidId ? { ...bid, status: 'approved' } : bid
     ));
-    toast({
-      title: "Bid Approved",
-      description: "Bid has been approved successfully."
-    });
+    
+    // Create workflow instance for this bid
+    try {
+      await approvalService.createWorkflowInstance('bid', bidId);
+      toast({
+        title: "Bid Approved",
+        description: "Bid has been approved and workflow started."
+      });
+    } catch (error) {
+      console.error('Error creating workflow:', error);
+      toast({
+        title: "Bid Approved",
+        description: "Bid has been approved successfully."
+      });
+    }
   };
 
   const handleQuickReject = (bidId: string) => {
@@ -120,6 +165,7 @@ export const BidManagement = () => {
       <Card>
         <CardHeader>
           <CardTitle>Filter Bids</CardTitle>
+          <CardDescription>Filter and search through submitted bids</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex gap-4">

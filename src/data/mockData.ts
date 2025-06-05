@@ -5,10 +5,10 @@ export interface User {
   email: string;
   password: string;
   role: 'admin' | 'staff' | 'contractor' | 'warehouse' | 'requester' | 'manager' | 'finance_director';
-  profilePhoto: string;
+  profilePhoto?: string;
   phone: string;
   address: string;
-  organization: string;
+  organization?: string;
   isActive: boolean;
   createdAt: string;
 }
@@ -150,26 +150,26 @@ export interface Notification {
 // Mock Users (including login credentials)
 export const mockUsers: User[] = [
   // Admins
-  { id: '1', name: 'Sarah Johnson', email: 'admin@ssepd.org', password: 'admin123', role: 'admin', phone: '+1-555-0101', address: '123 Admin St, City, State', isActive: true, createdAt: '2024-01-15' },
-  { id: '2', name: 'Michael Chen', email: 'mike.chen@ssepd.org', password: 'admin123', role: 'admin', phone: '+1-555-0102', address: '456 Management Ave, City, State', isActive: true, createdAt: '2024-01-16' },
-  { id: '3', name: 'Emily Rodriguez', email: 'emily.r@ssepd.org', password: 'admin123', role: 'admin', phone: '+1-555-0103', address: '789 Executive Blvd, City, State', isActive: true, createdAt: '2024-01-17' },
+  { id: '1', name: 'Sarah Johnson', email: 'admin@ssepd.org', password: 'admin123', role: 'admin', profilePhoto: '', phone: '+1-555-0101', address: '123 Admin St, City, State', organization: 'SSEPD', isActive: true, createdAt: '2024-01-15' },
+  { id: '2', name: 'Michael Chen', email: 'mike.chen@ssepd.org', password: 'admin123', role: 'admin', profilePhoto: '', phone: '+1-555-0102', address: '456 Management Ave, City, State', organization: 'SSEPD', isActive: true, createdAt: '2024-01-16' },
+  { id: '3', name: 'Emily Rodriguez', email: 'emily.r@ssepd.org', password: 'admin123', role: 'admin', profilePhoto: '', phone: '+1-555-0103', address: '789 Executive Blvd, City, State', organization: 'SSEPD', isActive: true, createdAt: '2024-01-17' },
   
   // Staff
-  { id: '4', name: 'David Wilson', email: 'staff@ssepd.org', password: 'staff123', role: 'staff', phone: '+1-555-0201', address: '321 Staff Rd, City, State', isActive: true, createdAt: '2024-01-18' },
-  { id: '5', name: 'Lisa Thompson', email: 'lisa.t@ssepd.org', password: 'staff123', role: 'staff', phone: '+1-555-0202', address: '654 Worker St, City, State', isActive: true, createdAt: '2024-01-19' },
-  { id: '6', name: 'James Brown', email: 'james.b@ssepd.org', password: 'staff123', role: 'staff', phone: '+1-555-0203', address: '987 Employee Ave, City, State', isActive: true, createdAt: '2024-01-20' },
-  { id: '7', name: 'Maria Garcia', email: 'maria.g@ssepd.org', password: 'staff123', role: 'staff', phone: '+1-555-0204', address: '147 Team Blvd, City, State', isActive: true, createdAt: '2024-01-21' },
-  { id: '8', name: 'Robert Taylor', email: 'robert.t@ssepd.org', password: 'staff123', role: 'staff', phone: '+1-555-0205', address: '258 Department St, City, State', isActive: true, createdAt: '2024-01-22' },
+  { id: '4', name: 'David Wilson', email: 'staff@ssepd.org', password: 'staff123', role: 'staff', profilePhoto: '', phone: '+1-555-0201', address: '321 Staff Rd, City, State', organization: 'SSEPD', isActive: true, createdAt: '2024-01-18' },
+  { id: '5', name: 'Lisa Thompson', email: 'lisa.t@ssepd.org', password: 'staff123', role: 'staff', profilePhoto: '', phone: '+1-555-0202', address: '654 Worker St, City, State', organization: 'SSEPD', isActive: true, createdAt: '2024-01-19' },
+  { id: '6', name: 'James Brown', email: 'james.b@ssepd.org', password: 'staff123', role: 'staff', profilePhoto: '', phone: '+1-555-0203', address: '987 Employee Ave, City, State', organization: 'SSEPD', isActive: true, createdAt: '2024-01-20' },
+  { id: '7', name: 'Maria Garcia', email: 'maria.g@ssepd.org', password: 'staff123', role: 'staff', profilePhoto: '', phone: '+1-555-0204', address: '147 Team Blvd, City, State', organization: 'SSEPD', isActive: true, createdAt: '2024-01-21' },
+  { id: '8', name: 'Robert Taylor', email: 'robert.t@ssepd.org', password: 'staff123', role: 'staff', profilePhoto: '', phone: '+1-555-0205', address: '258 Department St, City, State', organization: 'SSEPD', isActive: true, createdAt: '2024-01-22' },
   
   // Contractors
-  { id: '9', name: 'Amanda Foster', email: 'contractor@mobility.com', password: 'contractor123', role: 'contractor', phone: '+1-555-0301', address: '369 Contractor Way, City, State', organization: 'Mobility Solutions Inc', isActive: true, createdAt: '2024-01-23' },
-  { id: '10', name: 'Christopher Lee', email: 'chris@assisttech.com', password: 'contractor123', role: 'contractor', phone: '+1-555-0302', address: '741 Business Rd, City, State', organization: 'AssistTech Solutions', isActive: true, createdAt: '2024-01-24' },
-  { id: '11', name: 'Jennifer Kim', email: 'jen@accessequip.com', password: 'contractor123', role: 'contractor', phone: '+1-555-0303', address: '852 Vendor St, City, State', organization: 'Access Equipment Co', isActive: true, createdAt: '2024-01-25' },
-  { id: '12', name: 'Daniel Martinez', email: 'dan@prostheticpro.com', password: 'contractor123', role: 'contractor', phone: '+1-555-0304', address: '963 Service Ave, City, State', organization: 'Prosthetic Professionals', isActive: true, createdAt: '2024-01-26' },
-  { id: '13', name: 'Rachel Adams', email: 'rachel@hearingaid.com', password: 'contractor123', role: 'contractor', phone: '+1-555-0305', address: '159 Provider Blvd, City, State', organization: 'Hearing Aid Specialists', isActive: true, createdAt: '2024-01-27' },
-  { id: '14', name: 'John Doe', email: 'john.doe@requester.com', password: 'requester123', role: 'requester', phone: '+1-555-0401', address: '789 Requester St, City, State', isActive: true, createdAt: '2024-01-28' },
-  { id: '15', name: 'Jane Smith', email: 'jane.smith@manager.com', password: 'manager123', role: 'manager', phone: '+1-555-0402', address: '123 Manager Ave, City, State', isActive: true, createdAt: '2024-01-29' },
-  { id: '16', name: 'Emily Johnson', email: 'emily.johnson@finance.com', password: 'finance123', role: 'finance_director', phone: '+1-555-0403', address: '456 Finance St, City, State', isActive: true, createdAt: '2024-01-30' }
+  { id: '9', name: 'Amanda Foster', email: 'contractor@mobility.com', password: 'contractor123', role: 'contractor', profilePhoto: '', phone: '+1-555-0301', address: '369 Contractor Way, City, State', organization: 'Mobility Solutions Inc', isActive: true, createdAt: '2024-01-23' },
+  { id: '10', name: 'Christopher Lee', email: 'chris@assisttech.com', password: 'contractor123', role: 'contractor', profilePhoto: '', phone: '+1-555-0302', address: '741 Business Rd, City, State', organization: 'AssistTech Solutions', isActive: true, createdAt: '2024-01-24' },
+  { id: '11', name: 'Jennifer Kim', email: 'jen@accessequip.com', password: 'contractor123', role: 'contractor', profilePhoto: '', phone: '+1-555-0303', address: '852 Vendor St, City, State', organization: 'Access Equipment Co', isActive: true, createdAt: '2024-01-25' },
+  { id: '12', name: 'Daniel Martinez', email: 'dan@prostheticpro.com', password: 'contractor123', role: 'contractor', profilePhoto: '', phone: '+1-555-0304', address: '963 Service Ave, City, State', organization: 'Prosthetic Professionals', isActive: true, createdAt: '2024-01-26' },
+  { id: '13', name: 'Rachel Adams', email: 'rachel@hearingaid.com', password: 'contractor123', role: 'contractor', profilePhoto: '', phone: '+1-555-0305', address: '159 Provider Blvd, City, State', organization: 'Hearing Aid Specialists', isActive: true, createdAt: '2024-01-27' },
+  { id: '14', name: 'John Doe', email: 'john.doe@requester.com', password: 'requester123', role: 'requester', profilePhoto: '', phone: '+1-555-0401', address: '789 Requester St, City, State', organization: 'SSEPD', isActive: true, createdAt: '2024-01-28' },
+  { id: '15', name: 'Jane Smith', email: 'jane.smith@manager.com', password: 'manager123', role: 'manager', profilePhoto: '', phone: '+1-555-0402', address: '123 Manager Ave, City, State', organization: 'SSEPD', isActive: true, createdAt: '2024-01-29' },
+  { id: '16', name: 'Emily Johnson', email: 'emily.johnson@finance.com', password: 'finance123', role: 'finance_director', profilePhoto: '', phone: '+1-555-0403', address: '456 Finance St, City, State', organization: 'SSEPD', isActive: true, createdAt: '2024-01-30' }
 ];
 
 // Mock Suppliers

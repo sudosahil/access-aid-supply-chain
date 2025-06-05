@@ -38,10 +38,11 @@ export const UserManagement = () => {
       name: formData.name,
       email: formData.email,
       password: 'temp123',
-      role: formData.role as 'admin' | 'staff' | 'contractor',
+      role: formData.role as 'admin' | 'staff' | 'contractor' | 'warehouse' | 'requester' | 'manager' | 'finance_director',
+      profilePhoto: '',
       phone: formData.phone,
       address: formData.address,
-      organization: formData.role === 'contractor' ? formData.organization : undefined,
+      organization: formData.role === 'contractor' ? formData.organization : 'SSEPD',
       isActive: true,
       createdAt: new Date().toISOString().split('T')[0]
     };

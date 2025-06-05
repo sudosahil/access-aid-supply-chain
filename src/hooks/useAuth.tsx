@@ -41,7 +41,7 @@ export const useAuth = () => {
           name: user.name,
           email: user.email,
           password: user.password,
-          role: user.role as 'admin' | 'staff' | 'contractor' | 'warehouse',
+          role: user.role as 'admin' | 'staff' | 'contractor' | 'warehouse' | 'requester' | 'manager' | 'finance_director',
           profilePhoto: user.profile_photo,
           phone: '', // Default empty since not in database
           address: '', // Default empty since not in database
@@ -66,7 +66,7 @@ export const useAuth = () => {
           name: testUser.name,
           email: testUser.email,
           password: testUser.password,
-          role: testUser.role as 'admin' | 'staff' | 'contractor' | 'warehouse',
+          role: testUser.role as 'admin' | 'staff' | 'contractor' | 'warehouse' | 'requester' | 'manager' | 'finance_director',
           profilePhoto: '',
           phone: '',
           address: '',
@@ -98,7 +98,7 @@ export const useAuth = () => {
         name: user.name,
         email: user.email,
         password: user.password,
-        role: user.role as 'admin' | 'staff' | 'contractor' | 'warehouse',
+        role: user.role as 'admin' | 'staff' | 'contractor' | 'warehouse' | 'requester' | 'manager' | 'finance_director',
         profilePhoto: user.profile_photo,
         phone: '', // Default empty since not in database
         address: '', // Default empty since not in database

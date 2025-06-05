@@ -64,7 +64,7 @@ export const useBudgetTracking = (userId?: string) => {
           table: 'workflow_instances'
         },
         (payload) => {
-          if (payload.new.status === 'approved') {
+          if (payload.new && typeof payload.new === 'object' && 'status' in payload.new && payload.new.status === 'approved') {
             console.log('Workflow approved, updating budget utilization...');
             setTimeout(calculateBudgetUtilization, 100);
           }

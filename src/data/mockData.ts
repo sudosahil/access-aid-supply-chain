@@ -4,11 +4,11 @@ export interface User {
   name: string;
   email: string;
   password: string;
-  role: 'admin' | 'staff' | 'contractor' | 'warehouse';
+  role: 'admin' | 'staff' | 'contractor' | 'warehouse' | 'requester' | 'manager' | 'finance_director';
+  profilePhoto: string;
   phone: string;
   address: string;
-  organization?: string;
-  profilePhoto?: string;
+  organization: string;
   isActive: boolean;
   createdAt: string;
 }
@@ -166,7 +166,10 @@ export const mockUsers: User[] = [
   { id: '10', name: 'Christopher Lee', email: 'chris@assisttech.com', password: 'contractor123', role: 'contractor', phone: '+1-555-0302', address: '741 Business Rd, City, State', organization: 'AssistTech Solutions', isActive: true, createdAt: '2024-01-24' },
   { id: '11', name: 'Jennifer Kim', email: 'jen@accessequip.com', password: 'contractor123', role: 'contractor', phone: '+1-555-0303', address: '852 Vendor St, City, State', organization: 'Access Equipment Co', isActive: true, createdAt: '2024-01-25' },
   { id: '12', name: 'Daniel Martinez', email: 'dan@prostheticpro.com', password: 'contractor123', role: 'contractor', phone: '+1-555-0304', address: '963 Service Ave, City, State', organization: 'Prosthetic Professionals', isActive: true, createdAt: '2024-01-26' },
-  { id: '13', name: 'Rachel Adams', email: 'rachel@hearingaid.com', password: 'contractor123', role: 'contractor', phone: '+1-555-0305', address: '159 Provider Blvd, City, State', organization: 'Hearing Aid Specialists', isActive: true, createdAt: '2024-01-27' }
+  { id: '13', name: 'Rachel Adams', email: 'rachel@hearingaid.com', password: 'contractor123', role: 'contractor', phone: '+1-555-0305', address: '159 Provider Blvd, City, State', organization: 'Hearing Aid Specialists', isActive: true, createdAt: '2024-01-27' },
+  { id: '14', name: 'John Doe', email: 'john.doe@requester.com', password: 'requester123', role: 'requester', phone: '+1-555-0401', address: '789 Requester St, City, State', isActive: true, createdAt: '2024-01-28' },
+  { id: '15', name: 'Jane Smith', email: 'jane.smith@manager.com', password: 'manager123', role: 'manager', phone: '+1-555-0402', address: '123 Manager Ave, City, State', isActive: true, createdAt: '2024-01-29' },
+  { id: '16', name: 'Emily Johnson', email: 'emily.johnson@finance.com', password: 'finance123', role: 'finance_director', phone: '+1-555-0403', address: '456 Finance St, City, State', isActive: true, createdAt: '2024-01-30' }
 ];
 
 // Mock Suppliers

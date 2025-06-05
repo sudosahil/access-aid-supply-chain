@@ -3,133 +3,232 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@/data/mockData';
 
-interface Permission {
-  id: string;
-  permission: string;
-  enabled: boolean;
+export interface UserPermissions {
+  dashboard: boolean;
+  rfqs: boolean;
+  bids: boolean;
+  suppliers: boolean;
+  inventory: boolean;
+  warehouses: boolean;
+  messaging: boolean;
+  audit: boolean;
+  users: boolean;
+  settings: boolean;
+  budgets: boolean;
+  reports: boolean;
+  approvals: boolean;
+  contracts: boolean;
+  transfers: boolean;
 }
 
-interface RolePermission extends Permission {
-  role: string;
-}
-
-interface UserPermission extends Permission {
-  user_id: string;
-}
-
-// Fallback permissions for when database is not available
-const FALLBACK_PERMISSIONS = {
-  admin: ['dashboard', 'rfqs', 'bids', 'suppliers', 'inventory', 'warehouses', 'messaging', 'audit', 'users', 'settings', 'budgets', 'reports'],
-  staff: ['dashboard', 'rfqs', 'bids', 'suppliers', 'inventory', 'warehouses', 'messaging', 'audit', 'budgets'],
-  contractor: ['dashboard', 'rfqs', 'bids', 'messaging'],
-  warehouse: ['dashboard', 'inventory', 'messaging']
+// Define role-based permissions including new roles
+const rolePermissions: Record<string, UserPermissions> = {
+  admin: {
+    dashboard: true,
+    rfqs: true,
+    bids: true,
+    suppliers: true,
+    inventory: true,
+    warehouses: true,
+    messaging: true,
+    audit: true,
+    users: true,
+    settings: true,
+    budgets: true,
+    reports: true,
+    approvals: true,
+    contracts: true,
+    transfers: true,
+  },
+  staff: {
+    dashboard: true,
+    rfqs: true,
+    bids: true,
+    suppliers: true,
+    inventory: true,
+    warehouses: true,
+    messaging: true,
+    audit: false,
+    users: false,
+    settings: false,
+    budgets: true,
+    reports: true,
+    approvals: false,
+    contracts: true,
+    transfers: true,
+  },
+  requester: {
+    dashboard: true,
+    rfqs: true,
+    bids: false,
+    suppliers: false,
+    inventory: true,
+    warehouses: false,
+    messaging: true,
+    audit: false,
+    users: false,
+    settings: false,
+    budgets: true,
+    reports: false,
+    approvals: false,
+    contracts: false,
+    transfers: false,
+  },
+  manager: {
+    dashboard: true,
+    rfqs: true,
+    bids: true,
+    suppliers: true,
+    inventory: true,
+    warehouses: true,
+    messaging: true,
+    audit: true,
+    users: false,
+    settings: false,
+    budgets: true,
+    reports: true,
+    approvals: true,
+    contracts: true,
+    transfers: true,
+  },
+  finance_director: {
+    dashboard: true,
+    rfqs: true,
+    bids: true,
+    suppliers: true,
+    inventory: true,
+    warehouses: true,
+    messaging: true,
+    audit: true,
+    users: false,
+    settings: true,
+    budgets: true,
+    reports: true,
+    approvals: true,
+    contracts: true,
+    transfers: true,
+  },
+  contractor: {
+    dashboard: true,
+    rfqs: true,
+    bids: true,
+    suppliers: false,
+    inventory: false,
+    warehouses: false,
+    messaging: true,
+    audit: false,
+    users: false,
+    settings: false,
+    budgets: false,
+    reports: false,
+    approvals: false,
+    contracts: true,
+    transfers: false,
+  },
+  warehouse: {
+    dashboard: true,
+    rfqs: false,
+    bids: false,
+    suppliers: false,
+    inventory: true,
+    warehouses: true,
+    messaging: true,
+    audit: false,
+    users: false,
+    settings: false,
+    budgets: false,
+    reports: false,
+    approvals: false,
+    contracts: false,
+    transfers: true,
+  },
 };
 
-export const usePermissions = (user: User) => {
-  const [rolePermissions, setRolePermissions] = useState<RolePermission[]>([]);
-  const [userPermissions, setUserPermissions] = useState<UserPermission[]>([]);
+export const usePermissions = (user: User | null) => {
+  const [permissions, setPermissions] = useState<UserPermissions | null>(null);
   const [loading, setLoading] = useState(true);
-  const [useFallback, setUseFallback] = useState(true); // Default to fallback for mock users
+  const [useFallback, setUseFallback] = useState(false);
 
-  console.log('usePermissions - User:', user);
-  console.log('usePermissions - User role:', user?.role);
-
-  const hasPermission = (permission: string): boolean => {
-    console.log('Checking permission:', permission, 'for user role:', user?.role);
-    
-    // Always use fallback permissions for mock users
-    if (useFallback || !user?.id) {
-      const userRole = user?.role as keyof typeof FALLBACK_PERMISSIONS;
-      const hasAccess = FALLBACK_PERMISSIONS[userRole]?.includes(permission) || false;
-      console.log('Using fallback permissions. Has access:', hasAccess);
-      return hasAccess;
-    }
-
-    // Check user-specific override first
-    const userOverride = userPermissions.find(p => p.permission === permission);
-    if (userOverride) {
-      console.log('User override found:', userOverride.enabled);
-      return userOverride.enabled;
-    }
-
-    // Fall back to role permission
-    const rolePermission = rolePermissions.find(p => p.role === user.role && p.permission === permission);
-    const hasAccess = rolePermission?.enabled || false;
-    console.log('Role permission result:', hasAccess);
-    return hasAccess;
-  };
-
-  const loadPermissions = async () => {
-    console.log('Loading permissions for user:', user);
-    
-    // For mock users (which don't have proper Supabase auth), use fallback immediately
-    if (!user?.id || typeof user.id === 'string') {
-      console.log('Mock user detected, using fallback permissions');
-      setUseFallback(true);
+  useEffect(() => {
+    if (!user) {
+      console.log('usePermissions - No user provided');
+      setPermissions(null);
       setLoading(false);
       return;
     }
 
+    console.log('usePermissions useEffect triggered');
+    console.log('Loading permissions for user:', user);
+    loadPermissions();
+  }, [user]);
+
+  const loadPermissions = async () => {
+    if (!user) return;
+
     try {
-      console.log('Attempting to load permissions from database');
+      console.log('usePermissions - User:', user);
+      console.log('usePermissions - User role:', user.role);
+
+      // Always use role-based permissions for consistency
+      const roleBasedPermissions = rolePermissions[user.role];
       
-      // Check if we have a valid Supabase session
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        console.log('No Supabase session found, using fallback permissions');
+      if (roleBasedPermissions) {
+        console.log('Using role-based permissions for role:', user.role);
+        setPermissions(roleBasedPermissions);
+        setUseFallback(false);
+      } else {
+        console.log('No permissions found for role:', user.role, 'using default');
+        // Default permissions for unknown roles
+        const defaultPermissions: UserPermissions = {
+          dashboard: true,
+          rfqs: false,
+          bids: false,
+          suppliers: false,
+          inventory: false,
+          warehouses: false,
+          messaging: true,
+          audit: false,
+          users: false,
+          settings: false,
+          budgets: false,
+          reports: false,
+          approvals: false,
+          contracts: false,
+          transfers: false,
+        };
+        setPermissions(defaultPermissions);
         setUseFallback(true);
-        setLoading(false);
-        return;
       }
 
-      // Load role permissions
-      const { data: rolePerms, error: roleError } = await supabase
-        .from('role_permissions')
-        .select('*')
-        .eq('role', user.role);
-
-      if (roleError) {
-        console.error('Error loading role permissions:', roleError);
-        setUseFallback(true);
-        setLoading(false);
-        return;
-      }
-
-      // Load user-specific permissions
-      const { data: userPerms, error: userError } = await supabase
-        .from('user_permissions')
-        .select('*')
-        .eq('user_id', user.id);
-
-      if (userError) {
-        console.error('Error loading user permissions:', userError);
-      }
-
-      console.log('Successfully loaded permissions from database');
-      setRolePermissions(rolePerms || []);
-      setUserPermissions(userPerms || []);
-      setUseFallback(false);
+      console.log('usePermissions returning - loading: false useFallback:', !roleBasedPermissions);
     } catch (error) {
       console.error('Error loading permissions:', error);
+      // Fallback to role-based permissions
+      const roleBasedPermissions = rolePermissions[user.role] || rolePermissions.requester;
+      setPermissions(roleBasedPermissions);
       setUseFallback(true);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    console.log('usePermissions useEffect triggered');
-    
-    if (user?.role) {
-      loadPermissions();
-    } else {
-      console.log('No user or role found, using fallback');
-      setUseFallback(true);
-      setLoading(false);
+  const hasPermission = (permission: keyof UserPermissions): boolean => {
+    if (!user || !permissions) {
+      console.log('No user or permissions available for permission check:', permission);
+      return false;
     }
-  }, [user?.id, user?.role]);
+    
+    console.log(`Checking permission: ${permission} for user role: ${user.role}`);
+    const hasAccess = permissions[permission];
+    console.log(`Permission ${permission}: hasAccess = ${hasAccess}`);
+    return hasAccess;
+  };
 
-  console.log('usePermissions returning - loading:', loading, 'useFallback:', useFallback);
-  
-  return { hasPermission, loading, rolePermissions, userPermissions };
+  return {
+    permissions,
+    loading,
+    useFallback,
+    hasPermission,
+    refetch: loadPermissions
+  };
 };

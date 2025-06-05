@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { mockUsers } from '@/data/mockData';
 import { Plus, Edit, Trash2, ArrowRight, Settings } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { workflowService } from '@/services/workflowService';
 
 const WORKFLOW_TYPES = [
   { value: 'budget_approval', label: 'Budget Approval' },
@@ -99,17 +99,7 @@ export const ApprovalWorkflows = () => {
           description: "Workflow has been successfully updated."
         });
       } else {
-        const { error } = await supabase
-          .from('approval_workflows')
-          .insert({
-            name: workflowForm.name,
-            description: workflowForm.description,
-            workflow_type: workflowForm.workflow_type,
-            is_default: false,
-            is_active: true
-          });
-
-        if (error) throw error;
+        await workflowService.createWorkflow(workflowForm);
 
         toast({
           title: "Workflow Created",
@@ -121,11 +111,11 @@ export const ApprovalWorkflows = () => {
       setEditingWorkflow(null);
       setShowWorkflowForm(false);
       loadWorkflows();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving workflow:', error);
       toast({
         title: "Error",
-        description: "Failed to save workflow.",
+        description: error.message || "Failed to save workflow.",
         variant: "destructive"
       });
     }
@@ -144,20 +134,7 @@ export const ApprovalWorkflows = () => {
     }
 
     try {
-      const workflow = workflows.find(w => w.id === selectedWorkflow);
-      if (!workflow) return;
-
-      const { error } = await supabase
-        .from('workflow_steps')
-        .insert({
-          workflow_id: selectedWorkflow,
-          step_order: (workflow.workflow_steps?.length || 0) + 1,
-          approver_type: stepForm.approver_type,
-          approver_role: stepForm.approver_type === 'role' ? stepForm.approver_role : null,
-          approver_user_id: stepForm.approver_type === 'user' ? stepForm.approver_user_id : null
-        });
-
-      if (error) throw error;
+      await workflowService.createWorkflowStep(selectedWorkflow, stepForm);
 
       setStepForm({ approver_type: 'role', approver_role: '', approver_user_id: '' });
       setShowStepForm(false);
@@ -167,11 +144,11 @@ export const ApprovalWorkflows = () => {
         title: "Step Added",
         description: "Workflow step has been successfully added."
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding step:', error);
       toast({
         title: "Error",
-        description: "Failed to add workflow step.",
+        description: error.message || "Failed to add workflow step.",
         variant: "destructive"
       });
     }

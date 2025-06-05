@@ -28,12 +28,6 @@ const ALL_MENU_ITEMS = [
   { id: 'profile', title: 'Profile', icon: User }
 ];
 
-// Warehouse-specific menu items for different naming
-const WAREHOUSE_SPECIFIC_ITEMS = {
-  'inventory': { id: 'inventory', title: 'Warehouse Inventory', icon: Package },
-  'transfers': { id: 'transfers', title: 'Transfer Requests', icon: Activity }
-};
-
 export const AppSidebar = ({ user, activeTab, onTabChange }: AppSidebarProps) => {
   const { hasPermission, loading } = usePermissions(user);
 
@@ -57,100 +51,73 @@ export const AppSidebar = ({ user, activeTab, onTabChange }: AppSidebarProps) =>
     );
   }
 
-  // Filter menu items based on permissions
-  let menuItems = ALL_MENU_ITEMS.filter(item => {
-    // Profile is always available
-    if (item.id === 'profile') return true;
-    
-    // For approval-workflows and approval-dashboard, show to admin and workflow test users
-    if (item.id === 'approval-workflows' || item.id === 'approval-dashboard') {
-      return user.role === 'admin' || user.role === 'manager' || user.role === 'finance_director';
-    }
-    
-    // Check if user has permission for this item - properly type the permission key
-    if (item.id in hasPermission) {
-      const hasAccess = hasPermission(item.id as keyof UserPermissions);
-      console.log(`Menu item ${item.id}: hasAccess = ${hasAccess}`);
-      return hasAccess;
-    }
-    
-    // Special handling for workflow testing users - show all workflow-related tabs
-    if (user.role === 'requester' || user.role === 'manager' || user.role === 'finance_director') {
-      const workflowItems = ['dashboard', 'rfqs', 'bids', 'budgets', 'messaging', 'approval-workflows', 'approval-dashboard'];
-      if (workflowItems.includes(item.id)) {
-        return true;
-      }
-    }
-    
-    // If the item ID doesn't match a permission, don't show it by default
-    return false;
-  });
+  // Get menu items based on role with proper fallback
+  let menuItems = [];
 
-  console.log('Filtered menu items:', menuItems.map(item => item.id));
-
-  // Special handling for warehouse role
-  if (user.role === 'warehouse') {
+  // Admin gets everything
+  if (user.role === 'admin') {
+    menuItems = [...ALL_MENU_ITEMS];
+  }
+  // Staff gets most things except user management and some admin features
+  else if (user.role === 'staff') {
+    menuItems = ALL_MENU_ITEMS.filter(item => 
+      !['users', 'settings', 'audit', 'approval-workflows'].includes(item.id)
+    );
+    // Rename budget management for staff
+    menuItems = menuItems.map(item => 
+      item.id === 'budgets' ? { ...item, title: 'Budget Overview' } : item
+    );
+  }
+  // Contractor gets limited access
+  else if (user.role === 'contractor') {
+    menuItems = ALL_MENU_ITEMS.filter(item => 
+      ['dashboard', 'rfqs', 'bids', 'messaging', 'contracts', 'profile'].includes(item.id)
+    );
+    // Rename items for contractors
     menuItems = menuItems.map(item => {
-      if (item.id === 'inventory') {
-        return WAREHOUSE_SPECIFIC_ITEMS.inventory;
-      }
+      if (item.id === 'rfqs') return { ...item, title: 'Available RFQs' };
+      if (item.id === 'bids') return { ...item, title: 'My Bids' };
       return item;
     });
-    
-    // Add transfer requests for warehouse users if they have inventory permission
-    if (hasPermission('inventory')) {
-      const transfersIndex = menuItems.findIndex(item => item.id === 'inventory') + 1;
-      menuItems.splice(transfersIndex, 0, { 
-        id: 'warehouse-transfers', 
-        title: 'Transfer Requests', 
-        icon: Activity 
-      });
-    }
-  }
-
-  // Special handling for contractor role - rename some items
-  if (user.role === 'contractor') {
-    menuItems = menuItems.map(item => {
-      if (item.id === 'rfqs') {
-        return { ...item, title: 'Available RFQs' };
-      }
-      if (item.id === 'bids') {
-        return { ...item, title: 'My Bids' };
-      }
-      return item;
+    // Add live bids viewing
+    const dashboardIndex = menuItems.findIndex(item => item.id === 'dashboard');
+    menuItems.splice(dashboardIndex + 1, 0, { 
+      id: 'live-bids', 
+      title: 'Live Bid Status', 
+      icon: Activity 
     });
   }
-
-  // For staff role, rename budget management
-  if (user.role === 'staff') {
-    menuItems = menuItems.map(item => {
-      if (item.id === 'budgets') {
-        return { ...item, title: 'Budget Overview' };
-      }
-      return item;
-    });
+  // Warehouse gets inventory and transfer focused items
+  else if (user.role === 'warehouse') {
+    menuItems = [
+      { id: 'dashboard', title: 'Dashboard', icon: Home },
+      { id: 'inventory', title: 'Warehouse Inventory', icon: Package },
+      { id: 'warehouse-transfers', title: 'Transfer Requests', icon: Activity },
+      { id: 'messaging', title: 'Messaging', icon: MessageSquare },
+      { id: 'profile', title: 'Profile', icon: User }
+    ];
   }
-
-  // For workflow testing roles, rename some items for clarity
-  if (user.role === 'requester') {
-    menuItems = menuItems.map(item => {
-      if (item.id === 'rfqs') {
-        return { ...item, title: 'My Requests' };
-      }
-      if (item.id === 'approval-dashboard') {
-        return { ...item, title: 'My Approvals' };
-      }
-      return item;
-    });
+  // Workflow testing roles (requester, manager, finance_director)
+  else if (['requester', 'manager', 'finance_director'].includes(user.role)) {
+    menuItems = [
+      { id: 'dashboard', title: 'Dashboard', icon: Home },
+      { id: 'rfqs', title: user.role === 'requester' ? 'My Requests' : 'RFQs', icon: FileText },
+      { id: 'bids', title: 'Bids', icon: ClipboardList },
+      { id: 'budgets', title: 'Budget Management', icon: DollarSign },
+      { id: 'messaging', title: 'Messaging', icon: MessageSquare },
+      { id: 'approval-workflows', title: 'Approval Workflows', icon: GitBranch },
+      { id: 'approval-dashboard', title: user.role === 'requester' ? 'My Approvals' : 'Pending Approvals', icon: CheckSquare },
+      { id: 'reports', title: 'Reports', icon: FileText },
+      { id: 'profile', title: 'Profile', icon: User }
+    ];
   }
-
-  if (user.role === 'manager' || user.role === 'finance_director') {
-    menuItems = menuItems.map(item => {
-      if (item.id === 'approval-dashboard') {
-        return { ...item, title: 'Pending Approvals' };
-      }
-      return item;
-    });
+  // Fallback for any other roles
+  else {
+    menuItems = [
+      { id: 'dashboard', title: 'Dashboard', icon: Home },
+      { id: 'messaging', title: 'Messaging', icon: MessageSquare },
+      { id: 'profile', title: 'Profile', icon: User }
+    ];
   }
 
   console.log('Final menu items for role', user.role, ':', menuItems.map(item => item.title));

@@ -24,400 +24,353 @@ Use these credentials to test the approval workflow system:
 - **Approver 1**: appr1@co.com / Test@123 (Can approve up to $25k)
 - **Approver 2**: appr2@co.com / Test@123 (Can approve up to $50k)
 
-## 📁 Project Structure
+## 📋 Detailed Feature Documentation by Component
 
-### 🔐 Authentication & Authorization
-```
-src/
-├── hooks/
-│   ├── useAuth.tsx            # Authentication hook with test user support
-│   └── usePermissions.tsx     # Streamlined permission management
-├── config/
-│   └── rolePermissions.ts     # Role-based permission definitions
-├── components/auth/
-│   ├── LoginForm.tsx          # Basic login form component
-│   └── EnhancedLoginForm.tsx  # Enhanced login with test environment
-└── data/
-    ├── testUsers.ts           # Test user credentials and scenarios
-    └── testScenarios.ts       # Comprehensive test case scenarios
-```
+### 🏠 Dashboard Components
 
-**Key Features:**
-- Dual authentication system (production + test users)
-- Role-based access control with granular permissions
-- Test environment with predefined approval chains
-- JWT-like token simulation for test users
+#### Admin Dashboard (`src/components/dashboards/AdminDashboard.tsx`)
+**Features:**
+- **System Overview**: Displays key metrics (active users, pending RFQs, low stock items, monthly savings)
+- **Quick Actions Grid**: Direct access to all admin functions
+- **System Alerts**: Real-time notifications for critical issues (low stock, pending approvals)
+- **Activity Feed**: Recent system activities with status indicators
+- **Budget Management Access**: Direct link to budget oversight
+- **Approval Dashboard Access**: Real-time approval monitoring
 
-### 🎯 Dashboard Components
-```
-src/components/dashboards/
-├── AdminDashboard.tsx         # Administrator overview dashboard
-├── StaffDashboard.tsx         # Staff member dashboard
-├── ContractorDashboard.tsx    # Contractor-specific dashboard
-└── WarehouseDashboard.tsx     # Warehouse management dashboard
-```
+**Available Tabs for Admin:**
+- Dashboard, RFQs, Bids, Suppliers, Inventory, Warehouses, Messaging, Audit Logs, User Management, Settings, Budget Management, Approval Workflows, Approval Dashboard, Reports, Profile
 
-**Role-Specific Features:**
-- **Admin**: Full system access, user management, system configuration
-- **Staff**: RFQ/Bid management, inventory, contracts
-- **Contractor**: Available RFQs, bid submission, contract tracking
-- **Warehouse**: Inventory management, transfer requests
-- **Requester**: Request submission, status tracking (Workflow Testing)
-- **Manager**: Approval workflows, budget oversight (Workflow Testing)
-- **Finance Director**: High-value approvals, budget allocation (Workflow Testing)
+#### Staff Dashboard (`src/components/dashboards/StaffDashboard.tsx`)
+**Features:**
+- **Operational Metrics**: Active RFQs, pending bids, inventory counts, budget utilization
+- **Quick Action Buttons**: Manage RFQs, review bids, inventory management, supplier oversight
+- **Activity Timeline**: Recent staff activities and updates
+- **Budget Overview Access**: Staff-level budget monitoring
+- **Performance Indicators**: Success rates and completion metrics
 
-### ✅ Approval Workflow System
-```
-src/
-├── services/
-│   ├── approvalService.ts     # Core approval workflow logic
-│   └── workflowService.ts     # Enhanced workflow management with validation
-├── components/admin/
-│   ├── ApprovalWorkflows.tsx  # Workflow configuration interface
-│   ├── ApprovalDashboard.tsx  # Real-time approval monitoring
-│   └── ApprovalManagement.tsx # Legacy approval management
-└── hooks/
-    └── useRealtimeApprovals.tsx # Real-time workflow updates
-```
+**Available Tabs for Staff:**
+- Dashboard, RFQs, Bids, Suppliers, Inventory, Warehouses, Messaging, Budget Overview, Reports, Profile
 
-**Workflow Features:**
-- Multi-stage approval chains (Requester → Manager → Finance Director)
-- Real-time status updates via Supabase subscriptions
-- Budget threshold-based routing
-- Emergency fast-track procedures
-- Comprehensive audit trails
-- Enhanced error handling and validation
+#### Contractor Dashboard (`src/components/dashboards/ContractorDashboard.tsx`)
+**Features:**
+- **Bid Statistics**: Available RFQs, submitted bids, won bids, success rate
+- **Earnings Tracking**: Total earnings and contract values
+- **Pending Bids Overview**: Bids awaiting review with status
+- **Quick Actions**: Access to available RFQs, bid management, live status
+- **Activity History**: Recent bidding activities and outcomes
 
-### 💰 Budget Management
-```
-src/
-├── services/
-│   └── budgetService.ts       # Enhanced budget CRUD with validation
-├── components/
-│   ├── admin/
-│   │   ├── BudgetManagement.tsx   # Budget overview and management
-│   │   └── BudgetModal.tsx        # Refactored budget modal
-│   ├── forms/
-│   │   └── BudgetForm.tsx         # Extracted budget form component
-│   └── admin/
-│       └── BudgetCharts.tsx       # Budget visualization charts
-├── hooks/
-│   └── useBudgetTracking.tsx  # Real-time budget consumption tracking
-└── contexts/
-    └── BudgetContext.tsx      # Global budget state management
-```
+**Available Tabs for Contractor:**
+- Dashboard, Available RFQs, My Bids, Live Bid Status, Messaging, Contracts, Profile
 
-**Budget Features:**
-- Real-time budget consumption tracking
-- Visual progress indicators with threshold alerts
-- Multi-source budget allocation (grants, internal, donor funding)
-- Budget approval workflows
-- Automatic budget validation for requests
-- Enhanced error handling and validation
+#### Warehouse Dashboard (`src/components/dashboards/WarehouseDashboard.tsx`)
+**Features:**
+- **Inventory Overview**: Current stock levels, low stock alerts
+- **Transfer Management**: Pending and completed transfers
+- **Capacity Monitoring**: Warehouse utilization metrics
+- **Quick Actions**: Inventory management, transfer requests
+- **Recent Activities**: Stock movements and updates
 
-### 📋 RFQ (Request for Quotation) Management
-```
-src/components/
-├── rfq/
-│   ├── RFQManagement.tsx      # RFQ creation and management
-│   └── RFQDetailModal.tsx     # Detailed RFQ view and editing
-└── staff/
-    └── RFQManagement.tsx      # Staff-specific RFQ interface
-```
+**Available Tabs for Warehouse:**
+- Dashboard, Warehouse Inventory, Transfer Requests, Messaging, Profile
 
-**RFQ Features:**
-- Multi-category procurement requests
-- Automatic approval routing based on amount
-- Vendor notification system
-- Requirement specification templates
-- Integration with bid management
+### 📋 Request for Quotation (RFQ) Management
+
+#### RFQ Management (`src/components/staff/RFQManagement.tsx`)
+**Features:**
+- **RFQ Creation**: Detailed form for creating procurement requests
+- **Category Management**: Organized by procurement categories
+- **Budget Integration**: Automatic budget validation and allocation
+- **Deadline Tracking**: Due date management and alerts
+- **Status Workflows**: Draft → Published → Closed lifecycle
+- **Vendor Notifications**: Automatic contractor notifications
+- **Requirement Templates**: Predefined specification templates
+
+#### Available RFQs (`src/components/contractor/AvailableRFQs.tsx`)
+**Features:**
+- **Active RFQ Browsing**: View all published RFQs
+- **Category Filtering**: Filter by procurement type
+- **Bid Submission**: Direct bid submission interface
+- **Deadline Awareness**: Clear deadline indicators
+- **Requirement Review**: Detailed specification viewing
+- **Document Downloads**: Access to RFQ documents
 
 ### 🏷️ Bid Management System
-```
-src/components/staff/
-├── BidManagement.tsx          # Bid overview and processing
-├── BidDetailModal.tsx         # Detailed bid evaluation
-├── BidEvaluation.tsx          # Bid comparison and scoring
-└── ContractManagement.tsx     # Post-award contract management
-```
 
-**Bid Features:**
-- Sealed bid submission system
-- Automated bid comparison tables
-- Multi-criteria evaluation (price, quality, delivery)
-- Award notification automation
-- Contract generation workflow
+#### Bid Management (`src/components/staff/BidManagement.tsx`)
+**Features:**
+- **Bid Evaluation**: Comprehensive bid comparison tools
+- **Scoring Matrix**: Multi-criteria evaluation (price, quality, delivery)
+- **Award Process**: Streamlined bid award workflow
+- **Vendor Communication**: Direct messaging with contractors
+- **Document Management**: Bid document storage and review
+- **Contract Generation**: Automatic contract creation post-award
 
-### 👥 User & Permission Management
-```
-src/components/admin/
-├── UserManagement.tsx         # User CRUD operations
-└── PermissionManagement.tsx   # Role and permission configuration
-```
+#### My Bids (`src/components/contractor/MyBids.tsx`)
+**Features:**
+- **Bid Portfolio**: All submitted bids with status
+- **Status Tracking**: Real-time bid status updates
+- **Amendment Capability**: Modify bids before deadline
+- **Award Notifications**: Instant win/loss notifications
+- **Performance History**: Bid success analytics
+- **Document Uploads**: Supporting document management
 
-**User Features:**
-- Role-based user creation
-- Granular permission management
-- User activation/deactivation
-- Profile photo management
-- Organization assignment
+#### Live Bid Viewing (`src/components/contractor/LiveBidViewing.tsx`)
+**Features:**
+- **Real-time Updates**: Live bid status monitoring
+- **Competitive Intelligence**: Anonymous bid count viewing
+- **Deadline Countdown**: Real-time deadline tracking
+- **Status Indicators**: Visual bid status representation
+- **Quick Actions**: Fast bid modifications
 
-### 📦 Inventory & Warehouse Management
-```
-src/components/
-├── staff/
-│   ├── InventoryManagement.tsx    # Inventory overview and management
-│   ├── InventoryItemModal.tsx     # Item creation/editing
-│   └── WarehouseManagement.tsx    # Warehouse configuration
-└── warehouse/
-    ├── WarehouseInventory.tsx     # Warehouse-specific inventory view
-    ├── TransferRequests.tsx       # Inter-warehouse transfers
-    └── EnhancedTransferRequests.tsx # Enhanced transfer workflow
-```
+### 💰 Budget Management System
 
-### 🔄 Real-time Features
-```
-src/
-├── hooks/
-│   ├── useRealtimeNotifications.tsx # Real-time notification system
-│   ├── useRealtimeApprovals.tsx     # Live approval updates
-│   └── useBudgetTracking.tsx        # Live budget monitoring
-└── components/common/
-    ├── NotificationBell.tsx         # Notification UI component
-    └── RealtimeBudgetIndicator.tsx  # Live budget display
-```
+#### Budget Management (`src/components/admin/BudgetManagement.tsx`)
+**Features:**
+- **Budget Creation**: Detailed budget allocation forms
+- **Multi-source Tracking**: Government grants, internal funds, donor funding
+- **Real-time Monitoring**: Live budget consumption tracking
+- **Approval Workflows**: Budget approval processes
+- **Threshold Alerts**: Automatic overspend warnings
+- **Assignment Management**: Budget assignment to users/departments
+- **Progress Visualization**: Budget utilization charts
 
-**Real-time Capabilities:**
-- WebSocket connections via Supabase
-- Live approval status updates
-- Budget consumption notifications
-- User presence indicators
-- Automatic dashboard refreshes
+#### Budget Form (`src/components/forms/BudgetForm.tsx`)
+**Features:**
+- **Comprehensive Input**: Title, amount, source, purpose fields
+- **Source Categories**: Predefined funding source options
+- **User Assignment**: Dropdown for budget assignment
+- **Validation**: Real-time form validation
+- **Notes System**: Additional budget information capture
+
+#### Budget Modal (`src/components/admin/BudgetModal.tsx`)
+**Features:**
+- **Create/Edit Interface**: Modal-based budget management
+- **Form Integration**: Uses BudgetForm component
+- **Success Notifications**: Toast notifications for actions
+- **Error Handling**: Comprehensive error management
+- **Data Persistence**: Automatic saving and validation
+
+#### Budget Overview (`src/components/staff/BudgetOverview.tsx`)
+**Features:**
+- **Staff-level View**: Budget visibility for staff users
+- **Allocation Tracking**: Department-specific budget monitoring
+- **Spending Analytics**: Historical spending patterns
+- **Request Integration**: Link budget to procurement requests
+
+### ✅ Approval Workflow System
+
+#### Approval Workflows (`src/components/admin/ApprovalWorkflows.tsx`)
+**Features:**
+- **Workflow Designer**: Visual workflow creation interface
+- **Multi-step Approvals**: Complex approval chain configuration
+- **Role-based Routing**: Automatic routing based on roles
+- **Threshold Management**: Amount-based approval routing
+- **Template System**: Predefined workflow templates
+- **Emergency Procedures**: Fast-track approval options
+
+#### Approval Dashboard (`src/components/admin/ApprovalDashboard.tsx`)
+**Features:**
+- **Real-time Monitoring**: Live approval status tracking
+- **Queue Management**: Pending approval queue
+- **Performance Metrics**: Approval time analytics
+- **Bottleneck Identification**: Workflow efficiency analysis
+- **Escalation Management**: Automatic escalation handling
+- **Status Notifications**: Real-time status updates
+
+#### Approval Management (`src/components/admin/ApprovalManagement.tsx`)
+**Features:**
+- **Legacy Interface**: Traditional approval management
+- **Bulk Operations**: Multiple approval processing
+- **History Tracking**: Complete approval audit trail
+- **Comment System**: Approval comments and feedback
+- **Status Management**: Approval status updates
+
+### 📦 Inventory Management
+
+#### Inventory Management (`src/components/staff/InventoryManagement.tsx`)
+**Features:**
+- **Item Cataloging**: Comprehensive item database
+- **Stock Level Monitoring**: Real-time inventory tracking
+- **Reorder Alerts**: Automatic low stock notifications
+- **Category Organization**: Item categorization system
+- **Barcode Support**: Barcode scanning integration
+- **Warranty Tracking**: Warranty expiration monitoring
+- **Multi-warehouse Support**: Cross-warehouse inventory view
+
+#### Warehouse Inventory (`src/components/warehouse/WarehouseInventory.tsx`)
+**Features:**
+- **Warehouse-specific View**: Single warehouse inventory focus
+- **Stock Movements**: In/out tracking for warehouse
+- **Physical Counts**: Inventory count management
+- **Location Tracking**: Item location within warehouse
+- **Transfer Preparation**: Outbound transfer preparation
+- **Damage Reporting**: Damaged item tracking
+
+#### Enhanced Transfer Requests (`src/components/warehouse/EnhancedTransferRequests.tsx`)
+**Features:**
+- **Inter-warehouse Transfers**: Warehouse-to-warehouse movements
+- **Request Management**: Transfer request creation and approval
+- **Priority System**: Urgent/normal/low priority handling
+- **Status Tracking**: Complete transfer lifecycle tracking
+- **Inventory Updates**: Automatic inventory adjustments
+- **Documentation**: Transfer documentation and receipts
+
+### 👥 User Management
+
+#### User Management (`src/components/admin/UserManagement.tsx`)
+**Features:**
+- **User Creation**: New user account creation
+- **Role Assignment**: Role-based access control
+- **Permission Management**: Granular permission control
+- **Profile Management**: User profile editing
+- **Account Status**: Active/inactive user management
+- **Organization Assignment**: Multi-organization support
+- **Photo Management**: Profile photo uploads
+
+#### Profile Management (`src/components/common/ProfileManagement.tsx`)
+**Features:**
+- **Personal Information**: Name, email, contact details
+- **Password Management**: Secure password updates
+- **Photo Upload**: Profile picture management
+- **Preference Settings**: User preference configuration
+- **Activity History**: Personal activity tracking
 
 ### 💬 Messaging System
-```
-src/components/messaging/
-├── MessagingSystem.tsx            # Basic messaging interface
-├── EnhancedMessagingSystem.tsx    # Advanced messaging with attachments
-└── RealtimeMessaging.tsx          # Real-time chat functionality
-```
 
-### 📊 Reports & Analytics
-```
-src/components/
-├── admin/
-│   └── AdminReports.tsx           # Comprehensive system reports
-└── staff/
-    └── StaffReports.tsx           # Operational reports
-```
+#### Enhanced Messaging System (`src/components/messaging/EnhancedMessagingSystem.tsx`)
+**Features:**
+- **Real-time Chat**: Instant messaging between users
+- **File Attachments**: Document and image sharing
+- **Message History**: Complete conversation history
+- **User Presence**: Online/offline status indicators
+- **Message Threading**: Organized conversation threads
+- **Notification System**: Message notifications
+- **Role-based Messaging**: Department-specific channels
 
-### 🎨 UI Components (shadcn/ui)
-```
-src/components/ui/
-├── button.tsx                     # Customizable button component
-├── card.tsx                       # Card layout component
-├── dialog.tsx                     # Modal dialog component
-├── table.tsx                      # Data table component
-├── badge.tsx                      # Status badge component
-├── select.tsx                     # Dropdown select component
-├── input.tsx                      # Form input component
-├── sidebar.tsx                    # Sidebar navigation component
-└── [28 additional UI components]  # Complete shadcn/ui library
-```
+### 🔐 Authentication & Authorization
 
-### 🔧 Configuration & Services
-```
-src/
-├── config/
-│   └── rolePermissions.ts         # Centralized permission configuration
-├── services/
-│   ├── approvalService.ts         # Approval workflow logic
-│   ├── workflowService.ts         # Enhanced workflow management
-│   └── budgetService.ts           # Budget operations with validation
-├── forms/
-│   └── BudgetForm.tsx             # Reusable budget form component
-└── integrations/supabase/
-    ├── client.ts                  # Supabase client configuration
-    └── types.ts                   # Auto-generated database types
-```
+#### useAuth Hook (`src/hooks/useAuth.tsx`)
+**Features:**
+- **Dual Authentication**: Production and test user support
+- **Session Management**: Persistent login sessions
+- **User Profile Loading**: Automatic profile data retrieval
+- **Test User Integration**: Special handling for test accounts
+- **Role Verification**: User role validation
+- **Logout Handling**: Secure session termination
 
-### 📊 Data Management
-```
-src/data/
-├── mockData.ts                    # Sample data for development/testing
-├── testUsers.ts                   # Test user accounts and scenarios
-├── testScenarios.ts               # Comprehensive test case scenarios
-├── sampleBudgetData.ts            # Sample budget allocations
-├── sampleData.ts                  # General sample data
-└── warehouseData.ts               # Warehouse and inventory samples
-```
+#### usePermissions Hook (`src/hooks/usePermissions.tsx`)
+**Features:**
+- **Role-based Permissions**: Granular access control
+- **Real-time Validation**: Dynamic permission checking
+- **Permission Caching**: Efficient permission storage
+- **Fallback Handling**: Default permission sets
+- **Loading States**: Permission loading management
 
-## 🧪 Test Scenarios
+#### Role Permissions (`src/config/rolePermissions.ts`)
+**Features:**
+- **Permission Matrix**: Complete role-permission mapping
+- **Centralized Configuration**: Single source of truth
+- **Default Permissions**: Fallback permission sets
+- **TypeScript Types**: Strongly typed permissions
+- **Granular Control**: Fine-grained access control
 
-### RFQ Test Scenarios
+### 🔍 Audit & Reporting
 
-#### RFQ-001: Standard Procurement Workflow ($25,000)
-```
-1. Requester submits RFQ for office equipment
-2. Manager approves (under $50k limit)
-3. Finance validates budget availability
-4. Procurement initiates bidding process
-```
+#### Audit Logs (`src/components/audit/AuditLogs.tsx`)
+**Features:**
+- **Activity Tracking**: Complete system activity logs
+- **User Action Logs**: Individual user activity tracking
+- **Data Change Logs**: Database modification tracking
+- **Security Monitoring**: Login/logout tracking
+- **Report Generation**: Audit report creation
+- **Filtering System**: Advanced log filtering
 
-#### RFQ-002: High-Value Procurement ($150,000)
-```
-1. Requester submits RFQ for software licenses
-2. Manager escalates (exceeds $50k limit)
-3. Finance Director provides financial approval
-4. Legal Team reviews contract terms
-```
+#### Admin Reports (`src/components/admin/AdminReports.tsx`)
+**Features:**
+- **System Analytics**: Comprehensive system metrics
+- **Performance Reports**: System performance analysis
+- **User Activity Reports**: User engagement metrics
+- **Financial Reports**: Budget and spending analysis
+- **Custom Reports**: Configurable report generation
+- **Export Functionality**: Report export capabilities
 
-#### RFQ-003: Emergency Procurement ($75,000)
-```
-1. IT Manager submits emergency server replacement
-2. Finance Director provides emergency approval
-3. Procurement sources replacement immediately
-4. Finance handles post-approval reconciliation
-```
+### 🏗️ Layout & Navigation
 
-### Bid Management Test Scenarios
+#### Main Layout (`src/components/layout/MainLayout.tsx`)
+**Features:**
+- **Responsive Design**: Mobile-first responsive layout
+- **Sidebar Navigation**: Collapsible sidebar menu
+- **Role-based Menus**: Dynamic menu based on user role
+- **Tab Management**: Active tab highlighting
+- **Theme Support**: Light/dark theme switching
+- **Notification Integration**: Header notification bell
+- **User Profile Display**: User info in header
 
-#### BID-001: Multi-Vendor Competitive Bidding
-- 5 vendors submit sealed bids
-- Automated bid comparison and ranking
-- Lowest qualified bidder selection
-- Award notification system
+#### App Sidebar (`src/components/layout/AppSidebar.tsx`)
+**Features:**
+- **Dynamic Menus**: Role-specific menu items
+- **Permission Integration**: Permission-based menu filtering
+- **Active State Management**: Visual active tab indication
+- **Loading States**: Menu loading indicators
+- **Role-specific Naming**: Context-aware menu labels
+- **Collapsible Design**: Space-efficient navigation
 
-#### BID-002: Single Vendor Negotiation
-- Sole source justification documentation
-- Price negotiation workflow
-- Contract terms approval
-- Award documentation
+### 🎨 UI Components
 
-### Approval Workflow Test Cases
+All components use the shadcn/ui library for consistent design:
+- **Buttons**: Customizable button components with variants
+- **Cards**: Layout cards for content organization
+- **Dialogs**: Modal dialogs for forms and confirmations
+- **Tables**: Data tables with sorting and filtering
+- **Forms**: Form inputs with validation
+- **Badges**: Status and category indicators
+- **Navigation**: Sidebar and menu components
+- **Feedback**: Toast notifications and alerts
 
-#### Budget Threshold Testing
-- $15k request → Manager approval only
-- $35k request → Manager + Finance Director
-- $125k request → Exceeds limits, automatic rejection
+### 🔧 Services & Data Management
 
-## 🔧 Technical Implementation
+#### Budget Service (`src/services/budgetService.ts`)
+**Features:**
+- **CRUD Operations**: Create, read, update, delete budgets
+- **Validation**: Budget data validation
+- **Error Handling**: Comprehensive error management
+- **Type Safety**: TypeScript type enforcement
 
-### Database Schema (Supabase)
-```sql
--- Core Tables
-users                    # User accounts and profiles
-approval_workflows       # Workflow definitions
-workflow_instances       # Active workflow processes
-approval_steps          # Individual approval steps
-budgets                 # Budget allocations
-rfqs                    # Request for quotations
-bids                    # Vendor bid submissions
-inventory               # Inventory items
-transfer_requests       # Inter-warehouse transfers
-messages                # Internal messaging
-```
+#### Approval Service (`src/services/approvalService.ts`)
+**Features:**
+- **Workflow Management**: Approval workflow handling
+- **Status Updates**: Approval status management
+- **Notification Integration**: Approval notifications
+- **Audit Trail**: Approval activity logging
 
-### Real-time Subscriptions
-```typescript
-// Example: Real-time approval updates
-const channel = supabase
-  .channel('approval_updates')
-  .on('postgres_changes', {
-    event: '*',
-    schema: 'public',
-    table: 'approval_steps'
-  }, (payload) => {
-    // Handle real-time approval updates
-  })
-  .subscribe();
-```
+### 📊 Real-time Features
 
-### Role-Based Access Control
-```typescript
-// Permission matrix by role
-export const rolePermissions: Record<string, UserPermissions> = {
-  admin: { /* full access */ },
-  staff: { rfqs: true, bids: true, inventory: true },
-  requester: { rfqs: true, budgets: true },
-  manager: { approvals: true, budgets: true },
-  finance_director: { approvals: true, budgets: true, reports: true }
-};
-```
+- **Live Updates**: Real-time data synchronization via Supabase
+- **Notifications**: Instant notifications for important events
+- **Status Changes**: Real-time status updates across the system
+- **Collaboration**: Real-time collaboration features
 
-## 🐛 Troubleshooting
+### 🗃️ Database Integration
 
-### Common Issues
+Full Supabase integration with:
+- **Tables**: Users, budgets, RFQs, bids, inventory, transfers, messages
+- **Real-time Subscriptions**: Live data updates
+- **Row Level Security**: Secure data access
+- **Audit Logging**: Complete activity tracking
 
-#### 1. "Failed to add workflow step" Error
-**Cause**: Validation failure or database constraint violation
-**Solution**: Enhanced validation in workflowService.ts now prevents this error
+### 🧪 Test Scenarios
 
-#### 2. "Failed to save budget" Error  
-**Cause**: Type mismatch in budget source field
-**Solution**: Fixed in budgetService.ts with proper type handling
+Comprehensive test scenarios for:
+- **RFQ Workflows**: Standard, high-value, and emergency procurements
+- **Approval Chains**: Multi-level approval testing
+- **Budget Thresholds**: Amount-based routing validation
+- **Role Permissions**: Access control verification
 
-#### 3. Missing Navigation Menu After Login
-**Cause**: Permission system not loading properly for test users
-**Solution**: Enhanced AppSidebar.tsx to show workflow tabs for test users
+## 🚀 Deployment & Configuration
 
-#### 4. Test Users Cannot See Workflow Tabs
-**Cause**: Restrictive permission filtering
-**Solution**: Special handling added for workflow testing roles (requester, manager, finance_director)
+- **Environment Setup**: Supabase configuration
+- **Role Configuration**: Permission matrix setup
+- **Test Data**: Sample data for development
+- **Production Ready**: Scalable architecture
 
-### Performance Optimization
-
-#### Database Queries
-- Use select() to limit returned columns
-- Implement proper indexing for frequently queried fields
-- Use maybeSingle() instead of single() when record might not exist
-
-#### React Performance
-- Extracted large components into smaller, focused ones
-- Implemented proper dependency arrays in useEffect hooks
-- Use React.memo for expensive components
-
-#### Code Organization
-- Separated configuration from business logic
-- Created reusable form components
-- Centralized permission management
-
-## 🚀 Deployment
-
-### Local Development
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-```
-
-### Environment Variables
-```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-## 📚 Additional Resources
-
-- [Supabase Documentation](https://supabase.io/docs)
-- [React Documentation](https://reactjs.org/docs)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-- [shadcn/ui Components](https://ui.shadcn.com/)
-
-## 🤝 Contributing
-
-1. Follow the established file structure
-2. Create small, focused components
-3. Implement proper error handling
-4. Add comprehensive test scenarios
-5. Update documentation for new features
-6. Ensure real-time functionality works correctly
-
-## 📄 License
-
-This project is licensed under the MIT License.
+This system provides a complete procurement management solution with role-based access, real-time collaboration, and comprehensive workflow management.

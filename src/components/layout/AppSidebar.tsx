@@ -2,7 +2,7 @@
 import { Calendar, FileText, Package, MessageSquare, Activity, Settings, User, Home, Building, Users, ClipboardList, DollarSign, GitBranch, CheckSquare } from 'lucide-react';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { User as UserType } from '@/data/mockData';
-import { usePermissions } from '@/hooks/usePermissions';
+import { usePermissions, UserPermissions } from '@/hooks/usePermissions';
 
 interface AppSidebarProps {
   user: UserType;
@@ -67,10 +67,16 @@ export const AppSidebar = ({ user, activeTab, onTabChange }: AppSidebarProps) =>
       return user.role === 'admin';
     }
     
-    // Check if user has permission for this item
-    const hasAccess = hasPermission(item.id);
-    console.log(`Menu item ${item.id}: hasAccess = ${hasAccess}`);
-    return hasAccess;
+    // Check if user has permission for this item - properly type the permission key
+    const permissionKey = item.id as keyof UserPermissions;
+    if (permissionKey in hasPermission) {
+      const hasAccess = hasPermission(permissionKey);
+      console.log(`Menu item ${item.id}: hasAccess = ${hasAccess}`);
+      return hasAccess;
+    }
+    
+    // If the item ID doesn't match a permission, don't show it
+    return false;
   });
 
   console.log('Filtered menu items:', menuItems.map(item => item.id));

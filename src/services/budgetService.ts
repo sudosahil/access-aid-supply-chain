@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 export interface BudgetData {
   title: string;
   amount: number;
-  source: string;
+  source: 'government_grant' | 'internal_allocation' | 'donor_funding' | 'emergency_fund' | 'project_specific' | 'other';
   purpose: string;
   assigned_to?: string;
   notes?: string;
@@ -88,12 +88,23 @@ export const budgetService = {
     try {
       console.log('Updating budget:', budgetId, 'with data:', budgetData);
 
+      // Prepare update object with only valid budget fields
+      const updateData: any = {
+        updated_at: new Date().toISOString()
+      };
+
+      // Only include fields that are defined and valid
+      if (budgetData.title !== undefined) updateData.title = budgetData.title;
+      if (budgetData.amount !== undefined) updateData.amount = budgetData.amount;
+      if (budgetData.source !== undefined) updateData.source = budgetData.source;
+      if (budgetData.purpose !== undefined) updateData.purpose = budgetData.purpose;
+      if (budgetData.assigned_to !== undefined) updateData.assigned_to = budgetData.assigned_to;
+      if (budgetData.notes !== undefined) updateData.notes = budgetData.notes;
+      if (budgetData.attachments !== undefined) updateData.attachments = budgetData.attachments;
+
       const { data, error } = await supabase
         .from('budgets')
-        .update({
-          ...budgetData,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('id', budgetId)
         .select()
         .single();

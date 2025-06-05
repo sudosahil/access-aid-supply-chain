@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -8,15 +7,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { mockUsers, User } from '@/data/mockData';
-import { budgetService } from '@/services/budgetService';
+import { budgetService, BudgetData } from '@/services/budgetService';
 
 const BUDGET_SOURCES = [
-  { value: 'government_grant', label: 'Government Grant' },
-  { value: 'internal_allocation', label: 'Internal Allocation' },
-  { value: 'donor_funding', label: 'Donor Funding' },
-  { value: 'emergency_fund', label: 'Emergency Fund' },
-  { value: 'project_specific', label: 'Project Specific' },
-  { value: 'other', label: 'Other' }
+  { value: 'government_grant' as const, label: 'Government Grant' },
+  { value: 'internal_allocation' as const, label: 'Internal Allocation' },
+  { value: 'donor_funding' as const, label: 'Donor Funding' },
+  { value: 'emergency_fund' as const, label: 'Emergency Fund' },
+  { value: 'project_specific' as const, label: 'Project Specific' },
+  { value: 'other' as const, label: 'Other' }
 ];
 
 interface BudgetModalProps {
@@ -28,7 +27,14 @@ interface BudgetModalProps {
 }
 
 export const BudgetModal = ({ isOpen, onClose, user, onSuccess, editBudget }: BudgetModalProps) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    title: string;
+    amount: string;
+    source: BudgetData['source'];
+    purpose: string;
+    assigned_to: string;
+    notes: string;
+  }>({
     title: '',
     amount: '',
     source: 'government_grant',
@@ -66,7 +72,7 @@ export const BudgetModal = ({ isOpen, onClose, user, onSuccess, editBudget }: Bu
     setLoading(true);
 
     try {
-      const budgetData = {
+      const budgetData: BudgetData = {
         title: formData.title,
         amount: parseFloat(formData.amount),
         source: formData.source,
@@ -140,7 +146,10 @@ export const BudgetModal = ({ isOpen, onClose, user, onSuccess, editBudget }: Bu
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="source">Budget Source*</Label>
-              <Select value={formData.source} onValueChange={(value) => setFormData({ ...formData, source: value })}>
+              <Select 
+                value={formData.source} 
+                onValueChange={(value: BudgetData['source']) => setFormData({ ...formData, source: value })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

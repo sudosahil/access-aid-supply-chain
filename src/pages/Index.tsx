@@ -1,11 +1,13 @@
+
 import React, { useState } from 'react';
-import { LoginForm } from '@/components/auth/LoginForm';
+import { EnhancedLoginForm } from '@/components/auth/EnhancedLoginForm';
 import { AdminDashboard } from '@/components/dashboards/AdminDashboard';
 import { StaffDashboard } from '@/components/dashboards/StaffDashboard';
 import { ContractorDashboard } from '@/components/dashboards/ContractorDashboard';
 import { WarehouseDashboard } from '@/components/dashboards/WarehouseDashboard';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useAuth } from '@/hooks/useAuth';
+import { BudgetProvider } from '@/contexts/BudgetContext';
 
 const Index = () => {
   const { currentUser, loading, login, logout } = useAuth();
@@ -23,7 +25,7 @@ const Index = () => {
   }
 
   if (!currentUser) {
-    return <LoginForm onLogin={login} />;
+    return <EnhancedLoginForm onLogin={login} />;
   }
 
   const getDashboardTitle = () => {
@@ -36,6 +38,12 @@ const Index = () => {
         return 'Contractor Dashboard';
       case 'warehouse':
         return 'Warehouse Dashboard';
+      case 'requester':
+        return 'Requester Dashboard';
+      case 'manager':
+        return 'Manager Dashboard';
+      case 'finance_director':
+        return 'Finance Director Dashboard';
       default:
         return 'Dashboard';
     }
@@ -73,21 +81,34 @@ const Index = () => {
             onTabChange={setActiveTab}
           />
         );
+      case 'requester':
+      case 'manager':
+      case 'finance_director':
+        // For new test roles, show staff dashboard for now
+        return (
+          <StaffDashboard 
+            user={currentUser} 
+            onLogout={logout}
+            onTabChange={setActiveTab}
+          />
+        );
       default:
         return <div>Invalid role</div>;
     }
   };
 
   return (
-    <MainLayout
-      user={currentUser}
-      onLogout={logout}
-      title={getDashboardTitle()}
-      activeTab={activeTab}
-      onTabChange={setActiveTab}
-    >
-      {renderDashboard()}
-    </MainLayout>
+    <BudgetProvider>
+      <MainLayout
+        user={currentUser}
+        onLogout={logout}
+        title={getDashboardTitle()}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      >
+        {renderDashboard()}
+      </MainLayout>
+    </BudgetProvider>
   );
 };
 

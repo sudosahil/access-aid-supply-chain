@@ -1,13 +1,13 @@
-
 import { ReactNode } from 'react';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { User } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Bell, LogOut, Palette } from 'lucide-react';
+import { LogOut, Palette } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ThemeSelector } from '@/components/common/ThemeSelector';
+import { NotificationBell } from '@/components/common/NotificationBell';
 
 // Import all the components that can be rendered based on active tab
 import { ApprovalManagement } from '@/components/admin/ApprovalManagement';
@@ -153,9 +153,7 @@ export const MainLayout = ({
                   <ThemeSelector />
                 </DialogContent>
               </Dialog>
-              <Button variant="ghost" size="sm">
-                <Bell className="h-4 w-4" />
-              </Button>
+              <NotificationBell userId={user.id} />
               <div className="flex items-center space-x-2">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={user.profilePhoto} />

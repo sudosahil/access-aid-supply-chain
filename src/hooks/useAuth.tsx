@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@/data/mockData';
+import { testUsers, TestUser } from '@/data/testUsers';
 
 export const useAuth = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -56,7 +57,30 @@ export const useAuth = () => {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      // Check if user exists in our users table
+      // First check if it's a test user
+      const testUser = testUsers.find(u => u.email === email && u.password === password);
+      if (testUser) {
+        // Create mock user object for test users
+        const mockUser: User = {
+          id: testUser.id,
+          name: testUser.name,
+          email: testUser.email,
+          password: testUser.password,
+          role: testUser.role as 'admin' | 'staff' | 'contractor' | 'warehouse',
+          profilePhoto: '',
+          phone: '',
+          address: '',
+          organization: testUser.department || '',
+          isActive: true,
+          createdAt: new Date().toISOString()
+        };
+        
+        setCurrentUser(mockUser);
+        console.log('Test user logged in:', testUser);
+        return true;
+      }
+
+      // Check if user exists in our users table (production users)
       const { data: user, error: userError } = await supabase
         .from('users')
         .select('*')

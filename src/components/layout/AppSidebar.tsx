@@ -62,20 +62,27 @@ export const AppSidebar = ({ user, activeTab, onTabChange }: AppSidebarProps) =>
     // Profile is always available
     if (item.id === 'profile') return true;
     
-    // For approval-workflows and approval-dashboard, only show to admin users
+    // For approval-workflows and approval-dashboard, show to admin and workflow test users
     if (item.id === 'approval-workflows' || item.id === 'approval-dashboard') {
-      return user.role === 'admin';
+      return user.role === 'admin' || user.role === 'manager' || user.role === 'finance_director';
     }
     
     // Check if user has permission for this item - properly type the permission key
-    const permissionKey = item.id as keyof UserPermissions;
-    if (permissionKey in hasPermission) {
-      const hasAccess = hasPermission(permissionKey);
+    if (item.id in hasPermission) {
+      const hasAccess = hasPermission(item.id as keyof UserPermissions);
       console.log(`Menu item ${item.id}: hasAccess = ${hasAccess}`);
       return hasAccess;
     }
     
-    // If the item ID doesn't match a permission, don't show it
+    // Special handling for workflow testing users - show all workflow-related tabs
+    if (user.role === 'requester' || user.role === 'manager' || user.role === 'finance_director') {
+      const workflowItems = ['dashboard', 'rfqs', 'bids', 'budgets', 'messaging', 'approval-workflows', 'approval-dashboard'];
+      if (workflowItems.includes(item.id)) {
+        return true;
+      }
+    }
+    
+    // If the item ID doesn't match a permission, don't show it by default
     return false;
   });
 
@@ -119,6 +126,28 @@ export const AppSidebar = ({ user, activeTab, onTabChange }: AppSidebarProps) =>
     menuItems = menuItems.map(item => {
       if (item.id === 'budgets') {
         return { ...item, title: 'Budget Overview' };
+      }
+      return item;
+    });
+  }
+
+  // For workflow testing roles, rename some items for clarity
+  if (user.role === 'requester') {
+    menuItems = menuItems.map(item => {
+      if (item.id === 'rfqs') {
+        return { ...item, title: 'My Requests' };
+      }
+      if (item.id === 'approval-dashboard') {
+        return { ...item, title: 'My Approvals' };
+      }
+      return item;
+    });
+  }
+
+  if (user.role === 'manager' || user.role === 'finance_director') {
+    menuItems = menuItems.map(item => {
+      if (item.id === 'approval-dashboard') {
+        return { ...item, title: 'Pending Approvals' };
       }
       return item;
     });

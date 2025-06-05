@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { User } from '@/data/mockData';
 import { rolePermissions, getDefaultPermissions, UserPermissions } from '@/config/rolePermissions';
 
-export { UserPermissions } from '@/config/rolePermissions';
+export type { UserPermissions } from '@/config/rolePermissions';
 
 export const usePermissions = (user: User | null) => {
   const [permissions, setPermissions] = useState<UserPermissions | null>(null);

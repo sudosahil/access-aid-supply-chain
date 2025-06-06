@@ -13,6 +13,7 @@ import { NotificationBell } from '@/components/common/NotificationBell';
 // Import all the components that can be rendered based on active tab
 import { ApprovalManagement } from '@/components/admin/ApprovalManagement';
 import { ApprovalDashboard } from '@/components/admin/ApprovalDashboard';
+import { EnhancedApprovalDashboard } from '@/components/admin/EnhancedApprovalDashboard';
 import { TransferTrackingDashboard } from '@/components/admin/TransferTrackingDashboard';
 import { LiveBidViewing } from '@/components/contractor/LiveBidViewing';
 import { RFQManagement } from '@/components/staff/RFQManagement';

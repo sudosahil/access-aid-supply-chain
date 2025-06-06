@@ -26,6 +26,8 @@ interface BudgetContextType {
   getPendingBudget: () => number;
   getAvailableBudget: () => number;
   getUtilizationPercentage: () => number;
+  createBudget: (budgetData: any) => Promise<void>;
+  updateBudget: (budgetId: string, budgetData: any) => Promise<void>;
 }
 
 const BudgetContext = createContext<BudgetContextType | undefined>(undefined);
@@ -84,13 +86,13 @@ export const BudgetProvider = ({ children }: BudgetProviderProps) => {
   useEffect(() => {
     loadBudgets();
 
-    // Set up real-time subscription
+    // Set up real-time subscription for budget updates
     const channel = supabase
-      .channel('budget-context-changes')
+      .channel('budget-context-realtime')
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'budgets' },
         (payload) => {
-          console.log('BudgetContext: Budget change detected:', payload);
+          console.log('BudgetContext: Real-time budget change detected:', payload);
           loadBudgets(); // Reload data when changes occur
         }
       )
@@ -130,6 +132,28 @@ export const BudgetProvider = ({ children }: BudgetProviderProps) => {
     return (getUtilizedBudget() / total) * 100;
   };
 
+  const createBudget = async (budgetData: any) => {
+    try {
+      const { budgetService } = await import('@/services/budgetService');
+      await budgetService.createBudget(budgetData, budgetData.created_by || 'default-user');
+      // Don't reload here as real-time subscription will handle it
+    } catch (error) {
+      console.error('Error creating budget:', error);
+      throw error;
+    }
+  };
+
+  const updateBudget = async (budgetId: string, budgetData: any) => {
+    try {
+      const { budgetService } = await import('@/services/budgetService');
+      await budgetService.updateBudget(budgetId, budgetData);
+      // Don't reload here as real-time subscription will handle it
+    } catch (error) {
+      console.error('Error updating budget:', error);
+      throw error;
+    }
+  };
+
   const refreshBudgets = async () => {
     await loadBudgets();
   };
@@ -142,7 +166,9 @@ export const BudgetProvider = ({ children }: BudgetProviderProps) => {
     getUtilizedBudget,
     getPendingBudget,
     getAvailableBudget,
-    getUtilizationPercentage
+    getUtilizationPercentage,
+    createBudget,
+    updateBudget
   };
 
   return (

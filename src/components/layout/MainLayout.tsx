@@ -31,6 +31,8 @@ import { AvailableRFQs } from '@/components/contractor/AvailableRFQs';
 import { MyBids } from '@/components/contractor/MyBids';
 import { ApprovalWorkflows } from '@/components/admin/ApprovalWorkflows';
 import { BudgetOverview } from '@/components/staff/BudgetOverview';
+import { PendingApprovals } from '@/components/admin/PendingApprovals';
+import { WorkflowTestingDashboard } from '@/components/admin/WorkflowTestingDashboard';
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -59,7 +61,16 @@ export const MainLayout = ({
       case 'approvals':
         return <ApprovalManagement currentUserId={user.id} currentUserName={user.name} />;
       case 'approval-dashboard':
+        if (user.role === 'requester') {
+          return <PendingApprovals user={user} />;
+        } else if (['manager', 'finance_director'].includes(user.role)) {
+          return <PendingApprovals user={user} />;
+        }
         return <ApprovalDashboard />;
+      case 'pending-approvals':
+        return <PendingApprovals user={user} />;
+      case 'workflow-testing':
+        return <WorkflowTestingDashboard />;
       case 'transfers':
         return <TransferTrackingDashboard />;
       case 'users':

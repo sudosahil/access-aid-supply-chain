@@ -57,6 +57,12 @@ export const AppSidebar = ({ user, activeTab, onTabChange }: AppSidebarProps) =>
   // Admin gets everything
   if (user.role === 'admin') {
     menuItems = [...ALL_MENU_ITEMS];
+    // Add admin-specific workflow testing
+    menuItems.push({ 
+      id: 'workflow-testing', 
+      title: 'Workflow Testing', 
+      icon: Activity 
+    });
   }
   // Staff gets most things except user management and some admin features
   else if (user.role === 'staff') {
@@ -106,7 +112,8 @@ export const AppSidebar = ({ user, activeTab, onTabChange }: AppSidebarProps) =>
       { id: 'budgets', title: 'Budget Management', icon: DollarSign },
       { id: 'messaging', title: 'Messaging', icon: MessageSquare },
       { id: 'approval-workflows', title: 'Approval Workflows', icon: GitBranch },
-      { id: 'approval-dashboard', title: user.role === 'requester' ? 'My Approvals' : 'Pending Approvals', icon: CheckSquare },
+      { id: 'pending-approvals', title: user.role === 'requester' ? 'My Submissions' : 'Pending Approvals', icon: CheckSquare },
+      { id: 'approval-dashboard', title: user.role === 'requester' ? 'My Approvals' : 'Approval Status', icon: CheckSquare },
       { id: 'reports', title: 'Reports', icon: FileText },
       { id: 'profile', title: 'Profile', icon: User }
     ];

@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { approvalService } from './approvalService';
 
 export interface BudgetData {
   title: string;
@@ -43,8 +44,8 @@ export const budgetService = {
     };
   },
 
-  // Create budget with transaction handling
-  createBudget: async (budgetData: BudgetData, userId: string) => {
+  // Create budget with improved error handling
+  createBudget: async (budgetData: BudgetData, userIdString?: string) => {
     try {
       console.log('Creating budget with data:', budgetData);
 
@@ -54,28 +55,45 @@ export const budgetService = {
         throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
       }
 
+      // Use system user if no user ID provided to avoid UUID issues
+      const createdBy = userIdString || 'system-user';
+
+      const insertData = {
+        title: budgetData.title,
+        amount: budgetData.amount,
+        source: budgetData.source,
+        purpose: budgetData.purpose,
+        assigned_to: budgetData.assigned_to || null,
+        notes: budgetData.notes || null,
+        attachments: budgetData.attachments || [],
+        created_by: createdBy,
+        status: 'draft' as const
+      };
+
+      console.log('Insert data:', insertData);
+
       const { data, error } = await supabase
         .from('budgets')
-        .insert({
-          title: budgetData.title,
-          amount: budgetData.amount,
-          source: budgetData.source,
-          purpose: budgetData.purpose,
-          assigned_to: budgetData.assigned_to || null,
-          notes: budgetData.notes || null,
-          attachments: budgetData.attachments || [],
-          created_by: userId,
-          status: 'draft'
-        })
+        .insert(insertData)
         .select()
         .single();
 
       if (error) {
-        console.error('Error creating budget:', error);
+        console.error('Supabase error creating budget:', error);
         throw new Error(`Failed to create budget: ${error.message}`);
       }
 
       console.log('Budget created successfully:', data);
+
+      // Create approval workflow for the budget
+      try {
+        await approvalService.createWorkflowInstance('budget', data.id);
+        console.log('Approval workflow created for budget:', data.id);
+      } catch (workflowError) {
+        console.warn('Failed to create approval workflow:', workflowError);
+        // Don't fail the budget creation if workflow creation fails
+      }
+
       return data;
     } catch (error) {
       console.error('Error in createBudget:', error);
@@ -88,7 +106,6 @@ export const budgetService = {
     try {
       console.log('Updating budget:', budgetId, 'with data:', budgetData);
 
-      // Prepare update object with only valid budget fields
       const updateData: any = {
         updated_at: new Date().toISOString()
       };

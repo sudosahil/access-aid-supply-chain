@@ -62,7 +62,9 @@ export const MainLayout = ({
       case 'approvals':
         return <ApprovalManagement currentUserId={user.id} currentUserName={user.name} />;
       case 'approval-dashboard':
-        if (user.role === 'requester') {
+        if (user.role === 'admin') {
+          return <EnhancedApprovalDashboard />;
+        } else if (user.role === 'requester') {
           return <PendingApprovals user={user} />;
         } else if (['manager', 'finance_director'].includes(user.role)) {
           return <PendingApprovals user={user} />;
@@ -105,7 +107,6 @@ export const MainLayout = ({
         return <WarehouseManagement />;
       case 'inventory':
         if (user.role === 'warehouse') {
-          // Use a default warehouse ID if not available on user
           const warehouseId = (user as any).warehouse_id || 'warehouse-a';
           return <WarehouseInventory warehouseId={warehouseId} />;
         }

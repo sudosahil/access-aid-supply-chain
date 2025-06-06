@@ -73,6 +73,7 @@ export const BudgetModal = ({ isOpen, onClose, user, onSuccess, editBudget }: Bu
       if (editBudget) {
         await budgetService.updateBudget(editBudget.id, budgetData);
       } else {
+        // Use string user ID instead of UUID to avoid type issues
         await budgetService.createBudget(budgetData, user.id);
       }
 

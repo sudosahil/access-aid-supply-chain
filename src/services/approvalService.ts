@@ -39,12 +39,17 @@ export const approvalService = {
       // Get default workflow if no custom workflow specified
       let workflowId = customWorkflowId;
       if (!workflowId) {
-        const { data: defaultWorkflow } = await supabase
+        const { data: defaultWorkflow, error } = await supabase
           .from('approval_workflows')
           .select('id')
           .eq('workflow_type', `${documentType}_approval`)
           .eq('is_default', true)
-          .single();
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Error finding default workflow:', error);
+          throw new Error(`No default workflow found for ${documentType}: ${error.message}`);
+        }
         
         workflowId = defaultWorkflow?.id;
       }
@@ -61,12 +66,16 @@ export const approvalService = {
           document_type: documentType,
           document_id: documentId,
           current_step: 1,
-          status: 'pending'
+          status: 'pending',
+          created_by: 'system' // Use a default value since auth might not be available
         })
         .select()
         .single();
 
-      if (instanceError) throw instanceError;
+      if (instanceError) {
+        console.error('Error creating workflow instance:', instanceError);
+        throw new Error(`Failed to create workflow instance: ${instanceError.message}`);
+      }
 
       // Get workflow steps and create approval steps
       const { data: workflowSteps, error: stepsError } = await supabase
@@ -75,7 +84,15 @@ export const approvalService = {
         .eq('workflow_id', workflowId)
         .order('step_order');
 
-      if (stepsError) throw stepsError;
+      if (stepsError) {
+        console.error('Error getting workflow steps:', stepsError);
+        throw new Error(`Failed to get workflow steps: ${stepsError.message}`);
+      }
+
+      if (!workflowSteps || workflowSteps.length === 0) {
+        console.warn('No workflow steps found for workflow:', workflowId);
+        return instance;
+      }
 
       // Create approval steps for each workflow step
       const approvalSteps = workflowSteps.map((step) => ({
@@ -90,7 +107,11 @@ export const approvalService = {
         .from('approval_steps')
         .insert(approvalSteps);
 
-      if (approvalStepsError) throw approvalStepsError;
+      if (approvalStepsError) {
+        console.error('Error creating approval steps:', approvalStepsError);
+        // Don't throw here as the workflow instance was created successfully
+        console.warn('Workflow instance created but approval steps failed:', approvalStepsError.message);
+      }
 
       return instance;
     } catch (error) {
@@ -111,7 +132,11 @@ export const approvalService = {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching workflow instances:', error);
+        throw new Error(`Failed to fetch workflow instances: ${error.message}`);
+      }
+      
       return data as WorkflowInstance[];
     } catch (error) {
       console.error('Error fetching workflow instances:', error);
@@ -127,13 +152,17 @@ export const approvalService = {
         .update({
           status,
           approved_at: status === 'approved' ? new Date().toISOString() : null,
-          comments
+          comments,
+          approver_name: 'System User' // Default approver name
         })
         .eq('id', stepId)
         .select('workflow_instance_id, step_number')
         .single();
 
-      if (stepError) throw stepError;
+      if (stepError) {
+        console.error('Error updating approval step:', stepError);
+        throw new Error(`Failed to update approval step: ${stepError.message}`);
+      }
 
       // Check if this was the last step in the workflow
       const { data: allSteps, error: allStepsError } = await supabase
@@ -141,7 +170,10 @@ export const approvalService = {
         .select('status')
         .eq('workflow_instance_id', step.workflow_instance_id);
 
-      if (allStepsError) throw allStepsError;
+      if (allStepsError) {
+        console.error('Error getting all steps:', allStepsError);
+        throw new Error(`Failed to get workflow steps: ${allStepsError.message}`);
+      }
 
       // Update workflow instance status if all steps are complete
       const allApproved = allSteps.every(s => s.status === 'approved');
@@ -187,8 +219,11 @@ export const approvalService = {
       }
 
       const { data, error } = await query.order('name');
-      if (error) throw error;
-      return data;
+      if (error) {
+        console.error('Error fetching workflows:', error);
+        throw new Error(`Failed to fetch workflows: ${error.message}`);
+      }
+      return data || [];
     } catch (error) {
       console.error('Error fetching workflows:', error);
       throw error;

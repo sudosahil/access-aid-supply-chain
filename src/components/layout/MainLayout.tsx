@@ -20,6 +20,7 @@ import { BidManagement } from '@/components/staff/BidManagement';
 import { InventoryManagement } from '@/components/staff/InventoryManagement';
 import { SupplierManagement } from '@/components/staff/SupplierManagement';
 import { WarehouseInventory } from '@/components/warehouse/WarehouseInventory';
+import { WarehouseManagement } from '@/components/warehouse/WarehouseManagement';
 import { EnhancedTransferRequests } from '@/components/warehouse/EnhancedTransferRequests';
 import { EnhancedMessagingSystem } from '@/components/messaging/EnhancedMessagingSystem';
 import { AuditLogs } from '@/components/audit/AuditLogs';
@@ -100,6 +101,8 @@ export const MainLayout = ({
         return <SupplierManagement />;
       
       // Warehouse specific tabs
+      case 'warehouses':
+        return <WarehouseManagement />;
       case 'inventory':
         if (user.role === 'warehouse') {
           // Use a default warehouse ID if not available on user

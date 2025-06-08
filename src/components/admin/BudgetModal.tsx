@@ -61,29 +61,48 @@ export const BudgetModal = ({ isOpen, onClose, user, onSuccess, editBudget }: Bu
     setLoading(true);
 
     try {
+      // Validate required fields
+      if (!formData.title.trim()) {
+        throw new Error('Budget title is required');
+      }
+      if (!formData.amount || parseFloat(formData.amount) <= 0) {
+        throw new Error('Budget amount must be greater than 0');
+      }
+      if (!formData.purpose.trim()) {
+        throw new Error('Budget purpose is required');
+      }
+
       const budgetData: BudgetData = {
-        title: formData.title,
+        title: formData.title.trim(),
         amount: parseFloat(formData.amount),
         source: formData.source,
-        purpose: formData.purpose,
+        purpose: formData.purpose.trim(),
         assigned_to: formData.assigned_to || undefined,
         notes: formData.notes || undefined
       };
 
+      console.log('Submitting budget data:', budgetData);
+      console.log('User:', user);
+
       if (editBudget) {
         await budgetService.updateBudget(editBudget.id, budgetData);
+        toast({
+          title: "Budget Updated",
+          description: "Budget has been updated successfully.",
+        });
       } else {
-        // Use string user ID instead of UUID to avoid type issues
-        await budgetService.createBudget(budgetData, user.id);
+        // Create new budget
+        const result = await budgetService.createBudget(budgetData, user.id);
+        console.log('Budget creation result:', result);
+        toast({
+          title: "Budget Created",
+          description: "Budget has been created successfully and sent for approval.",
+        });
       }
 
       onSuccess();
       onClose();
       
-      toast({
-        title: editBudget ? "Budget Updated" : "Budget Created",
-        description: editBudget ? "Budget has been updated successfully." : "Budget has been created successfully.",
-      });
     } catch (error: any) {
       console.error('Error saving budget:', error);
       toast({

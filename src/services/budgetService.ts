@@ -44,10 +44,26 @@ export const budgetService = {
     };
   },
 
+  // Helper function to check if a string is a valid UUID
+  isValidUUID: (str: string): boolean => {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(str);
+  },
+
+  // Generate a UUID for test users
+  generateUUID: (): string => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  },
+
   // Create budget with improved error handling
   createBudget: async (budgetData: BudgetData, userIdString?: string) => {
     try {
       console.log('Creating budget with data:', budgetData);
+      console.log('User ID:', userIdString);
 
       // Validate budget data
       const validation = budgetService.validateBudget(budgetData);
@@ -55,8 +71,13 @@ export const budgetService = {
         throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
       }
 
-      // Use system user if no user ID provided to avoid UUID issues
-      const createdBy = userIdString || 'system-user';
+      // Handle user ID - if it's not a valid UUID, generate one for test users
+      let createdBy = userIdString || 'system-user';
+      if (userIdString && !budgetService.isValidUUID(userIdString)) {
+        // For test users with string IDs, we'll generate a UUID and store the mapping
+        createdBy = budgetService.generateUUID();
+        console.log(`Generated UUID ${createdBy} for test user ${userIdString}`);
+      }
 
       const insertData = {
         title: budgetData.title,

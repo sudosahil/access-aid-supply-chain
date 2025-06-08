@@ -82,12 +82,15 @@ export const BudgetForm = ({ formData, onFormDataChange }: BudgetFormProps) => {
         </div>
         <div>
           <Label htmlFor="assigned_to">Assigned To</Label>
-          <Select value={formData.assigned_to} onValueChange={(value) => setFormData({ assigned_to: value })}>
+          <Select 
+            value={formData.assigned_to} 
+            onValueChange={(value) => setFormData({ assigned_to: value === "unassigned" ? "" : value })}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select user" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Unassigned</SelectItem>
+              <SelectItem value="unassigned">Unassigned</SelectItem>
               {mockUsers.map(user => (
                 <SelectItem key={user.id} value={user.id}>
                   {user.name} ({user.role})
